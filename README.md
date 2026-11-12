@@ -100,6 +100,10 @@ an uninstaller. It asks for the game discs and copies the data from them: real d
 disc images (`.iso`; Windows opens them as a drive when you double-click them) or
 folders holding a disc's files.
 
+For an unattended install, give the discs on the command line:
+`redalert-setup.exe /S /ALLIED=E:\ /SOVIET=F:\ /D=C:\Games\Red Alert` (`/D`, the folder,
+must come last and without quotes).
+
 Alternatively, the installer can contain the game data itself, from a data directory
 like the one described under Game data, and EA's license agreement for it (the file
 `EA Product EULA RedAlert1.rtf` in EA's freeware download):

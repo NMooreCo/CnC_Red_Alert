@@ -222,12 +222,22 @@ SectionEnd
 ;	Asking for the discs.
 ;-------------------------------------------------------------------------------------
 !ifndef DATA_DIR
+; Removes a trailing backslash ("E:\" becomes "E:").
+!macro Trim_Path VAR
+	StrCpy $0 ${VAR} 1 -1
+	${If} $0 == "\"
+		StrCpy ${VAR} ${VAR} -1
+	${EndIf}
+!macroend
+
 Function .onInit
 	${GetParameters} $R0
 	ClearErrors
 	${GetOptions} $R0 "/ALLIED=" $AlliedDisc
 	ClearErrors
 	${GetOptions} $R0 "/SOVIET=" $SovietDisc
+	!insertmacro Trim_Path $AlliedDisc
+	!insertmacro Trim_Path $SovietDisc
 FunctionEnd
 
 Function Discs_Page
@@ -269,14 +279,6 @@ Function Browse_For_Disc
 		${NSD_SetText} $1 $2
 	${EndIf}
 FunctionEnd
-
-; Removes a trailing backslash ("E:\" becomes "E:").
-!macro Trim_Path VAR
-	StrCpy $0 ${VAR} 1 -1
-	${If} $0 == "\"
-		StrCpy ${VAR} ${VAR} -1
-	${EndIf}
-!macroend
 
 Function Discs_Page_Leave
 	${NSD_GetText} $AlliedField $AlliedDisc
