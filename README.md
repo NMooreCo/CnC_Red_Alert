@@ -80,6 +80,13 @@ redalert-data/
     CD2/MAIN.MIX
 ```
 
+`tools/install-data.sh` does this for you from the CD images (`.iso`, read with 7-Zip)
+or from directories holding the discs' files:
+
+```sh
+tools/install-data.sh ~/redalert-data CD1_ALLIED_DISC.ISO CD2_SOVIET_DISC.ISO
+```
+
 A disc is a directory named after it (`CD1` Allied, `CD2` Soviet, `CD3`
 Counterstrike, `CD4` Aftermath). Files in the data directory itself are always found
 first, so with only one disc you can also just put its `MAIN.MIX` next to
