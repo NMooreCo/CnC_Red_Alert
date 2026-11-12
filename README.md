@@ -82,7 +82,9 @@ This produces `build-win/redalert.exe`, which needs `SDL2.dll` (in the package's
 `x86_64-w64-mingw32/bin`) next to it. The C and C++ runtimes are linked in.
 
 CI builds the Windows version on every push: the program and an installer are under the
-run's artifacts in the repository's Actions tab.
+run's artifacts in the repository's Actions tab. The latest build of the `main` branch
+(and of the branch this port was developed on) is also on the Releases page, as a
+pre-release with the installer and the program; neither contains the game data.
 
 ### Windows installer
 

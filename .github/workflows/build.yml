@@ -46,6 +46,11 @@ jobs:
   windows:
     name: Windows (MinGW-w64 cross-compile)
     runs-on: ubuntu-24.04
+    permissions:
+      contents: write         # To publish the pre-release (last step).
+    concurrency:
+      group: windows-${{ github.ref }}
+      cancel-in-progress: false
     env:
       SDL2_VERSION: 2.30.9
       SDL2_SHA256: b188d165dc4a0372042bff3d0c18e9bb90772581e92a7b8b47b521b47714f75c
@@ -94,3 +99,25 @@ jobs:
         with:
           name: redalert-windows-installer
           path: build-win/redalert-setup.exe
+
+      # The latest build of these branches, as a pre-release on the Releases page (tag
+      # windows-BRANCH, replaced each time): the installer and the program. Never the game
+      # data: EA's license doesn't allow distributing it.
+      - name: Publish the pre-release
+        if: >
+          (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+          (github.ref_name == 'main' || github.ref_name == 'ccr-bd99920f-e9tsoh')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: windows-${{ github.ref_name }}
+        run: |
+          cp build-win/redalert-setup.exe redalert-windows-setup.exe
+          (cd redalert-windows && zip -9 -r ../redalert-windows-x86_64.zip .)
+          sed -e "s|@BRANCH@|${GITHUB_REF_NAME}|g" -e "s|@COMMIT@|${GITHUB_SHA::7}|g" \
+            -e "s|@REPO@|${GITHUB_REPOSITORY}|g" tools/windows/release-notes.md > release-notes.md
+          gh release delete "$TAG" --yes --cleanup-tag || true
+          gh release create "$TAG" --prerelease --target "$GITHUB_SHA" \
+            --title "Red Alert for Windows (latest build of ${GITHUB_REF_NAME})" \
+            --notes-file release-notes.md \
+            redalert-windows-setup.exe redalert-windows-x86_64.zip
