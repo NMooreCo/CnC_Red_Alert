@@ -86,6 +86,51 @@ void __cdecl UnVQ_4x2(unsigned char *codebook, unsigned char *pointers,
 }
 
 
+/****************************************************************************
+*
+* NAME
+*     UnVQ_4x4 - Draw 4x4 block VQ frame to a buffer.
+*
+* FUNCTION
+*     As UnVQ_4x2, for the 4x4 blocks of the high resolution movies: a
+*     high byte of 0xFF marks a single colour block, otherwise the pointer
+*     is the index of a 16 byte codeword (4 rows of 4 pixels).
+*
+*     (UNVQBUFF.ASM only had a version for the old, version 1, pointer
+*     format, which the game's library wasn't built with.)
+*
+****************************************************************************/
+void __cdecl UnVQ_4x4(unsigned char *codebook, unsigned char *pointers,
+		unsigned char *buffer, unsigned int blocksperrow,
+		unsigned int numrows, unsigned int bufwidth)
+{
+	unsigned int entries = numrows * blocksperrow;
+	unsigned char const * lo = pointers;
+	unsigned char const * hi = pointers + entries;
+
+	for (unsigned int row = 0; row < numrows; row++) {
+		unsigned char * dst = buffer + row * bufwidth * 4;
+
+		for (unsigned int block = 0; block < blocksperrow; block++) {
+			unsigned int low = *lo++;
+			unsigned int high = *hi++;
+
+			if (high == 0xFF) {
+				for (int line = 0; line < 4; line++) {
+					memset(dst + line * bufwidth, (int)low, 4);
+				}
+			} else {
+				unsigned char const * codeword = codebook + (((high << 8) | low) << 4);
+				for (int line = 0; line < 4; line++) {
+					memcpy(dst + line * bufwidth, codeword + line * 4, 4);
+				}
+			}
+			dst += 4;
+		}
+	}
+}
+
+
 /*
 **	Vertical blank synchronisation: the presentation layer takes care of that now.
 */
