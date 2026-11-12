@@ -255,6 +255,13 @@ void * __cdecl Open_Animation(char const *file_name, char *user_buffer, int user
 	// UTILITY DID NOT KNOW I UPDATED IT, IT ADDS IT TO largest_frame_size BEFORE SAVING
 	// IT TO THE FILE.  THIS MEANS I HAVE TO ADD THESE charS ON NOW FOR IT TO WORK.
 	delta_buffer_size  = (unsigned int) file_header.largest_frame_size + EXTRA_charS_ANIMATE_NOT_KNOW_ABOUT;
+#ifdef RA_PORT
+	// RA_PORT: the same applies to the header's two pointers. The files were made when the
+	// header was 43 bytes (32-bit, packed); the 64-bit header is bigger, and largest_frame_size
+	// below comes out that much too small unless the buffer grows by the difference. (The
+	// largest frame's delta data then overwrote the start of the frame offset table.)
+	delta_buffer_size += (int)sizeof(SysAnimHeaderType) - 43;
+#endif
 	min_buffer_size = target_buffer_size + delta_buffer_size;
 	max_buffer_size = min_buffer_size + file_buffer_size;
 

@@ -96,6 +96,9 @@ B<A> test;
 #include	"FAKESOCK.H"
 TcpipManagerClass	Winsock;
 #endif
+#ifdef RA_PORT
+#include	"PLATFORM.H"
+#endif
 #include	<stdlib.h>
 #include	<stdio.h>
 #include	<string.h>
@@ -1615,6 +1618,15 @@ void Color_Cycle(void)
  *=============================================================================================*/
 void Call_Back(void)
 {
+#ifdef RA_PORT
+	/*
+	**	RA_PORT: the original drew straight onto the screen. Now the visible page has to be
+	**	presented, and some loops only call this while they wait (the "Mission Accomplished"
+	**	pause, for one). Video_Present() does nothing unless the page changed.
+	*/
+	Video_Present();
+#endif
+
 	/*
 	**	Music and speech maintenance
 	*/

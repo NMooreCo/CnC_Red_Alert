@@ -41,7 +41,11 @@ class SDLSoundBuffer;
 
 static SDL_AudioDeviceID			Device = 0;
 static int								DeviceRate = 44100;
-static std::vector<SDLSoundBuffer *>	Buffers;
+/*
+**	The mixer's state is never destroyed: SDL's audio thread can still be mixing while the
+**	program exits and runs static destructors.
+*/
+static std::vector<SDLSoundBuffer *> &	Buffers = *new std::vector<SDLSoundBuffer *>;
 static int								DeviceUsers = 0;
 
 static float Decibels_To_Gain(LONG centibels)
@@ -314,7 +318,7 @@ class SDLSoundBuffer : public IDirectSoundBuffer
 
 static void SDLCALL Mix_Callback(void * , Uint8 * stream, int len)
 {
-	static std::vector<float> mix;
+	static std::vector<float> & mix = *new std::vector<float>;		// Never destroyed (see Buffers).
 	int frames = len / (int)(2 * sizeof(Sint16));
 	mix.assign(frames * 2, 0.0f);
 

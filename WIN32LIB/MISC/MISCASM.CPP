@@ -554,7 +554,7 @@ unsigned int __cdecl LCW_Uncompress(void * source, void * dest, unsigned int len
 			if (cmd == 0x80) break;
 			unsigned int count = cmd & 0x3F;
 			if (count > maxlen) count = maxlen;
-			memcpy(dst, src, count);
+			memmove(dst, src, count);		// In-place decompression (WSA) runs the output right behind the input.
 			dst += count;
 			src += count;
 			continue;

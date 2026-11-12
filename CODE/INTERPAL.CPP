@@ -367,7 +367,15 @@ void Interpolate_2X_Scale( GraphicBufferClass * source, GraphicViewPortClass * d
 		}
 		source_locked = TRUE;
 	}
+#ifdef RA_PORT
+	/*
+	**	RA_PORT: no surface is a DirectDraw one any more, but unlocking the visible page is what
+	**	tells the platform layer to present it (movie frames were never shown otherwise).
+	*/
+	if (true) {
+#else
 	if (dest->Get_IsDirectDraw()) {
+#endif
 		if (!dest->Lock()) {
 			if (source_locked) {
 				source->Unlock();
