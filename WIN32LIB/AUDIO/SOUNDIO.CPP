@@ -1841,7 +1841,7 @@ int Play_Sample_Handle(void const *sample, int priority, int volume, signed shor
 		st->Service=TRUE;				//We still need to service it so that we can stop it when
 											// it plays past the end of the sample data
 		//memset ( (char*)( (unsigned)play_buffer_ptr + (unsigned)st->DestPtr ), 0 , SECONDARY_BUFFER_SIZE - (unsigned)st->DestPtr );
-		memset ( (char*)( (unsigned)play_buffer_ptr + (unsigned)st->DestPtr ), 0 , SECONDARY_BUFFER_SIZE/4);
+		memset ( (char*)play_buffer_ptr + (uintptr_t)st->DestPtr, 0 , SECONDARY_BUFFER_SIZE/4);	// RA_PORT: was truncated to 32 bits.
 	}
 
 	st->PlayBuffer->Unlock(	play_buffer_ptr,

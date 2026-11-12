@@ -145,6 +145,14 @@ bool Video_Init(int width, int height)
 			return(false);
 		}
 		SDL_ShowCursor(SDL_DISABLE);
+
+		/*
+		**	Windows activates a newly shown window (WM_ACTIVATEAPP), and the game waits for that
+		**	before it draws anything. Don't rely on the window manager to report it (there may
+		**	not be one); later focus changes are reported as they happen.
+		*/
+		HasFocus = true;
+		Win32_Post_Input(WM_ACTIVATEAPP, TRUE, 0);
 	}
 
 	if (Texture) {

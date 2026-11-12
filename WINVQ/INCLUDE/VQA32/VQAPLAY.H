@@ -301,7 +301,7 @@ typedef struct _VQAStatistics {
  * VQAio - Something meaningful to the IO manager. (See DOCS)
  */
 typedef struct _VQAHandle {
-	unsigned int VQAio;
+	uintptr_t VQAio;		// RA_PORT: was "unsigned int"; the game keeps a file object pointer here.
 } VQAHandle;
 
 /* Possible IO command values */

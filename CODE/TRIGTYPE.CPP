@@ -1892,18 +1892,29 @@ void TriggerTypeClass::Read_INI(CCINIClass & ini)
 		for (int trig_index = 0; trig_index < TriggerTypes.Count(); trig_index++) {
 			TriggerTypeClass * trigger = TriggerTypes.Ptr(trig_index);
 
+#ifdef RA_PORT
+			char * ptr = Port_Take_Pending_Trigger_Name(trigger->Action1.Trigger.Raw());
+#else
 			char * ptr = (char *)trigger->Action1.Trigger.Raw();
+#endif
 			if (ptr /*&& trigger->Action1.Trigger.Raw() != -1*/) {
 				trigger->Action1.Trigger = TriggerTypeClass::From_Name(ptr);
 				free(ptr);
 			}
 
+#ifdef RA_PORT
+			ptr = Port_Take_Pending_Trigger_Name(trigger->Action2.Trigger.Raw());
+#else
 			ptr = (char *)trigger->Action2.Trigger.Raw();
+#endif
 			if (ptr /*&& trigger->Action2.Trigger.Raw() != -1*/) {
 				trigger->Action2.Trigger = TriggerTypeClass::From_Name(ptr);
 				free(ptr);
 			}
 		}
+#ifdef RA_PORT
+		Port_Clear_Pending_Trigger_Names();
+#endif
 	}
 }
 

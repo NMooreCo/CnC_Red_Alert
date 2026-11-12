@@ -1037,4 +1037,8 @@ extern DynamicVectorClass<EventChoiceClass *> xxx2;
 extern DynamicVectorClass<ActionChoiceClass *> xxx3;
 extern DynamicVectorClass<EgoClass *> whatever;
 
+#ifdef RA_PORT
+#include	"RAPORT.H"
+#endif
+
 #endif

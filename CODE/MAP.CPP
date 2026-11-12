@@ -1327,8 +1327,10 @@ if (BlubCell->Overlapper[1]) {
 		obj = (*this)[cell].Cell_Occupier();
 		if (obj) {
 			if (
+#ifndef RA_PORT	// (A 32 bit DOS/Win95 sanity check on the pointer values.)
 				((unsigned int)obj & 0xff000000) ||
 				((unsigned int)obj->Next & 0xff000000) ||
+#endif
 //				((unsigned int)obj->Trigger & 0xff000000) ||
 				obj->IsInLimbo ||
 				((unsigned int)Coord_Cell(obj->Coord) >= MAP_CELL_TOTAL)) {
@@ -1344,8 +1346,10 @@ if (BlubCell->Overlapper[1]) {
 			obj = (*this)[cell].Overlapper[i];
 			if (obj) {
 				if (
+#ifndef RA_PORT	// (A 32 bit DOS/Win95 sanity check on the pointer values.)
 					((unsigned int)obj & 0xff000000) ||
 					((unsigned int)obj->Next & 0xff000000) ||
+#endif
 //					((unsigned int)obj->Trigger & 0xff000000) ||
 					obj->IsInLimbo ||
 					((unsigned int)Coord_Cell(obj->Coord) >= MAP_CELL_TOTAL)) {

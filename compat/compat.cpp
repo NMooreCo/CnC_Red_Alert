@@ -301,8 +301,11 @@ extern "C" void _dos_setdrive(unsigned , unsigned * total)
 
 extern "C" unsigned _dos_getdiskfree(unsigned , struct diskfree_t * diskspace)
 {
-	diskspace->total_clusters = 0x200000;
-	diskspace->avail_clusters = 0x100000;
+	/*
+	**	1 GB free of 2 GB: the game multiplies these out in 32 bits.
+	*/
+	diskspace->total_clusters = 0x80000;
+	diskspace->avail_clusters = 0x40000;
 	diskspace->sectors_per_cluster = 8;
 	diskspace->bytes_per_sector = 512;
 	return(0);

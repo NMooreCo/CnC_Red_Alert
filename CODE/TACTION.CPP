@@ -242,6 +242,40 @@ void TActionClass::Build_INI_Entry(char * ptr) const
  * HISTORY:                                                                                    *
  *   02/22/1996 JLB : Created.                                                                 *
  *=============================================================================================*/
+#ifdef RA_PORT
+/*
+**	Old format scenarios name the trigger an action refers to. Triggers can refer to triggers
+**	read later, so the names are resolved once all triggers have been read (see
+**	TriggerTypeClass::Read_INI). The original kept a strdup'ed copy of the name in the 32 bit ID
+**	of the trigger "pointer"; a 64 bit pointer doesn't fit, so the port keeps the names in a
+**	table and stores their index + 1 instead.
+*/
+static DynamicVectorClass<char *> PendingTriggerNames;
+
+int Port_Pending_Trigger_Name(char const * name)
+{
+	if (name == NULL) return(0);
+	PendingTriggerNames.Add(strdup(name));
+	return(PendingTriggerNames.Count());
+}
+
+char * Port_Take_Pending_Trigger_Name(int raw)
+{
+	if (raw <= 0 || raw > PendingTriggerNames.Count()) return(NULL);
+	char * name = PendingTriggerNames[raw-1];
+	PendingTriggerNames[raw-1] = NULL;
+	return(name);
+}
+
+void Port_Clear_Pending_Trigger_Names(void)
+{
+	for (int index = 0; index < PendingTriggerNames.Count(); index++) {
+		free(PendingTriggerNames[index]);
+	}
+	PendingTriggerNames.Clear();
+}
+#endif
+
 void TActionClass::Read_INI(void)
 {
 	switch (NewINIFormat) {
@@ -264,7 +298,11 @@ void TActionClass::Read_INI(void)
 			**	Since triggers refer to other triggers, only record a copy of the trigger text
 			**	name. This will be fixed up later.
 			*/
+#ifdef RA_PORT
+			Trigger.Set_Raw(Port_Pending_Trigger_Name(strtok(NULL, ",")));
+#else
 			Trigger.Set_Raw((int)strdup(strtok(NULL, ",")));
+#endif
 
 			Data.Value = atoi(strtok(NULL, ","));
 			break;

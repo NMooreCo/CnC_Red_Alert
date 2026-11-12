@@ -116,7 +116,7 @@ static int VQADOSHandler(VQAHandle *vqa, int action, void *buffer,
 	int fh;
 	int error;
 
-	fh = vqa->VQAio;
+	fh = (int)vqa->VQAio;
 
 	/* Perform the action specified by the IO command */
 	switch (action) {

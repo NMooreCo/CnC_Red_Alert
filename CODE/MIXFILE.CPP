@@ -535,7 +535,18 @@ assert(filename != NULL);//BG
 	/*
 	**	Create the key block that will be used to binary search for the file.
 	*/
+#ifdef RA_PORT
+	/*
+	**	The original upper cased the caller's string in place, which may be a (read only)
+	**	string literal.
+	*/
+	char upper[_MAX_PATH];
+	strncpy(upper, filename, sizeof(upper) - 1);
+	upper[sizeof(upper) - 1] = '\0';
+	int crc = Calculate_CRC(strupr(upper), strlen(upper));
+#else
 	int crc = Calculate_CRC(strupr((char *)filename), strlen(filename));
+#endif
 	SubBlock key;
 	key.CRC = crc;
 

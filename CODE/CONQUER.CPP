@@ -2657,7 +2657,7 @@ int MixFileHandler(VQAHandle * vqa, int action, void * buffer, int nbytes)
 				error = file->Open((char *)buffer, READ);
 
 				if (error != -1) {
-					vqa->VQAio = (unsigned int)file;
+					vqa->VQAio = (uintptr_t)file;
 					error = 0;
 				} else {
 					delete file;

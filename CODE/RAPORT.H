@@ -31,4 +31,11 @@ extern int	Port_Current_CD;
 bool	Port_CD_Present(int cd);
 bool	Port_Get_CD_Directory(char * buffer);
 
+/*
+**	TACTION.CPP: trigger names of old format scenarios, waiting to be resolved.
+*/
+int	Port_Pending_Trigger_Name(char const * name);
+char *	Port_Take_Pending_Trigger_Name(int raw);
+void	Port_Clear_Pending_Trigger_Names(void);
+
 #endif

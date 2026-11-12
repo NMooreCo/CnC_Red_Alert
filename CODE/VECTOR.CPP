@@ -246,7 +246,7 @@ int VectorClass<T>::operator == (VectorClass<T> const & vector) const
 template<class T>
 inline int VectorClass<T>::ID(T const * ptr)
 {
-	return(((unsigned int)ptr - (unsigned int)&(*this)[0]) / sizeof(T));
+	return((int)(ptr - &(*this)[0]));		// RA_PORT: was done on pointers truncated to 32 bits.
 }
 
 

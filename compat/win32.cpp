@@ -426,12 +426,13 @@ extern "C" DWORD GetModuleFileName(HMODULE , LPSTR buffer, DWORD size)
 extern "C" BOOL GetDiskFreeSpace(LPCSTR , LPDWORD sectors_per_cluster, LPDWORD bytes_per_sector, LPDWORD free_clusters, LPDWORD total_clusters)
 {
 	/*
-	**	Plenty of space (the game only checks for a few megabytes).
+	**	Plenty of space (the game only checks for a few megabytes): 1 GB free of 2 GB. The
+	**	game multiplies these out in 32 bits, so stay well below 4 GB.
 	*/
 	if (sectors_per_cluster) *sectors_per_cluster = 8;
 	if (bytes_per_sector) *bytes_per_sector = 512;
-	if (free_clusters) *free_clusters = 0x100000;
-	if (total_clusters) *total_clusters = 0x200000;
+	if (free_clusters) *free_clusters = 0x40000;
+	if (total_clusters) *total_clusters = 0x80000;
 	return(TRUE);
 }
 
