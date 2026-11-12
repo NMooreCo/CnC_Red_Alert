@@ -179,7 +179,7 @@ void *  Load_Icon_Set(char const *filename, void *iconsetptr, int buffsize)
 				idata->Width = (short)(((short)sinf.Width)<<3);
 				idata->Height = (short)(((short)sinf.Height)<<3);
 				idata->Allocated = (short)allocated;
-				idata->Icons = (int)iconsetptr + sizeof(IControl_Type);
+				idata->Icons = sizeof(IControl_Type);		// RA_PORT: offsets, as in the game's own icon data (was an address).
 				idata->Map = idata->Icons + size;
 					idata->TransFlag = sizeof(IControl_Type) + size + mapsize;
 				idata->Size = buffsize;
@@ -210,7 +210,7 @@ void *  Load_Icon_Set(char const *filename, void *iconsetptr, int buffsize)
 					Read_Iff_Chunk(fh, FORM_TRNS, transptr, transsize);
 					idata = (IControl_Type *)iconsetptr;
 
-				mapptr = (void*)idata->Map;
+				mapptr = Add_Long_To_Pointer(iconsetptr, idata->Map);
 				Read_Iff_Chunk(fh, FORM_MAP, mapptr, mapsize);
 
 				/*

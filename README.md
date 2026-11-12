@@ -37,8 +37,8 @@ but nothing else has been tried yet.
 
 ## Building
 
-You need CMake 3.16 or later, a C++14 compiler (GCC 9+ or Clang 10+) and the SDL2
-development files.
+You need CMake 3.16 or later, GCC or Clang (tested with GCC 13 and Clang 18) and the
+SDL2 development files.
 
 On Debian or Ubuntu:
 
@@ -48,7 +48,8 @@ cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo
 cmake --build build
 ```
 
-This produces `build/redalert`.
+This produces `build/redalert`. To build with Clang, set `CC=clang CXX=clang++` when
+running the first `cmake` command.
 
 Build options (`-D<option>=ON`):
 

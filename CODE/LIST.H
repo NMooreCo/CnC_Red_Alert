@@ -42,6 +42,12 @@
 #include "SHAPEBTN.H"
 #include "SLIDER.H"
 
+/*
+**	RA_PORT: the template code below uses this; with two phase name lookup it must be declared first.
+*/
+void Fancy_Text_Print(char const *text, unsigned x, unsigned y, RemapControlType * fore, unsigned back, TextPrintType flag, ...);
+void Fancy_Text_Print(int text, unsigned x, unsigned y, RemapControlType * fore, unsigned back, TextPrintType flag, ...);
+
 // Needed by the TListClass template (two phase name lookup).
 extern GraphicViewPortClass	SeenBuff;
 

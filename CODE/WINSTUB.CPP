@@ -163,7 +163,11 @@ void Check_For_Focus_Loss(void)
 
 extern bool InMovie;
 
+#ifdef RA_PORT
+LRESULT CALLBACK Windows_Procedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+#else
 int FAR PASCAL _export Windows_Procedure(HWND hwnd, UINT message, UINT wParam, LONG lParam)
+#endif
 {
 
 	int	low_param = LOWORD(wParam);
@@ -793,7 +797,7 @@ void Memory_Error_Handler(void)
 	VisiblePage.Clear();
 	CCPalette.Set();
 	while (Get_Mouse_State()) {Show_Mouse();};
-	WWMessageBox().Process(TEXT_MEMORY_ERROR, TEXT_ABORT, false);
+	WWMessageBox().Process(TEXT_MEMORY_ERROR, TEXT_ABORT, NULL);
 
 	ReadyToQuit = 1;
 

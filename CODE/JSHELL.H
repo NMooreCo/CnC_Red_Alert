@@ -530,7 +530,7 @@ class SmartPtr
 
 		operator T * (void) const {return(Pointer);}
 
-		operator int (void) const {return((int)Pointer);}
+		operator int (void) const {return((int)(intptr_t)Pointer);}
 
 		SmartPtr<T> operator ++ (int) {assert(Pointer != 0);SmartPtr<T> temp = *this;++Pointer;return(temp);}
 		SmartPtr<T> & operator ++ (void) {assert(Pointer != 0);++Pointer;return(*this);}

@@ -41,6 +41,27 @@
 #include <errno.h>
 
 typedef int						SOCKET;
+
+#ifdef __cplusplus
+/*
+**	Winsock passes address and option lengths as int, POSIX as socklen_t.
+*/
+static inline int recvfrom(SOCKET s, char * buffer, int length, int flags, struct sockaddr * from, int * fromlen)
+{
+	socklen_t len = fromlen ? (socklen_t)*fromlen : 0;
+	int result = (int)::recvfrom(s, buffer, (size_t)length, flags, from, fromlen ? &len : NULL);
+	if (fromlen) *fromlen = (int)len;
+	return(result);
+}
+
+static inline int getsockopt(SOCKET s, int level, int name, char * value, int * length)
+{
+	socklen_t len = length ? (socklen_t)*length : 0;
+	int result = ::getsockopt(s, level, name, value, length ? &len : NULL);
+	if (length) *length = (int)len;
+	return(result);
+}
+#endif
 #define INVALID_SOCKET			(-1)
 #define SOCKET_ERROR				(-1)
 

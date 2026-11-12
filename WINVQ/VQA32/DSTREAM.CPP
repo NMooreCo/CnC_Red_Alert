@@ -149,7 +149,7 @@ static int VQADOSHandler(VQAHandle *vqa, int action, void *buffer,
 		 * VQAERR_SEEK.
 		 */
 		case VQACMD_SEEK:
-			error = (lseek(fh, nbytes, (int)buffer) == -1);
+			error = (lseek(fh, nbytes, (int)(intptr_t)buffer) == -1);
 			break;
 
 		/* VQACMD_OPEN asks that you open the file for access. */

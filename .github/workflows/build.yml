@@ -7,8 +7,18 @@ on:
 
 jobs:
   linux:
-    name: Linux (GCC)
+    name: Linux (${{ matrix.compiler }})
     runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - compiler: gcc
+            cc: gcc
+            cxx: g++
+          - compiler: clang
+            cc: clang
+            cxx: clang++
     steps:
       - uses: actions/checkout@v4
 
@@ -18,12 +28,16 @@ jobs:
           sudo apt-get install -y cmake ninja-build libsdl2-dev
 
       - name: Configure
+        env:
+          CC: ${{ matrix.cc }}
+          CXX: ${{ matrix.cxx }}
         run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo
 
       - name: Build
         run: cmake --build build
 
       - name: Upload executable
+        if: matrix.compiler == 'gcc'
         uses: actions/upload-artifact@v4
         with:
           name: redalert-linux-x86_64

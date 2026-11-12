@@ -102,6 +102,6 @@ class CCFileClass : public CDFileClass
 		CCFileClass (CCFileClass const & );
 };
 
-class MixFileClass<CDFileClass>;
+//class MixFileClass<CDFileClass>;		// RA_PORT: not valid C++ (and not needed).
 
 #endif

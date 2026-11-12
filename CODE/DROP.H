@@ -41,6 +41,12 @@
 #include	"LIST.H"
 #include	"EDIT.H"
 
+/*
+**	RA_PORT: the template code below uses these; with two phase name lookup they must be declared first.
+*/
+unsigned short Get_Build_Frame_Width(void const *dataptr);
+unsigned short Get_Build_Frame_Height(void const *dataptr);
+
 class DropListClass : public EditClass {
 	public:
 		DropListClass(int id, char * text, int max_len, TextPrintType flags, int x, int y, int w, int h, void const * up, void const * down);
