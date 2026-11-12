@@ -25,6 +25,11 @@
 void	Port_Select_Data_Directory(int argc, char * argv[]);
 
 /*
+**	CONQUER.CPP: RA_EXTRACT=NAME[,NAME...] copies files out of the MIX archives and exits.
+*/
+bool	Port_Extract_Files(void);
+
+/*
 **	CONQUER.CPP: discs are directories (CD1..CD4) in the data directory.
 */
 extern int	Port_Current_CD;

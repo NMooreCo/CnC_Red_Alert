@@ -225,6 +225,11 @@ void Main_Game(int argc, char * argv[])
 	if (!Init_Game(argc, argv)) {
 		return;
 	}
+#ifdef RA_PORT
+	if (Port_Extract_Files()) {
+		return;
+	}
+#endif
 
 	/*
 	**	Game processing loop:

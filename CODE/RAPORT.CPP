@@ -32,6 +32,51 @@
 
 
 /***********************************************************************************************
+ * Port_Extract_Files -- Copy files out of the game's MIX archives.                            *
+ *                                                                                             *
+ *    RA_EXTRACT=NAME[,NAME...] writes each named file, as the game sees it, to the directory  *
+ *    named by RA_EXTRACT_DIR (default: the data directory). Mainly for modding: a RULES.INI   *
+ *    or scenario extracted into the data directory and edited there replaces the original.  *
+ *                                                                                             *
+ * OUTPUT:  Was extraction requested? (The game then exits.)                                   *
+ *=============================================================================================*/
+bool Port_Extract_Files(void)
+{
+	char const * list = getenv("RA_EXTRACT");
+	if (list == NULL || *list == '\0') return(false);
+	char const * dir = getenv("RA_EXTRACT_DIR");
+
+	char names[1024];
+	strncpy(names, list, sizeof(names) - 1);
+	names[sizeof(names) - 1] = '\0';
+
+	for (char * name = strtok(names, ", "); name != NULL; name = strtok(NULL, ", ")) {
+		CCFileClass file(name);
+		if (!file.Is_Available()) {
+			fprintf(stderr, "%s: not found\n", name);
+			continue;
+		}
+		int size = file.Size();
+		char * data = new char[size > 0 ? size : 1];
+		int read = file.Read(data, size);
+		file.Close();
+
+		char path[_MAX_PATH];
+		snprintf(path, sizeof(path), "%s%s%s", dir ? dir : "", (dir && *dir) ? "/" : "", name);
+		FILE * out = fopen(path, "wb");
+		if (out == NULL || (int)fwrite(data, 1, read, out) != read) {
+			fprintf(stderr, "%s: unable to write %s\n", name, path);
+		} else {
+			fprintf(stderr, "%s: %d bytes written to %s\n", name, read, path);
+		}
+		if (out != NULL) fclose(out);
+		delete [] data;
+	}
+	return(true);
+}
+
+
+/***********************************************************************************************
  * Port_Select_Data_Directory -- Make the game data directory the current directory.          *
  *                                                                                             *
  *    The game opens all of its files relative to the current directory. Use, in order:       *

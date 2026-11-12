@@ -123,6 +123,7 @@ Alt+Enter switches between window and fullscreen. Environment variables:
 | `RA_DEBUG=1` | Print the game's debug messages to the console. |
 | `RA_NO_MESSAGEBOX=1` | Don't show system message boxes (start-up errors and warnings); take their default answer. For automated runs. |
 | `RA_SCREENSHOT=file.bmp` | Save one screenshot, `RA_SCREENSHOT_DELAY` milliseconds after start. |
+| `RA_EXTRACT=NAME,...` | Copy the named files out of the MIX archives into the data directory (or `RA_EXTRACT_DIR`), then exit. See Modding. |
 
 ## LAN games
 
@@ -133,10 +134,17 @@ option). Players on the same local network see each other's games in the lobby.
 ## Modding
 
 The quickest changes need no compiling at all: the game reads loose files from the
-data directory before looking inside the MIX archives. Extract `RULES.INI` from
-`LOCAL.MIX` (inside `REDALERT.MIX`) with any MIX tool, edit it, and drop it next to
-`REDALERT.MIX` to change units, weapons, costs, and so on. The same goes for
-scenarios (`SCG01EA.INI`...), shapes and other files.
+data directory before looking inside the MIX archives. The game can extract files from
+its archives itself:
+
+```sh
+RA_DATA_DIR=~/redalert-data RA_EXTRACT=RULES.INI,SCG01EA.INI ./build/redalert
+```
+
+This writes the files into the data directory and exits. Edit `RULES.INI` there to
+change units, weapons, costs, and so on; the edited copy is used from then on. The same
+goes for scenarios (`SCG01EA.INI` is the first Allied mission, `SCU01EA.INI` the first
+Soviet one), shapes and other files. Delete the loose copy to go back to the original.
 
 Scenario files carry a message digest. If you edit one of the original scenarios, delete
 its `[Digest]` section, or the game rejects it as corrupt (as the original did).
