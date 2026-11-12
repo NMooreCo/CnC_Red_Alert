@@ -8,3 +8,4 @@
 *.mix
 *.AUD
 *.VQA
+__pycache__/
