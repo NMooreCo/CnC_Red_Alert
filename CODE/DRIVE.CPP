@@ -764,6 +764,7 @@ bool DriveClass::While_Moving(void)
 									memmove((char*)&Path[0], (char*)&Path[1], CONQUER_PATH_MAX-1);
 									Path[CONQUER_PATH_MAX-1] = FACING_NONE;
 								} else {
+									if (!IsActive) return(false);		// RA_PORT: see Start_Of_Move().
 									Path[0] = FACING_NONE;
 									TrackNumber = -1;
 									actual = 0;
@@ -1254,6 +1255,7 @@ bool DriveClass::Start_Of_Move(void)
 		IsNewNavCom = false;
 		TrackIndex = 0;
 		if (!Start_Driver(dest)) {
+			if (!IsActive) return(false);		// RA_PORT: a crate at the destination can destroy the unit.
 			TrackNumber = -1;
 			Path[0] = FACING_NONE;
 			Set_Speed(0);

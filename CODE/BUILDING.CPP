@@ -4546,7 +4546,7 @@ int BuildingClass::Mission_Unload(void)
 						}
 						unit->Force_Track(DriveClass::OUT_OF_WEAPON_FACTORY, coord);
 //						unit->Force_Track(DriveClass::OUT_OF_WEAPON_FACTORY, Adjacent_Cell(Adjacent_Cell(Center_Coord(), FACING_S), FACING_S));
-						unit->Set_Speed(128);
+						if (unit->IsActive) unit->Set_Speed(128);		// RA_PORT: a crate outside the door can destroy the unit.
 						Status = LEAVE;
 					} else {
 						Close_Door(DOOR_RATE, DOOR_STAGES);
