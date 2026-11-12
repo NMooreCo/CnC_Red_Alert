@@ -46,6 +46,12 @@
 #include	<string.h>
 #include	<assert.h>
 
+/*
+**	The compressor's work memory is 16384 pointers (LZO1X_MEM_COMPRESS). The original
+**	allocated 64KB, which is only enough for 32 bit pointers.
+*/
+#define	LZO_DICTIONARY_SIZE	(16384 * sizeof(unsigned char *))
+
 
 /***********************************************************************************************
  * LZOPipe::LZOPipe -- Constructor for the LZO processor pipe.                                 *
@@ -200,7 +206,7 @@ int LZOPipe::Put(void const * source, int slen)
 
 			if (Counter == BlockSize) {
 				unsigned int len = sizeof (Buffer2);
-				char *dictionary = new char [64*1024];
+				char *dictionary = new char [LZO_DICTIONARY_SIZE];
 				lzo1x_1_compress ((unsigned char*)Buffer, BlockSize, (unsigned char*)Buffer2, &len, dictionary);
 				delete [] dictionary;
 				BlockHeader.CompCount = (unsigned short)len;
@@ -217,7 +223,7 @@ int LZOPipe::Put(void const * source, int slen)
 		*/
 		while (slen >= BlockSize) {
 			unsigned int len = sizeof (Buffer2);
-			char *dictionary = new char [64*1024];
+			char *dictionary = new char [LZO_DICTIONARY_SIZE];
 			lzo1x_1_compress ((unsigned char*)source, BlockSize, (unsigned char*)Buffer2, &len, dictionary);
 			delete [] dictionary;
 			source = ((char *)source) + BlockSize;
@@ -304,7 +310,7 @@ int LZOPipe::Flush(void)
 			**	compress the partial block and output normally.
 			*/
 			unsigned int len = sizeof (Buffer2);
-			char *dictionary = new char [64*1024];
+			char *dictionary = new char [LZO_DICTIONARY_SIZE];
 			lzo1x_1_compress ((unsigned char*)Buffer, Counter, (unsigned char *)Buffer2, &len, dictionary);
 			delete [] dictionary;
 			BlockHeader.CompCount = (unsigned short)len;
