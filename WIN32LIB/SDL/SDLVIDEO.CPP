@@ -504,8 +504,15 @@ void Platform_Pump_Events(void)
 	while (SDL_PollEvent(&event)) {
 		switch (event.type) {
 			case SDL_QUIT:
-				QuitRequested = true;
-				Win32_Post_Input(WM_CLOSE, 0, 0);
+				/*
+				**	The window was closed (or the process asked to terminate). The original
+				**	ignored close requests; quit through its forced shutdown path (WM_DESTROY
+				**	outside of a normal exit), which saves the settings and exits.
+				*/
+				if (!QuitRequested) {
+					QuitRequested = true;
+					Win32_Post_Input(WM_DESTROY, 0, 0);
+				}
 				break;
 
 			case SDL_WINDOWEVENT:

@@ -827,11 +827,36 @@ static bool Pop_Message(LPMSG msg, bool remove)
 	return(found);
 }
 
+/*
+**	The game waits by polling for messages in a loop (the frame rate limiter, every dialog),
+**	which kept a processor core fully busy. When polls keep coming back empty in quick
+**	succession, the caller is only waiting: give the processor away for a moment. Loops that
+**	do real work between polls are not slowed down.
+*/
+static void Idle_Throttle(void)
+{
+	static Uint64 window_start = 0;
+	static int empty_polls = 0;
+
+	Uint64 now = SDL_GetPerformanceCounter();
+	if (now - window_start > SDL_GetPerformanceFrequency() / 1000) {
+		window_start = now;
+		empty_polls = 0;
+	}
+	if (++empty_polls >= 20) {
+		SDL_Delay(1);
+		window_start = SDL_GetPerformanceCounter();
+		empty_polls = 0;
+	}
+}
+
 extern "C" BOOL PeekMessage(LPMSG msg, HWND , UINT , UINT , UINT remove)
 {
 	if (Pop_Message(msg, (remove & PM_REMOVE) != 0)) return(TRUE);
 	Pump_System();
-	return(Pop_Message(msg, (remove & PM_REMOVE) != 0) ? TRUE : FALSE);
+	if (Pop_Message(msg, (remove & PM_REMOVE) != 0)) return(TRUE);
+	Idle_Throttle();
+	return(FALSE);
 }
 
 extern "C" BOOL GetMessage(LPMSG msg, HWND , UINT , UINT )
