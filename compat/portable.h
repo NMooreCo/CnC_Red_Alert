@@ -69,6 +69,7 @@
 #include <limits.h>
 #include <stdarg.h>
 #include <time.h>
+#include <sys/timeb.h>		/* struct timeb, for ftime(): the C library fills in its natural layout. */
 #include <errno.h>
 #include <assert.h>
 #if !defined(_WIN32)

@@ -72,6 +72,8 @@ static int					MouseY = 0;
 static int					LastDrawnMouseX = -1;
 static int					LastDrawnMouseY = -1;
 static bool					HasFocus = true;
+static bool					MouseConfined = false;		// The game asked for it (ClipCursor).
+static void					Apply_Mouse_Confinement(void);
 static bool					QuitRequested = false;
 
 static char					WindowTitle[128] = "Red Alert";
@@ -153,6 +155,7 @@ bool Video_Init(int width, int height)
 		*/
 		HasFocus = true;
 		Win32_Post_Input(WM_ACTIVATEAPP, TRUE, 0);
+		Apply_Mouse_Confinement();
 	}
 
 	if (Texture) {
@@ -231,6 +234,40 @@ void Video_Toggle_Fullscreen(void)
 void Video_Set_Relative_Mouse(bool on)
 {
 	(void)on;
+}
+
+/*
+**	The game keeps the mouse in its screen while it is active (ClipCursor), as the original
+**	did: in a window, this lets the map scroll at its edges. RA_NO_MOUSE_GRAB=1 turns it off.
+*/
+static void Apply_Mouse_Confinement(void)
+{
+	static int allowed = -1;
+	if (allowed == -1) {
+		allowed = !(getenv("RA_NO_MOUSE_GRAB") && atoi(getenv("RA_NO_MOUSE_GRAB")) != 0);
+	}
+	if (Window) SDL_SetWindowGrab(Window, (allowed && MouseConfined && HasFocus) ? SDL_TRUE : SDL_FALSE);
+}
+
+void Video_Confine_Mouse(bool on)
+{
+	MouseConfined = on;
+	Apply_Mouse_Confinement();
+}
+
+/*
+**	Lets the mouse out for a moment, for a system message box (another window).
+*/
+bool Video_Release_Mouse(void)
+{
+	if (Window == NULL || !SDL_GetWindowGrab(Window)) return(false);
+	SDL_SetWindowGrab(Window, SDL_FALSE);
+	return(true);
+}
+
+void Video_Restore_Mouse(void)
+{
+	Apply_Mouse_Confinement();
 }
 
 
@@ -520,12 +557,14 @@ void Platform_Pump_Events(void)
 					case SDL_WINDOWEVENT_FOCUS_GAINED:
 						if (!HasFocus) {
 							HasFocus = true;
+							Apply_Mouse_Confinement();
 							Win32_Post_Input(WM_ACTIVATEAPP, TRUE, 0);
 						}
 						break;
 					case SDL_WINDOWEVENT_FOCUS_LOST:
 						if (HasFocus) {
 							HasFocus = false;
+							Apply_Mouse_Confinement();
 							Win32_Clear_Key_States();
 							Win32_Post_Input(WM_ACTIVATEAPP, FALSE, 0);
 						}

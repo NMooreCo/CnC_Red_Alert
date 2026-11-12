@@ -212,6 +212,7 @@ it; the game's messages then appear in that window):
 | `RA_SCALE=n` | Window size as a multiple of 640x400 (default 2). |
 | `RA_ASPECT=1` | Stretch 640x400 to 4:3, as a CRT monitor showed it. |
 | `RA_NO_SOUND=1` | Disable sound. |
+| `RA_NO_MOUSE_GRAB=1` | Don't keep the mouse in the game's window while the game is active (it does by default, as the original did, so that the map scrolls when the mouse reaches the window's edges). |
 | `RA_LAN_BROADCAST=a.b.c.d` | Broadcast address(es) for LAN games, comma separated (default 255.255.255.255). |
 | `RA_DEBUG=1` | Print the game's debug messages to the console. |
 | `RA_NO_MESSAGEBOX=1` | Don't show system message boxes (start-up errors and warnings); take their default answer. For automated runs. |
@@ -270,7 +271,10 @@ differently from today's:
 
 - **Structures are byte packed.** The game was compiled with Watcom's `/zp1`, and file
   formats and data overlays depend on it. `portable.h` applies `#pragma pack(1)` to
-  all game code; the stand-in Windows headers use the natural layout.
+  all game code; the stand-in Windows headers use the natural layout. A system header
+  whose structures the game hands to the C library must be included by `portable.h`,
+  before the packing starts (`<sys/timeb.h>` wasn't: `ftime()` wrote two bytes past the
+  game's 14-byte `struct timeb`).
 - **Enums are as small as their values allow** (`-fshort-enums`), as with Watcom.
   For example, `TemplateType` is 2 bytes, which the scenario map data relies on.
 - **Bit-fields are laid out the same everywhere**: the Windows build uses

@@ -53,5 +53,8 @@ void		Video_Get_Logical_Size(int & w, int & h);
 void		Video_Set_Title(const char * title);
 void *	Video_Get_SDL_Window(void);
 void		Video_Set_Relative_Mouse(bool on);
+void		Video_Confine_Mouse(bool on);
+bool		Video_Release_Mouse(void);
+void		Video_Restore_Mouse(void);
 
 #endif

@@ -791,7 +791,11 @@ extern "C" BOOL SetCursorPos(int x, int y)
 	return(TRUE);
 }
 
-extern "C" BOOL ClipCursor(const RECT * ) {return(TRUE);}
+extern "C" BOOL ClipCursor(const RECT * rect)
+{
+	Video_Confine_Mouse(rect != NULL);		// The game only ever confines it to its whole screen.
+	return(TRUE);
+}
 extern "C" BOOL ScreenToClient(HWND , LPPOINT ) {return(TRUE);}
 extern "C" BOOL ClientToScreen(HWND , LPPOINT ) {return(TRUE);}
 
@@ -1063,9 +1067,11 @@ extern "C" int MessageBox(HWND , LPCSTR text, LPCSTR caption, UINT type)
 	int pressed = buttons[0].buttonid;
 	if (getenv("RA_NO_MESSAGEBOX") == NULL) {
 		Video_Set_Relative_Mouse(false);
+		bool released = Video_Release_Mouse();
 		if (SDL_ShowMessageBox(&data, &pressed) != 0) {
 			pressed = buttons[0].buttonid;
 		}
+		if (released) Video_Restore_Mouse();
 	}
 	return(pressed);
 }
