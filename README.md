@@ -19,7 +19,7 @@ The game logic is the original code, with the Windows 95 version's code path
 Working:
 
 - intro and briefing movies (VQA), with sound;
-- main menu, all dialogs, sidebar, mouse cursor;
+- main menu, dialogs, sidebar, mouse cursor;
 - campaign missions (tested: first Allied mission), skirmish against the computer;
 - saving and loading games;
 - LAN games ("Network" in the multiplayer menu), over UDP: tested with two players;

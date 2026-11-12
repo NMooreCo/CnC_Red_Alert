@@ -3223,6 +3223,7 @@ bool HouseClass::Does_Enemy_Building_Exist(StructType btype) const
 {
 	assert(Houses.ID(this) == ID);
 
+	if (btype < STRUCT_FIRST || btype >= 32) return(false);		// RA_PORT: only the first 32 types have a scan bit.
 	int bflag = 1 << btype;
 	for (HousesType index = HOUSE_FIRST; index < HOUSE_COUNT; index++) {
 		HouseClass * house = HouseClass::As_Pointer(index);
@@ -6436,7 +6437,7 @@ void HouseClass::Tracking_Add(TechnoClass const * techno)
 			CurBuildings++;
 			building = ((BuildingTypeClass const &)techno->Class_Of()).Type;
 			BQuantity[building]++;
-			BScan |= (1 << building);
+			if (building < 32) BScan |= (1 << building);		// RA_PORT: only the first 32 types have a bit (see Recalc_Attributes).
 			if (Session.Type == GAME_INTERNET) {
 				BuildingTotals->Increment_Unit_Total(techno->Class_Of().ID);
 			}

@@ -1358,7 +1358,7 @@ int CCINIClass::Get_Buildings(char const * section, char const * entry, int defv
 		char * token = strtok(buffer, ",");
 		while (token != NULL && *token != '\0') {
 			StructType building = BuildingTypeClass::From_Name(token);
-			if (building != STRUCT_NONE) {
+			if (building != STRUCT_NONE && building < 32) {		// RA_PORT: a bitfield holds the first 32 types only.
 				pre |= (1 << building);
 			}
 			token = strtok(NULL, ",");
