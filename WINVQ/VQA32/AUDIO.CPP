@@ -1682,6 +1682,20 @@ int CopyAudio(VQAHandleP *vqap)
 }
 
 
+#ifdef RA_PORT
+/*
+**	RA_PORT: stop the audio of the movie being played, if any. The game calls this before it
+**	shuts its sound system down: closing the window during a movie released the sound
+**	buffers while the movie's audio timer was still using them.
+*/
+void VQA_StopAnyAudio(void)
+{
+	if (VQAP != NULL) {
+		VQA_StopAudio(VQAP);
+	}
+}
+#endif
+
 BOOL	VQAAudioPaused = FALSE;
 
 void VQA_PauseAudio(void)

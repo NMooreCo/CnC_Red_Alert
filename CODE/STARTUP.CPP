@@ -823,8 +823,14 @@ bool InitDDraw(void)
  *   03/20/1995 JLB : Created.                                                                 *
  *=============================================================================================*/
 #ifdef WIN32
+#ifdef RA_PORT
+void VQA_StopAnyAudio(void);
+#endif
 void __cdecl Prog_End(void)
 {
+#ifdef RA_PORT
+	VQA_StopAnyAudio();		// A movie may be playing (the window was closed during it).
+#endif
 	Sound_End();
 	if (WWMouse) {
 		delete WWMouse;
