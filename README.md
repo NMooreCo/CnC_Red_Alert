@@ -87,6 +87,10 @@ or from directories holding the discs' files:
 tools/install-data.sh ~/redalert-data CD1_ALLIED_DISC.ISO CD2_SOVIET_DISC.ISO
 ```
 
+EA's freeware downloads (`RedAlert1_AlliedDisc.rar`, `RedAlert1_SovietDisc.rar`) are RAR
+archives holding these images. Unpack them with `unar` or `unrar`; some 7-Zip builds
+can't decompress them.
+
 A disc is a directory named after it (`CD1` Allied, `CD2` Soviet, `CD3`
 Counterstrike, `CD4` Aftermath). Files in the data directory itself are always found
 first, so with only one disc you can also just put its `MAIN.MIX` next to

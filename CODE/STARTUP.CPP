@@ -383,6 +383,21 @@ int main(int argc, char * argv[])
 		Init_Timer_System(60, true);
 #endif	//WIN32
 		RawFileClass cfile(CONFIG_FILE_NAME);
+#ifdef RA_PORT
+		/*
+		**	RA_PORT: the installer (SETUP) used to create the settings file. Without one the game
+		**	printed "Run SETUP program first." and waited for a key, with no window to press it
+		**	in. Write the installer's defaults instead; the game adds the rest as it saves its
+		**	options.
+		*/
+		if (!cfile.Is_Available()) {
+			static char const defaults[] = "[Sound]\r\nCard=0\r\nPort=3F8h\r\nIRQ=4\r\nDMA=-1\r\n\r\n[Options]\r\nHardwareFills=no\r\nVideoBackBuffer=yes\r\n";
+			if (cfile.Open(WRITE)) {
+				cfile.Write(defaults, sizeof(defaults) - 1);
+				cfile.Close();
+			}
+		}
+#endif
 
 #ifndef WIN32
 		Install_Keyboard_Interrupt(Get_RM_Keyboard_Address(), Get_RM_Keyboard_Size());
@@ -635,8 +650,12 @@ int main(int argc, char * argv[])
 			Sound_End();
 #endif	//WIN32
 		} else {
+#ifdef RA_PORT
+			MessageBox(NULL, "Could not create the settings file REDALERT.INI. Make sure the game's data directory is writable.", TEXT_SHORT_TITLE, MB_OK|MB_ICONSTOP);
+#else
 			puts(TEXT_SETUP_FIRST);
 			Keyboard->Get();
+#endif
 		}
 
 #ifdef WIN32
