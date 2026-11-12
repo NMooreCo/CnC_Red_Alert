@@ -31,6 +31,9 @@ sanitizer build (RA_SANITIZE) to look for memory errors in long games.
 --money N    every minute, give each side N credits if it has less (default 0: off).
              Without it the computer players run out of money in long games and the
              fighting dies down.
+--air        give one computer player an aircraft at the start. The AI only builds a
+             radar dome (which airfields and helipads need) once an enemy has aircraft,
+             so without this there is no air war between computer players.
 """
 import argparse
 import os
@@ -47,6 +50,7 @@ def main():
     parser.add_argument('--map', type=int, default=0)
     parser.add_argument('--minutes', type=int, default=30)
     parser.add_argument('--money', type=int, default=0)
+    parser.add_argument('--air', action='store_true')
     a = parser.parse_args()
 
     game = Game(a.outdir)
@@ -76,6 +80,11 @@ def main():
     time.sleep(40)
     game.gdb('PlayerPtr->IsHuman = 0', 'PlayerPtr->IsStarted = 1', 'PlayerPtr->IQ = Rule.MaxIQ',
              'Options.GameSpeed = 0')
+    if a.air:
+        # A MiG for the second house (HOUSE_MULTI2). It stays off the map; its existence is
+        # enough for the other houses to see an air threat.
+        game.gdb('$h = HouseClass::As_Pointer(HOUSE_MULTI2)', '$t = &AircraftTypeClass::As_Reference(AIRCRAFT_MIG)',
+                 '$t->Create_One_Of($h)')
 
     names = ['frame', 'units', 'infantry', 'buildings', 'aircraft', 'vessels', 'bullets', 'won', 'lost']
     for minute in range(1, a.minutes + 1):

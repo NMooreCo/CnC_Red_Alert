@@ -34,7 +34,7 @@ export RA_BIN=build/redalert             # the game to test (this is the default
 
 tools/autotest/campaign.py out/allies allies
 tools/autotest/campaign.py out/soviet soviet --missions 3
-tools/autotest/skirmish.py out/soak --map 9 --minutes 30
+tools/autotest/skirmish.py out/soak --map 4 --minutes 30 --money 50000 --air
 ```
 
 The game runs on display `:99` unless `RA_DISPLAY` names another; an `Xvfb` is started
