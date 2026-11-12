@@ -554,6 +554,23 @@ extern "C" HANDLE FindFirstFile(LPCSTR pattern, LPWIN32_FIND_DATA data)
 		}
 		closedir(d);
 	}
+#else
+	/*
+	**	List the whole directory and match the names as above (the same rules as elsewhere).
+	*/
+	struct _finddata_t entry;
+	intptr_t list = _findfirst((dir + "/*").c_str(), &entry);
+	if (list != -1) {
+		do {
+			if (strcmp(entry.name, ".") == 0 || strcmp(entry.name, "..") == 0) continue;
+			if (!Win32_Wildcard_Match(mask.c_str(), entry.name)) continue;
+			find->Names.push_back(entry.name);
+			find->Dirs.push_back((entry.attrib & _A_SUBDIR) != 0);
+			find->Sizes.push_back((unsigned int)entry.size);
+			find->Times.push_back(entry.time_write);
+		} while (_findnext(list, &entry) == 0);
+		_findclose(list);
+	}
 #endif
 	if (find->Names.empty()) {
 		delete find;

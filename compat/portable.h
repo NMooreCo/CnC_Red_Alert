@@ -202,7 +202,7 @@ void _makepath(char *path, const char *drive, const char *dir, const char *fname
 /*
 **	Rotate helpers (intrinsics on Watcom/MSVC).
 */
-#if !defined(_MSC_VER)
+#if !defined(_WIN32)		/* The Windows C runtime has these. */
 static inline unsigned int _rotl(unsigned int value, int shift) { shift &= 31; return shift ? (value << shift) | (value >> (32 - shift)) : value; }
 static inline unsigned int _rotr(unsigned int value, int shift) { shift &= 31; return shift ? (value >> shift) | (value << (32 - shift)) : value; }
 static inline unsigned int _lrotl(unsigned int value, int shift) { shift &= 31; return shift ? (value << shift) | (value >> (32 - shift)) : value; }

@@ -37,6 +37,70 @@
 #include <string.h>
 
 /*
+**	On Windows the program is also linked with the real system libraries, and the C/C++
+**	runtime uses some of the functions emulated here (Sleep, critical sections...). There
+**	the emulated functions get link names of their own, so that the two can't clash. These
+**	are the emulated functions whose names the system libraries export as they are (most
+**	Win32 functions are exported with an A or W suffix, CreateFileA for CreateFile...).
+*/
+#if defined(_WIN32)
+#define CloseHandle						RA_CloseHandle
+#define DeleteCriticalSection			RA_DeleteCriticalSection
+#define DosDateTimeToFileTime			RA_DosDateTimeToFileTime
+#define EnterCriticalSection			RA_EnterCriticalSection
+#define ExitProcess						RA_ExitProcess
+#define FileTimeToDosDateTime			RA_FileTimeToDosDateTime
+#define FindClose							RA_FindClose
+#define FlushFileBuffers				RA_FlushFileBuffers
+#define GetFileInformationByHandle	RA_GetFileInformationByHandle
+#define GetFileSize						RA_GetFileSize
+#define GetFileTime						RA_GetFileTime
+#define GetLastError						RA_GetLastError
+#define GetLocalTime						RA_GetLocalTime
+#define GetLogicalDrives				RA_GetLogicalDrives
+#define GetSystemTime					RA_GetSystemTime
+#define GetTickCount						RA_GetTickCount
+#define GlobalMemoryStatus				RA_GlobalMemoryStatus
+#define InitializeCriticalSection	RA_InitializeCriticalSection
+#define LeaveCriticalSection			RA_LeaveCriticalSection
+#define ReadFile							RA_ReadFile
+#define SetFilePointer					RA_SetFilePointer
+#define SetFileTime						RA_SetFileTime
+#define Sleep								RA_Sleep
+#define WriteFile							RA_WriteFile
+#define ClientToScreen					RA_ClientToScreen
+#define ClipCursor						RA_ClipCursor
+#define DestroyWindow					RA_DestroyWindow
+#define EndDialog							RA_EndDialog
+#define GetAsyncKeyState				RA_GetAsyncKeyState
+#define GetClientRect					RA_GetClientRect
+#define GetCursorPos						RA_GetCursorPos
+#define GetKeyState						RA_GetKeyState
+#define GetKeyboardState				RA_GetKeyboardState
+#define GetSystemMetrics				RA_GetSystemMetrics
+#define PostQuitMessage					RA_PostQuitMessage
+#define ScreenToClient					RA_ScreenToClient
+#define SetCursor							RA_SetCursor
+#define SetCursorPos						RA_SetCursorPos
+#define SetFocus							RA_SetFocus
+#define SetForegroundWindow			RA_SetForegroundWindow
+#define SetWindowPos						RA_SetWindowPos
+#define ShowCursor						RA_ShowCursor
+#define ShowWindow						RA_ShowWindow
+#define ToAscii							RA_ToAscii
+#define TranslateMessage				RA_TranslateMessage
+#define UpdateWindow						RA_UpdateWindow
+#define GetStockObject					RA_GetStockObject
+#define RegCloseKey						RA_RegCloseKey
+#define timeBeginPeriod					RA_timeBeginPeriod
+#define timeEndPeriod					RA_timeEndPeriod
+#define timeGetDevCaps					RA_timeGetDevCaps
+#define timeGetTime						RA_timeGetTime
+#define timeKillEvent					RA_timeKillEvent
+#define timeSetEvent						RA_timeSetEvent
+#endif
+
+/*
 **	Basic types.
 */
 typedef int32_t				BOOL;

@@ -25,12 +25,17 @@ struct find_t {
 	void *	handle;		/* port: directory iterator state */
 };
 
+#if defined(_WIN32)
+/* The C runtime's <direct.h> has this structure, as _diskfree_t, and names it diskfree_t. */
+#include <direct.h>
+#else
 struct diskfree_t {
 	unsigned total_clusters;
 	unsigned avail_clusters;
 	unsigned sectors_per_cluster;
 	unsigned bytes_per_sector;
 };
+#endif
 
 #ifdef __cplusplus
 extern "C" {

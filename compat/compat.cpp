@@ -79,6 +79,40 @@ __attribute__((constructor(101))) static void Writable_String_Literals(void)
 	int done = 0;
 	dl_iterate_phdr(Make_Program_Data_Writable, &done);
 }
+
+#elif defined(_WIN32)
+/*
+**	Windows: the read only sections (.rdata...) of the program's PE image. The headers are
+**	read directly; the stand-in <windows.h> doesn't describe them.
+*/
+extern "C" char __ImageBase;		/* Provided by the linker: where the image is loaded. */
+extern "C" __declspec(dllimport) int __stdcall VirtualProtect(void * address, size_t size, unsigned long protection, unsigned long * old_protection);
+
+__attribute__((constructor(101))) static void Writable_String_Literals(void)
+{
+	enum {
+		SCN_MEM_DISCARDABLE = 0x02000000,
+		SCN_MEM_EXECUTE = 0x20000000,
+		SCN_MEM_READ = 0x40000000,
+		SCN_MEM_WRITE = 0x80000000,
+		PAGE_READWRITE_ACCESS = 0x04
+	};
+	unsigned char * base = (unsigned char *)&__ImageBase;
+	unsigned char * nt = base + *(uint32_t *)(base + 0x3C);		// IMAGE_DOS_HEADER.e_lfanew
+	if (memcmp(nt, "PE\0\0", 4) != 0) return;
+	unsigned sections = *(uint16_t *)(nt + 6);						// FileHeader.NumberOfSections
+	unsigned optional_size = *(uint16_t *)(nt + 20);				// FileHeader.SizeOfOptionalHeader
+	unsigned char * section = nt + 24 + optional_size;				// IMAGE_SECTION_HEADER[]
+	for (unsigned index = 0; index < sections; index++, section += 40) {
+		uint32_t size = *(uint32_t *)(section + 8);						// Misc.VirtualSize
+		uint32_t address = *(uint32_t *)(section + 12);					// VirtualAddress
+		uint32_t flags = *(uint32_t *)(section + 36);					// Characteristics
+		if ((flags & SCN_MEM_READ) && !(flags & (SCN_MEM_WRITE | SCN_MEM_EXECUTE | SCN_MEM_DISCARDABLE)) && size > 0) {
+			unsigned long old = 0;
+			VirtualProtect(base + address, size, PAGE_READWRITE_ACCESS, &old);
+		}
+	}
+}
 #endif
 
 

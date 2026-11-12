@@ -129,6 +129,9 @@ add_library(ra_platform STATIC
 )
 target_include_directories(ra_platform PRIVATE ${CMAKE_SOURCE_DIR}/WIN32LIB/INCLUDE ${CMAKE_SOURCE_DIR}/compat)
 target_link_libraries(ra_platform PUBLIC ra_common SDL2::SDL2)
+if(WIN32)
+	target_link_libraries(ra_platform PUBLIC ws2_32)		# Network games use the real Winsock.
+endif()
 
 #---------------------------------------------------------------------------
 # WIN32LIB: Westwood's 32 bit library (graphics buffers, shapes, fonts, files...).
@@ -275,4 +278,15 @@ target_include_directories(redalert PRIVATE
 	${CMAKE_SOURCE_DIR}/WINVQ/INCLUDE
 	${CMAKE_SOURCE_DIR}/CODE
 )
-target_link_libraries(redalert PRIVATE win32lib winvq ra_platform ra_game_defs SDL2::SDL2main)
+if(WIN32)
+	# A Windows (not console) program. Its own main() is the entry point (MinGW's start-up
+	# code calls it), so SDL2main isn't used.
+	set_target_properties(redalert PROPERTIES WIN32_EXECUTABLE ON)
+	target_link_libraries(redalert PRIVATE win32lib winvq ra_platform ra_game_defs)
+	if(MINGW)
+		# Link the C and C++ runtime in, so that the program only needs SDL2.dll next to it.
+		target_link_options(redalert PRIVATE -static)
+	endif()
+else()
+	target_link_libraries(redalert PRIVATE win32lib winvq ra_platform ra_game_defs SDL2::SDL2main)
+endif()
