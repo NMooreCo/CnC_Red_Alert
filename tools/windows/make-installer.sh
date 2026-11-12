@@ -24,12 +24,15 @@
 #	                   CD1/MAIN.MIX and CD2/MAIN.MIX (as tools/install-data.sh makes it)
 #	  --eula FILE      EA's license agreement for the data ("EA Product EULA RedAlert1.rtf"
 #	                   in EA's freeware download); required with --data
+#	  --7zip DIR       7-Zip's 7z.exe, 7z.dll and License.txt (64-bit, unpacked from 7-Zip's
+#	                   installer): the installer can then download the game data itself
 #	  --sdl2 FILE      SDL2.dll (default: found through the build's CMake cache)
 #	  --out FILE       the installer to write (default: in BUILD_DIR)
 #	  --version TEXT   version text (default: date and commit)
 #
-#	Without --data, the installer copies the data from the player's discs (or disc images,
-#	or folders holding the discs' files).
+#	Without --data, the installer gets the data from EA's freeware release: it downloads it
+#	(with --7zip), or copies it from the player's discs (or disc images, or folders holding
+#	the discs' files).
 #
 #	An installer with the data in it is for your own use: EA's license for the freeware
 #	release allows you to use the data, not to distribute it.
@@ -38,12 +41,13 @@ set -e
 
 die() { echo "make-installer.sh: $*" >&2; exit 1; }
 
-data= eula= sdl2= out= version=
+data= eula= sdl2= out= version= sevenzip=
 while [ $# -gt 0 ]; do
 	case "$1" in
 		--data) data=$2; shift 2 ;;
 		--eula) eula=$2; shift 2 ;;
 		--sdl2) sdl2=$2; shift 2 ;;
+		--7zip) sevenzip=$2; shift 2 ;;
 		--out) out=$2; shift 2 ;;
 		--version) version=$2; shift 2 ;;
 		-h|--help) sed -n '/^#	usage/,/^set -e/p' "$0" | sed '$d; s/^#	\{0,1\}//'; exit 0 ;;
@@ -93,6 +97,18 @@ if [ -n "$data" ]; then
 	set -- "$@" -DDATA_DIR="$data" -DEULA="$eula"
 	[ -n "$out" ] || out="$build_dir/redalert-$version-setup-with-data.exe"
 else
+	if [ -n "$sevenzip" ]; then
+		# The download option: 7-Zip, and the download plugin (radl.c).
+		sevenzip=$(cd "$sevenzip" && pwd)
+		for f in 7z.exe 7z.dll License.txt; do
+			[ -f "$sevenzip/$f" ] || die "$sevenzip/$f is missing"
+		done
+		cc=$(command -v x86_64-w64-mingw32-gcc-posix || command -v x86_64-w64-mingw32-gcc) ||
+			die "the MinGW-w64 C compiler is needed for the download plugin"
+		"$cc" -std=gnu11 -O2 -Wall -shared -s -static-libgcc -o "$work/radl.dll" \
+			"$source_dir/tools/windows/radl.c" -lwinhttp -lbcrypt -luser32
+		set -- "$@" -DSEVENZIP_DIR="$sevenzip" -DRADL_DIR="$work"
+	fi
 	[ -n "$out" ] || out="$build_dir/redalert-$version-setup.exe"
 fi
 case "$out" in /*) ;; *) out=$(pwd)/$out ;; esac

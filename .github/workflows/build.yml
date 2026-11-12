@@ -54,13 +54,15 @@ jobs:
     env:
       SDL2_VERSION: 2.30.9
       SDL2_SHA256: b188d165dc4a0372042bff3d0c18e9bb90772581e92a7b8b47b521b47714f75c
+      SEVENZIP_VERSION: "25.01"
+      SEVENZIP_SHA256: 78afa2a1c773caf3cf7edf62f857d2a8a5da55fb0fff5da416074c0d28b2b55f
     steps:
       - uses: actions/checkout@v4
 
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake ninja-build mingw-w64 nsis
+          sudo apt-get install -y cmake ninja-build mingw-w64 nsis 7zip
 
       - name: Get SDL2 for MinGW
         run: |
@@ -68,6 +70,15 @@ jobs:
           echo "${SDL2_SHA256}  sdl2.tar.gz" | sha256sum -c -
           mkdir -p "$RUNNER_TEMP/sdl2"
           tar -xzf sdl2.tar.gz -C "$RUNNER_TEMP/sdl2"
+
+      # The installer can download the game data (EA's freeware release); it unpacks it with
+      # 7-Zip, from 7-Zip's official 64-bit installer.
+      - name: Get 7-Zip
+        run: |
+          curl -fsSL -o 7z-setup.exe "https://github.com/ip7z/7zip/releases/download/${SEVENZIP_VERSION}/7z${SEVENZIP_VERSION//./}-x64.exe"
+          echo "${SEVENZIP_SHA256}  7z-setup.exe" | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/7zip"
+          7z x -y -o"$RUNNER_TEMP/7zip" 7z-setup.exe 7z.exe 7z.dll License.txt
 
       - name: Configure
         run: >
@@ -78,8 +89,8 @@ jobs:
       - name: Build
         run: cmake --build build-win
 
-      - name: Build the installer (without the game data)
-        run: tools/windows/make-installer.sh --out build-win/redalert-setup.exe build-win
+      - name: Build the installer (without the game data, which it downloads)
+        run: tools/windows/make-installer.sh --7zip "$RUNNER_TEMP/7zip" --out build-win/redalert-setup.exe build-win
 
       - name: Collect the program
         run: |

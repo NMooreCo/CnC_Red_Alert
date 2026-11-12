@@ -64,6 +64,14 @@ cmake --build build
 This produces `build/redalert`. To build with Clang, set `CC=clang CXX=clang++` when
 running the first `cmake` command.
 
+Build options (`-D<option>=ON`):
+
+| Option | Effect |
+| --- | --- |
+| `RA_LANGUAGE_GERMAN`, `RA_LANGUAGE_FRENCH` | Build a German or French version (the data must match). |
+| `RA_WARNINGS` | Show compiler warnings (off by default: the 1996 code produces thousands). |
+| `RA_SANITIZE` | Build with AddressSanitizer and UndefinedBehaviorSanitizer. With `ASAN_OPTIONS=halt_on_error=0` a run reports every memory error instead of stopping at the first. |
+
 ### Windows
 
 The Windows version is cross-compiled with MinGW-w64, from Linux (or WSL on Windows).
@@ -88,23 +96,34 @@ pre-release with the installer and the program; neither contains the game data.
 
 ### Windows installer
 
-`tools/windows/make-installer.sh` makes an installer from a Windows build (it needs NSIS:
-`sudo apt install nsis`):
+`tools/windows/make-installer.sh` makes an installer from a Windows build. It needs NSIS
+(`sudo apt install nsis`) and, so that the installer can download the game data, 7-Zip's
+64-bit Windows files `7z.exe`, `7z.dll` and `License.txt`. Unpack those from 7-Zip's
+installer, from [7-Zip's releases](https://github.com/ip7z/7zip/releases)
+(`7z x 7z2501-x64.exe 7z.exe 7z.dll License.txt`):
 
 ```sh
-tools/windows/make-installer.sh build-win
+tools/windows/make-installer.sh --7zip path/to/7zip build-win
 ```
 
 The installer installs the game for the current user (in
 `%LOCALAPPDATA%\Programs\Red Alert`; the game writes its settings and saved games next
 to its data, so it needs a folder of its own), with Start menu and desktop shortcuts and
-an uninstaller. It asks for the game discs and copies the data from them: real discs,
-disc images (`.iso`; Windows opens them as a drive when you double-click them) or
-folders holding a disc's files. See Game data below for where to download the discs.
+an uninstaller. The game data is EA's freeware release of the two discs, which the
+installer either:
 
-For an unattended install, give the discs on the command line:
-`redalert-setup.exe /S /ALLIED=E:\ /SOVIET=F:\ /D=C:\Games\Red Alert` (`/D`, the folder,
-must come last and without quotes).
+- downloads from the Internet Archive (see Game data), checks against the files'
+  SHA-256 digests and unpacks with 7-Zip, which the installer contains (a download that
+  fails is resumed when the installer runs again); or
+- copies from the discs: real discs, disc images (`.iso`; Windows opens them as a drive
+  when you double-click them) or folders holding a disc's files.
+
+Without `--7zip` the installer only copies from discs.
+
+For an unattended install: `redalert-setup.exe /S /DATA=download`, or
+`redalert-setup.exe /S /ALLIED=E:\ /SOVIET=F:\` for discs. `/D=C:\Games\Red Alert`
+chooses the folder (it must come last, without quotes), and `/MIRROR=URL` downloads the
+archives from another place (the files must be the same).
 
 Alternatively, the installer can contain the game data itself, from a data directory
 like the one described under Game data, and EA's license agreement for it (the file
@@ -117,14 +136,6 @@ tools/windows/make-installer.sh --data ~/redalert-data \
 
 Such an installer is for your own computers only: EA's license lets you use the game,
 but not distribute it, so don't publish an installer that contains the data.
-
-Build options (`-D<option>=ON`):
-
-| Option | Effect |
-| --- | --- |
-| `RA_LANGUAGE_GERMAN`, `RA_LANGUAGE_FRENCH` | Build a German or French version (the data must match). |
-| `RA_WARNINGS` | Show compiler warnings (off by default: the 1996 code produces thousands). |
-| `RA_SANITIZE` | Build with AddressSanitizer and UndefinedBehaviorSanitizer. With `ASAN_OPTIONS=halt_on_error=0` a run reports every memory error instead of stopping at the first. |
 
 ## Game data
 
@@ -145,8 +156,8 @@ reports a CRC error on the disc images, so Windows' own "Extract all", which use
 libarchive too, may fail as well; and Linux builds of 7-Zip without the RAR codec can't
 read them. The data also comes with the C&C Ultimate Collection.
 
-On Windows, the installer copies the data from the disc images (see Windows installer
-above). Otherwise you need:
+On Windows, the installer downloads the data, or copies it from the discs (see Windows
+installer above). Otherwise you need:
 
 | File | Where it comes from |
 | --- | --- |
