@@ -28,6 +28,9 @@ sanitizer build (RA_SANITIZE) to look for memory errors in long games.
 --map N      the Nth map in the skirmish list, from 0 (default 0, "A Path Beyond";
              9 is "Island Wars", with naval fighting)
 --minutes M  how long to let it run (default 30)
+--money N    every minute, give each side N credits if it has less (default 0: off).
+             Without it the computer players run out of money in long games and the
+             fighting dies down.
 """
 import argparse
 import os
@@ -43,6 +46,7 @@ def main():
     parser.add_argument('outdir')
     parser.add_argument('--map', type=int, default=0)
     parser.add_argument('--minutes', type=int, default=30)
+    parser.add_argument('--money', type=int, default=0)
     a = parser.parse_args()
 
     game = Game(a.outdir)
@@ -84,6 +88,11 @@ def main():
                              'Aircraft.ActiveCount', 'Vessels.ActiveCount', 'Bullets.ActiveCount',
                              'PlayerWins', 'PlayerLoses')
         log('minute %d:' % minute, ', '.join('%s %s' % (n, v) for n, v in zip(names, values)))
+        if a.money:
+            # The multiplayer houses are HOUSE_MULTI1 (12) to HOUSE_MULTI8 (19).
+            game.gdb(*['(HouseClass::As_Pointer((HousesType)%d) && HouseClass::As_Pointer((HousesType)%d)->Credits < %d) ? '
+                       '(HouseClass::As_Pointer((HousesType)%d)->Credits = %d) : 0' % (h, h, a.money, h, a.money)
+                       for h in range(12, 20)])
 
     log('game exit code', game.stop(60))
     asan, ubsan = sanitizer_report(os.path.join(a.outdir, 'game.log'))
