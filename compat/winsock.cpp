@@ -33,13 +33,14 @@
 #include <vector>
 #include <fcntl.h>
 #include <poll.h>
+#include <SDL.h>
 
 struct AsyncSocket {
 	SOCKET	Socket;
 	HWND		Window;
 	UINT		Message;
 	int		Events;
-	bool		WriteSignalled;	// FD_WRITE is edge triggered under Windows.
+	Uint32	LastWrite;		// When FD_WRITE was last posted.
 };
 
 static std::vector<AsyncSocket> AsyncSockets;
@@ -127,7 +128,7 @@ extern "C" int WSAAsyncSelect(SOCKET s, HWND window, UINT message, int events)
 	as.Window = window;
 	as.Message = message;
 	as.Events = events;
-	as.WriteSignalled = false;
+	as.LastWrite = 0;
 	AsyncSockets.push_back(as);
 	return(0);
 }
@@ -150,23 +151,39 @@ void Winsock_Poll(void)
 	**	Copy: posting may not re-enter, but be safe against the vector changing.
 	*/
 	std::vector<AsyncSocket> sockets = AsyncSockets;
+	Uint32 now = SDL_GetTicks();
 	for (size_t i = 0; i < sockets.size(); i++) {
 		AsyncSocket & as = sockets[i];
 		short re = fds[i].revents;
+
+		/*
+		**	Like Windows, don't post another FD_READ (or FD_ACCEPT) while one is still waiting
+		**	to be handled. (The game reads its messages in a "while (PeekMessage())" loop, and
+		**	each PeekMessage polls the sockets again.)
+		*/
 		if ((re & POLLIN) && (as.Events & FD_READ)) {
-			PostMessage(as.Window, as.Message, (WPARAM)as.Socket, WSAMAKESELECTREPLY(FD_READ, 0));
+			if (!Win32_Message_Pending(as.Message, (WPARAM)as.Socket, WSAMAKESELECTREPLY(FD_READ, 0))) {
+				PostMessage(as.Window, as.Message, (WPARAM)as.Socket, WSAMAKESELECTREPLY(FD_READ, 0));
+			}
 		}
 		if ((re & POLLIN) && (as.Events & FD_ACCEPT)) {
-			PostMessage(as.Window, as.Message, (WPARAM)as.Socket, WSAMAKESELECTREPLY(FD_ACCEPT, 0));
+			if (!Win32_Message_Pending(as.Message, (WPARAM)as.Socket, WSAMAKESELECTREPLY(FD_ACCEPT, 0))) {
+				PostMessage(as.Window, as.Message, (WPARAM)as.Socket, WSAMAKESELECTREPLY(FD_ACCEPT, 0));
+			}
 		}
-		if (re & POLLOUT) {
-			if (as.Events & FD_WRITE) {
-				/*
-				**	Windows only sends FD_WRITE once the socket becomes writable again after a
-				**	send failed with WSAEWOULDBLOCK. The game's handler simply flushes its send
-				**	queue, so a periodic notification while writable is harmless.
-				*/
+
+		/*
+		**	Windows only sends FD_WRITE when a socket becomes writable (again, after a send
+		**	failed with WSAEWOULDBLOCK). The game's handler flushes its send queue, and the game
+		**	asks for that itself whenever it queues a packet; a writable socket only gets a
+		**	reminder now and then, so that the message loop can't spin on it.
+		*/
+		if ((re & POLLOUT) && (as.Events & FD_WRITE) && (now - as.LastWrite) >= 100) {
+			if (!Win32_Message_Pending(as.Message, (WPARAM)as.Socket, WSAMAKESELECTREPLY(FD_WRITE, 0))) {
 				PostMessage(as.Window, as.Message, (WPARAM)as.Socket, WSAMAKESELECTREPLY(FD_WRITE, 0));
+			}
+			for (size_t j = 0; j < AsyncSockets.size(); j++) {
+				if (AsyncSockets[j].Socket == as.Socket) AsyncSockets[j].LastWrite = now;
 			}
 		}
 		if ((re & (POLLHUP | POLLERR)) && (as.Events & FD_CLOSE)) {
@@ -227,6 +244,22 @@ extern "C" HANDLE WSAAsyncGetHostByAddr(HWND window, UINT message, const char * 
 extern "C" int WSACancelAsyncRequest(HANDLE )
 {
 	return(0);
+}
+
+#include <ifaddrs.h>
+
+extern "C" int Winsock_Get_Local_Addresses(unsigned int * addresses, int max)
+{
+	struct ifaddrs * list = NULL;
+	int count = 0;
+	if (getifaddrs(&list) != 0) return(0);
+	for (struct ifaddrs * entry = list; entry != NULL && count < max; entry = entry->ifa_next) {
+		if (entry->ifa_addr != NULL && entry->ifa_addr->sa_family == AF_INET) {
+			addresses[count++] = ((struct sockaddr_in *)entry->ifa_addr)->sin_addr.s_addr;
+		}
+	}
+	freeifaddrs(list);
+	return(count);
 }
 
 #else

@@ -22,6 +22,7 @@ Working:
 - main menu, all dialogs, sidebar, mouse cursor;
 - campaign missions (tested: first Allied mission), skirmish against the computer;
 - saving and loading games;
+- LAN games ("Network" in the multiplayer menu), over UDP: tested with two players;
 - sound effects, speech and music;
 - window or fullscreen, scaled up, optionally stretched to 4:3 as on a CRT monitor.
 
@@ -30,7 +31,6 @@ Not available:
 - Modem / serial games (the serial library was not released), and Westwood Online
   internet games (the service no longer exists).
 - The DVD edition's MPEG movies (the original VQA movies are played instead).
-- LAN ("Network") games go through emulated Winsock on UDP. They are untested.
 
 Tested on Linux (x86-64); CI builds it with GCC and Clang. The code is written to be
 portable to other SDL2 platforms, but nothing else has been tried yet.
@@ -115,9 +115,16 @@ Alt+Enter switches between window and fullscreen. Environment variables:
 | `RA_SCALE=n` | Window size as a multiple of 640x400 (default 2). |
 | `RA_ASPECT=1` | Stretch 640x400 to 4:3, as a CRT monitor showed it. |
 | `RA_NO_SOUND=1` | Disable sound. |
+| `RA_LAN_BROADCAST=a.b.c.d` | Broadcast address(es) for LAN games, comma separated (default 255.255.255.255). |
 | `RA_DEBUG=1` | Print the game's debug messages to the console. |
 | `RA_NO_MESSAGEBOX=1` | Don't show system message boxes (start-up errors and warnings); take their default answer. For automated runs. |
 | `RA_SCREENSHOT=file.bmp` | Save one screenshot, `RA_SCREENSHOT_DELAY` milliseconds after start. |
+
+## LAN games
+
+Novell IPX, which the original used for network games, no longer exists, so "Network"
+games use UDP broadcasts on port 1234 instead (the original code had this as an unused
+option). Players on the same local network see each other's games in the lobby.
 
 ## Modding
 

@@ -123,7 +123,19 @@ void UDPInterfaceClass::Set_Broadcast_Address (void *address)
 
 	unsigned char *baddr = new unsigned char[4];
 
+#ifdef RA_PORT
+	/*
+	**	(The original scanned with %d straight into these bytes, writing past the end.)
+	*/
+	unsigned int b0 = 0, b1 = 0, b2 = 0, b3 = 0;
+	sscanf ( ip_addr, "%u.%u.%u.%u", &b0, &b1, &b2, &b3 );
+	baddr[0] = (unsigned char)b0;
+	baddr[1] = (unsigned char)b1;
+	baddr[2] = (unsigned char)b2;
+	baddr[3] = (unsigned char)b3;
+#else
 	sscanf ( ip_addr, "%d.%d.%d.%d", &baddr[0], &baddr[1], &baddr[2], &baddr[3] );
+#endif
 	BroadcastAddresses.Add (baddr);
 }
 
@@ -163,6 +175,14 @@ bool UDPInterfaceClass::Open_Socket ( SOCKET )
 		return (false);
 	}
 
+#ifdef RA_PORT
+	/*
+	**	LAN games broadcast their packets, which needs permission.
+	*/
+	int broadcast = 1;
+	setsockopt (Socket, SOL_SOCKET, SO_BROADCAST, (char *)&broadcast, sizeof(broadcast));
+#endif
+
 	/*
 	** Bind our UDP socket to our UDP port number
 	*/
@@ -176,6 +196,30 @@ bool UDPInterfaceClass::Open_Socket ( SOCKET )
 	}
 
 	/*
+	** Clear out any old local addresses from the local address list.
+	*/
+	while ( LocalAddresses.Count() ) {
+		delete LocalAddresses[0];
+		LocalAddresses.Delete(0);
+	}
+
+#ifdef RA_PORT
+	/*
+	**	The addresses of all network interfaces. (The host name often resolves to a loopback
+	**	address only, which wouldn't recognise our own broadcasts coming back.)
+	*/
+	unsigned int local[32];
+	int local_count = Winsock_Get_Local_Addresses(local, 32);
+	for (int index = 0; index < local_count; index++) {
+		unsigned char *a = new unsigned char [4];
+		memcpy(a, &local[index], 4);
+		LocalAddresses.Add (a);
+	}
+	WinsockInterfaceClass::Set_Socket_Options();
+	return (true);
+#endif
+
+	/*
 	** Use gethostbyname to find the name of the local host. We will need this to look up
 	** the local ip address.
 	*/
@@ -183,14 +227,6 @@ bool UDPInterfaceClass::Open_Socket ( SOCKET )
 	gethostname(hostname, 128);
 	WWDebugString (hostname);
 	struct hostent *host_info = gethostbyname ( hostname );
-
-	/*
-	** Clear out any old local addresses from the local address list.
-	*/
-	while ( LocalAddresses.Count() ) {
-		delete LocalAddresses[0];
-		LocalAddresses.Delete(0);
-	}
 
 
 	/*

@@ -141,6 +141,12 @@ int		WSAAsyncSelect(SOCKET s, HWND window, UINT message, int events);
 HANDLE	WSAAsyncGetHostByName(HWND window, UINT message, const char * name, char * buffer, int buflen);
 HANDLE	WSAAsyncGetHostByAddr(HWND window, UINT message, const char * addr, int len, int type, char * buffer, int buflen);
 int		WSACancelAsyncRequest(HANDLE request);
+
+/*
+**	Port helper: the IPv4 addresses of this machine's network interfaces (network byte order).
+**	Returns how many were stored.
+*/
+int		Winsock_Get_Local_Addresses(unsigned int * addresses, int max);
 #ifdef __cplusplus
 }
 #endif

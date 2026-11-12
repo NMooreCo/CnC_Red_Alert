@@ -1260,6 +1260,25 @@ bool Select_Game(bool fade)
 							*/
 #ifdef WINSOCK_IPX
 							if (PacketTransport ) delete PacketTransport;
+#ifdef RA_PORT
+							/*
+							**	RA_PORT: IPX no longer exists. LAN games use UDP broadcasts instead (the
+							**	original had this as a commented out choice, below). RA_LAN_BROADCAST can
+							**	name the broadcast address(es) to use, separated by commas; the default is
+							**	255.255.255.255 (the local network).
+							*/
+							PacketTransport = new UDPInterfaceClass;
+							assert ( PacketTransport != NULL);
+							{
+								char addresses[256];
+								char const * env = getenv("RA_LAN_BROADCAST");
+								strncpy(addresses, (env != NULL && *env) ? env : "255.255.255.255", sizeof(addresses)-1);
+								addresses[sizeof(addresses)-1] = '\0';
+								for (char * token = strtok(addresses, ", "); token != NULL; token = strtok(NULL, ", ")) {
+									((UDPInterfaceClass *)PacketTransport)->Set_Broadcast_Address(token);
+								}
+							}
+#else
 //							if (WWMessageBox().Process("Select a protocol to use for network play.", "UDP", "IPX")) {
 								PacketTransport = new IPXInterfaceClass;
 								assert ( PacketTransport != NULL);
@@ -1276,6 +1295,7 @@ bool Select_Game(bool fade)
 //								}
 //							}
 
+#endif	// RA_PORT
 #endif	//WINSOCK_IPX
 							WWDebugString ("RA95 - About to call Init_Network.\n");
 							if (Session.Type == GAME_IPX && Init_Network() && Remote_Connect()) {

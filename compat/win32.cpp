@@ -789,6 +789,23 @@ extern "C" BOOL GetClientRect(HWND , LPRECT rect)
 	return(TRUE);
 }
 
+/*
+**	Is this exact message waiting in the queue?
+*/
+bool Win32_Message_Pending(UINT message, WPARAM wparam, LPARAM lparam)
+{
+	bool found = false;
+	Lock_Queue();
+	for (size_t i = 0; i < MessageQueue.size(); i++) {
+		if (MessageQueue[i].message == message && MessageQueue[i].wParam == wparam && MessageQueue[i].lParam == lparam) {
+			found = true;
+			break;
+		}
+	}
+	Unlock_Queue();
+	return(found);
+}
+
 extern "C" BOOL PostMessage(HWND window, UINT message, WPARAM wparam, LPARAM lparam)
 {
 	MSG msg;
@@ -1116,6 +1133,9 @@ struct MMTimer {
 	DWORD				User;
 	UINT				Delay;
 	bool				Periodic;
+	SDL_atomic_t	Running;		// The callback is running (on SDL's timer thread).
+	SDL_atomic_t	Killed;		// timeKillEvent() was called: don't call back any more.
+	SDL_threadID	Thread;		// Thread the callback runs on.
 };
 static std::vector<MMTimer *> Timers;
 static SDL_mutex * TimerLock = NULL;
@@ -1123,7 +1143,14 @@ static SDL_mutex * TimerLock = NULL;
 static Uint32 SDLCALL MM_Timer_Thunk(Uint32 interval, void * param)
 {
 	MMTimer * timer = (MMTimer *)param;
+	SDL_AtomicSet(&timer->Running, 1);
+	if (SDL_AtomicGet(&timer->Killed)) {
+		SDL_AtomicSet(&timer->Running, 0);
+		return(0);
+	}
+	timer->Thread = SDL_ThreadID();
 	timer->Callback((UINT)timer->ID, 0, timer->User, 0, 0);
+	SDL_AtomicSet(&timer->Running, 0);
 	return(timer->Periodic ? interval : 0);
 }
 
@@ -1136,6 +1163,9 @@ extern "C" UINT timeSetEvent(UINT delay, UINT , LPTIMECALLBACK callback, DWORD u
 	timer->User = user;
 	timer->Delay = delay ? delay : 1;
 	timer->Periodic = (flags & TIME_PERIODIC) != 0;
+	SDL_AtomicSet(&timer->Running, 0);
+	SDL_AtomicSet(&timer->Killed, 0);
+	timer->Thread = 0;
 	timer->ID = SDL_AddTimer(timer->Delay, MM_Timer_Thunk, timer);
 	if (timer->ID == 0) {
 		delete timer;
@@ -1153,13 +1183,23 @@ extern "C" MMRESULT timeKillEvent(UINT id)
 	SDL_LockMutex(TimerLock);
 	for (size_t i = 0; i < Timers.size(); i++) {
 		if ((UINT)Timers[i]->ID == id) {
-			SDL_RemoveTimer(Timers[i]->ID);
-			/*
-			**	The callback might be running right now on the timer thread; leak the (tiny)
-			**	timer record rather than risk freeing it underneath it.
-			*/
+			MMTimer * timer = Timers[i];
+			SDL_AtomicSet(&timer->Killed, 1);
+			SDL_RemoveTimer(timer->ID);
 			Timers.erase(Timers.begin() + i);
 			SDL_UnlockMutex(TimerLock);
+
+			/*
+			**	A callback that is running right now finishes before this returns, so that the
+			**	caller can free what the callback uses (the sound system does). Unless this is
+			**	the callback itself. The (tiny) timer record is not freed: SDL may still look at
+			**	it once more.
+			*/
+			if (timer->Thread != SDL_ThreadID()) {
+				while (SDL_AtomicGet(&timer->Running)) {
+					SDL_Delay(1);
+				}
+			}
 			return(TIMERR_NOERROR);
 		}
 	}

@@ -30,6 +30,7 @@
 **	Implemented in compat/win32.cpp
 */
 void		Win32_Post_Input(UINT message, WPARAM wparam, LPARAM lparam);
+bool		Win32_Message_Pending(UINT message, WPARAM wparam, LPARAM lparam);
 void		Win32_Set_Key_State(int vkey, bool down);
 void		Win32_Set_Toggle_State(int vkey, bool on);
 void		Win32_Clear_Key_States(void);
