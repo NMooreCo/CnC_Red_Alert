@@ -252,7 +252,7 @@ bool FootClass::Unravel_Loop(PathType * path, CELL &cell, FacingType &dir, int s
 			*/
 			if (curr_dir & 1 && curr_pos != path->LastFixup) {
 				cell 				 = curr_pos;
-				dir  				 = *(list-1);
+				dir  				 = (idx > 1) ? *(list-1) : *list;	// RA_PORT: was Command[-1] for the first move.
 				path->Length	 = idx;
 				path->LastFixup = curr_pos;
 				return(true);
@@ -333,7 +333,7 @@ bool FootClass::Register_Cell(PathType * path, CELL cell, FacingType dir, int co
 		** could not have a duplicate unless there are cells in the list.
 		*/
 
-		if (path->Command[path->Length - 1] == Opposite(dir)) {
+		if (path->Length > 0 && path->Command[path->Length - 1] == Opposite(dir)) {	// RA_PORT: Length can be 0.
 			CELL pos = Adjacent_Cell(cell, Opposite(dir));
 #ifdef TEST
 			path->Overlap[pos >> 5] &= ~(1 << ((pos & 31)));
