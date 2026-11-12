@@ -100,7 +100,7 @@ The installer installs the game for the current user (in
 to its data, so it needs a folder of its own), with Start menu and desktop shortcuts and
 an uninstaller. It asks for the game discs and copies the data from them: real discs,
 disc images (`.iso`; Windows opens them as a drive when you double-click them) or
-folders holding a disc's files.
+folders holding a disc's files. See Game data below for where to download the discs.
 
 For an unattended install, give the discs on the command line:
 `redalert-setup.exe /S /ALLIED=E:\ /SOVIET=F:\ /D=C:\Games\Red Alert` (`/D`, the folder,
@@ -128,9 +128,25 @@ Build options (`-D<option>=ON`):
 
 ## Game data
 
-The game data is not part of this repository. EA released Red Alert as freeware in
-2008; its two CD images (Allied and Soviet discs) are still around, and the data also
-comes with the C&C Ultimate Collection. You need:
+The game data is not part of this repository, nor of its releases: EA released Red Alert
+as freeware in 2008, but its license lets you use the game, not distribute it.
+
+EA's download page is gone; the Internet Archive keeps a copy of the freeware release,
+[Command & Conquer Classics Original Freeware Releases](https://archive.org/details/official-cn-ctiberian-sun_202510):
+
+| Download | Size | SHA-1 |
+| --- | --- | --- |
+| [`RedAlert1_AlliedDisc.rar`](https://archive.org/download/official-cn-ctiberian-sun_202510/RedAlert1_AlliedDisc.rar) | 524 MB | `30f84e4314365a9f1706cfd7359d638de43689ba` |
+| [`RedAlert1_SovietDisc.rar`](https://archive.org/download/official-cn-ctiberian-sun_202510/RedAlert1_SovietDisc.rar) | 526 MB | `3df92a8abfd7c5a24d9c8f4c6fd1300da47105f9` |
+
+They hold the disc images (`CD1_ALLIED_DISC.ISO`, `CD2_SOVIET_DISC.ISO`) and EA's license
+agreement. Unpack them with 7-Zip on Windows, or `unar` or `unrar`. `bsdtar` (libarchive)
+reports a CRC error on the disc images, so Windows' own "Extract all", which uses
+libarchive too, may fail as well; and Linux builds of 7-Zip without the RAR codec can't
+read them. The data also comes with the C&C Ultimate Collection.
+
+On Windows, the installer copies the data from the disc images (see Windows installer
+above). Otherwise you need:
 
 | File | Where it comes from |
 | --- | --- |
@@ -153,10 +169,6 @@ or from directories holding the discs' files:
 ```sh
 tools/install-data.sh ~/redalert-data CD1_ALLIED_DISC.ISO CD2_SOVIET_DISC.ISO
 ```
-
-EA's freeware downloads (`RedAlert1_AlliedDisc.rar`, `RedAlert1_SovietDisc.rar`) are RAR
-archives holding these images. Unpack them with `unar` or `unrar`; some 7-Zip builds
-can't decompress them.
 
 A disc is a directory named after it (`CD1` Allied, `CD2` Soviet, `CD3`
 Counterstrike, `CD4` Aftermath). Files in the data directory itself are always found

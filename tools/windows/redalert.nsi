@@ -50,6 +50,8 @@ SetCompressor lzma
 
 !define UNINSTALL_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\RedAlertModernPort"
 !define SETTINGS_KEY "Software\RedAlertModernPort"
+; EA's freeware release of the discs, as kept by the Internet Archive.
+!define DATA_URL "https://archive.org/details/official-cn-ctiberian-sun_202510"
 
 Name "Command & Conquer Red Alert" "Command && Conquer Red Alert"
 OutFile "${OUT_FILE}"
@@ -244,28 +246,40 @@ Function Discs_Page
 	!insertmacro MUI_HEADER_TEXT "Game discs" "Where should the game data be copied from?"
 	nsDialogs::Create 1018
 	Pop $0
-	${NSD_CreateLabel} 0 0 100% 52u "Red Alert came on two discs: the Allied disc (CD 1) and the Soviet disc (CD 2), each with one of the campaigns. Insert a disc, or open a disc image (.iso) by double-clicking it, or use a folder that holds a disc's files, and choose it below. Leave a field empty to skip that disc."
+	${NSD_CreateLabel} 0 0 100% 42u "Red Alert came on two discs: the Allied disc (CD 1) and the Soviet disc (CD 2), each with one of the campaigns. Insert a disc, or open a disc image (.iso) by double-clicking it, or use a folder that holds a disc's files, and choose it below. Leave a field empty to skip that disc."
 	Pop $0
 
-	${NSD_CreateLabel} 0 58u 100% 10u "Allied disc (CD 1):"
+	${NSD_CreateLabel} 0 46u 100% 10u "Allied disc (CD 1):"
 	Pop $0
-	${NSD_CreateDirRequest} 0 70u 245u 13u "$AlliedDisc"
+	${NSD_CreateDirRequest} 0 57u 245u 13u "$AlliedDisc"
 	Pop $AlliedField
-	${NSD_CreateBrowseButton} 250u 70u 50u 13u "Browse..."
+	${NSD_CreateBrowseButton} 250u 57u 50u 13u "Browse..."
 	Pop $0
 	nsDialogs::SetUserData $0 $AlliedField
 	${NSD_OnClick} $0 Browse_For_Disc
 
-	${NSD_CreateLabel} 0 92u 100% 10u "Soviet disc (CD 2):"
+	${NSD_CreateLabel} 0 75u 100% 10u "Soviet disc (CD 2):"
 	Pop $0
-	${NSD_CreateDirRequest} 0 104u 245u 13u "$SovietDisc"
+	${NSD_CreateDirRequest} 0 86u 245u 13u "$SovietDisc"
 	Pop $SovietField
-	${NSD_CreateBrowseButton} 250u 104u 50u 13u "Browse..."
+	${NSD_CreateBrowseButton} 250u 86u 50u 13u "Browse..."
 	Pop $0
 	nsDialogs::SetUserData $0 $SovietField
 	${NSD_OnClick} $0 Browse_For_Disc
 
+	${NSD_CreateLabel} 0 106u 100% 20u "Don't have the discs? EA's freeware release can be downloaded from the Internet Archive. Unpack the .rar files with 7-Zip, then double-click the .ISO files."
+	Pop $0
+	${NSD_CreateLink} 0 128u 100% 10u "Open the download page (archive.org)"
+	Pop $0
+	SetCtlColors $0 0000CC transparent
+	${NSD_OnClick} $0 Open_Data_Page
+
 	nsDialogs::Show
+FunctionEnd
+
+Function Open_Data_Page
+	Pop $0
+	ExecShell "open" "${DATA_URL}"
 FunctionEnd
 
 Function Browse_For_Disc
