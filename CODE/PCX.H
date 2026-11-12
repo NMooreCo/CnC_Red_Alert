@@ -30,10 +30,15 @@
 
 #pragma pack(push, 1)
 
+/*
+**	RA_PORT: unsigned. Read_PCX_File() converts the palette to 6 bits with ">>= 2", which kept
+**	the sign of values 128 and up with signed chars (Watcom /j). Displayed directly they came out
+**	right anyway, but fades of these palettes (the end credits) showed garbage colours.
+*/
 typedef	struct {
-	char	red;
-	char	green;
-	char	blue;
+	unsigned char	red;
+	unsigned char	green;
+	unsigned char	blue;
 } RGB;
 
 typedef	struct	{

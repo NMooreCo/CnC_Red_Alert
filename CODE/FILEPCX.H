@@ -46,9 +46,9 @@
 
 
 typedef	struct {
-						  char	red ;
-						  char	green ;
-						  char	blue ;
+						  unsigned char	red ;		// RA_PORT: unsigned (see PCX.H).
+						  unsigned char	green ;
+						  unsigned char	blue ;
 					} RGB ;
 
 typedef	struct	{
