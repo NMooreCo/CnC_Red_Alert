@@ -90,6 +90,14 @@ if(NOT MSVC)
 	# Watcom sized each enum to the smallest integer type that holds its values (it had no -ei),
 	# and data files and structures depend on that (e.g. 2 byte map template numbers).
 	target_compile_options(ra_game_defs INTERFACE -fshort-enums)
+	# The game's pooled classes have an operator new that returns NULL when the pool is full,
+	# and the code checks for that. Pre-standard compilers skipped the constructor then;
+	# modern ones assume operator new never returns NULL unless told otherwise.
+	include(CheckCXXCompilerFlag)
+	check_cxx_compiler_flag(-fcheck-new RA_HAVE_CHECK_NEW)
+	if(RA_HAVE_CHECK_NEW)
+		target_compile_options(ra_game_defs INTERFACE $<$<COMPILE_LANGUAGE:CXX>:-fcheck-new>)
+	endif()
 endif()
 if(RA_LANGUAGE_GERMAN)
 	target_compile_definitions(ra_game_defs INTERFACE GERMAN=1)
