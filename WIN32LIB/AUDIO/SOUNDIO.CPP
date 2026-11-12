@@ -1641,7 +1641,6 @@ int Play_Sample_Handle(void const *sample, int priority, int volume, signed shor
 
 	if (AudioDone) return (0);
 
-	st = &LockedData.SampleTracker[id];
 	//EnterCriticalSection (&GlobalAudioCriticalSection);
 
 	if (!sample || LockedData.DigiHandle == -1) {
@@ -1653,6 +1652,7 @@ int Play_Sample_Handle(void const *sample, int priority, int volume, signed shor
 		//LeaveCriticalSection (&GlobalAudioCriticalSection);
 		return -1;
 	}
+	st = &LockedData.SampleTracker[id];		// RA_PORT: after the check (was SampleTracker[-1]).
 
 	/*
 	**      Fetch the control bytes from the start of the sample data.

@@ -821,7 +821,11 @@ typedef enum SpecialWeaponType {
 **	return value, appropriate action may be chosen.
 **	NOTE: If this changes, update the static array in Find_Path module.
 */
-typedef enum MoveType {
+/*
+**	RA_PORT: stored in a byte as with Watcom, and FootClass::PathThreshhold counts past MOVE_NO
+**	(it wraps at 256) when paths keep failing. The fixed underlying type makes those values legal.
+*/
+typedef enum MoveType : unsigned char {
 	MOVE_OK, 				// No blockage.
 	MOVE_CLOAK,				// A cloaked blocking enemy object.
 	MOVE_MOVING_BLOCK,	// Blocked, but only temporarily.
