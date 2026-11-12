@@ -30,7 +30,7 @@
 #ifndef RAWOLAPI_H
 #define RAWOLAPI_H
 
-#include "function.h"
+#include "FUNCTION.H"
 
 //#include "cominit.h"
 #include <stdio.h>
@@ -46,12 +46,12 @@
 //namespace WOL		//	namespace is workaround due to the use of "Server" as a global in Red Alert.
 //	ajw - Can't use namespaces in Watcom 10.5 it seems...
 //{
-	#include "wolapi\wolapi.h"
+	#include "WOLAPI/WOLAPI.H"
 	#define IID_DEFINED
 	//#include "wlib/wdebug.h"
-	#include "wolapi\chatdefs.h"
-	#include "wolapi\downloaddefs.h"
-	#include "wolapi\ftpdefs.h"
+	#include "WOLAPI/CHATDEFS.H"
+	#include "WOLAPI/DOWNLOADDEFS.H"
+	#include "WOLAPI/FTPDEFS.H"
 //};
 //using namespace WOL;
 #include <winerror.h>
@@ -160,10 +160,10 @@ class RAChatEventSink : /////public CComObjectRoot, /////public IConnectionPoint
 	STDMETHOD(OnUserFlags)(HRESULT r, LPCSTR name, unsigned int flags, unsigned int mask);
 	STDMETHOD(OnChannelBan)(HRESULT r, LPCSTR name, int banned);
 
-	unsigned long	GetPlayerGameIP( const char* szPlayerName ) const;
+	unsigned int	GetPlayerGameIP( const char* szPlayerName ) const;
 	void			DeleteUserList();		//	Deletes from heap all users pointed to through pUserList.
 	void			DeleteUserIPList();
-	unsigned long	GetUserIP( const char* szName ) const;
+	unsigned int	GetUserIP( const char* szName ) const;
 	
 	void			ActionEggSound( const char* szMessage );
 
@@ -228,7 +228,7 @@ protected:
 	void			InsertUserSorted( User* pUserNew );
 
 private:
-	long m_cRef;  // Reference Count
+	int m_cRef;  // Reference Count
 
 };
 
@@ -271,7 +271,7 @@ public:
 	bool		bResumed;
 
 private:
-	long m_cRef;  // Ref count
+	int m_cRef;  // Ref count
 };
 
 //***********************************************************************************************
@@ -295,8 +295,8 @@ public:
 	// INetUtilEvent
 
 	STDMETHOD(OnGameresSent)(HRESULT res);
-	STDMETHOD(OnLadderList)(HRESULT res, Ladder *list, int totalCount, long timeStamp, int keyRung);
-	STDMETHOD(OnPing)(HRESULT res, int time, unsigned long ip, int handle);
+	STDMETHOD(OnLadderList)(HRESULT res, Ladder *list, int totalCount, int timeStamp, int keyRung);
+	STDMETHOD(OnPing)(HRESULT res, int time, unsigned int ip, int handle);
 
 
 	void			DeleteLadderList();		//	Deletes from heap all users pointed to through pUserList.
@@ -311,7 +311,7 @@ protected:
 	WolapiObject*	pOwner;					//	Link back to the object that contains me.
 
 private:
-	long m_cRef;  // Reference Count
+	int m_cRef;  // Reference Count
 };
 
 //***********************************************************************************************

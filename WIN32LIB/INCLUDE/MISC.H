@@ -37,15 +37,7 @@
 #ifndef MISC_H
 #define MISC_H
 
-#define WIN32_LEAN_AND_MEAN	// eliminates unecessary definitions in windows.h
-#ifndef _WIN32 // Denzil 6/2/98 Watcom 11.0 complains without this check
-#define _WIN32
-#endif // _WIN32
 #include <windows.h>
-#include <windowsx.h>
-#include <ddraw.h>
-
-extern	LPDIRECTDRAWSURFACE	PaletteSurface;
 
 /*========================= C++ Routines ==================================*/
 
@@ -103,28 +95,25 @@ extern	void (*Misc_Focus_Restore_Function)(void);
  *  can be restored after a focus switch.
 */
 
-#define	MAX_SURFACES	20
-
+/*
+**	Modern port: there are no DirectDraw surfaces to lose or restore any more, but the game
+**	still polls "AllSurfaces.SurfacesRestored" to know when to redraw dialogs (for example
+**	after the window regains focus), so a light weight version of the class remains.
+*/
 class SurfaceMonitorClass {
 
 	public:
 
-		SurfaceMonitorClass();
+		SurfaceMonitorClass() : SurfacesRestored(FALSE), InFocus(TRUE) {};
 
-		void	Add_DD_Surface (LPDIRECTDRAWSURFACE);
-		void	Remove_DD_Surface (LPDIRECTDRAWSURFACE);
-		BOOL	Got_Surface_Already (LPDIRECTDRAWSURFACE);
-		void	Restore_Surfaces (void);
-		void	Set_Surface_Focus ( BOOL in_focus );
-		void	Release(void);
+		void	Restore_Surfaces (void) {SurfacesRestored = TRUE;};
+		void	Set_Surface_Focus ( BOOL in_focus ) {InFocus = in_focus;};
+		void	Release(void) {};
 
 		BOOL	SurfacesRestored;
 
 	private:
-
-		LPDIRECTDRAWSURFACE	Surface[MAX_SURFACES];
-		BOOL						InFocus;
-
+		BOOL	InFocus;
 };
 
 extern	SurfaceMonitorClass	AllSurfaces;				//List of all direct draw surfaces
@@ -133,8 +122,6 @@ extern	SurfaceMonitorClass	AllSurfaces;				//List of all direct draw surfaces
 /*=========================================================================*/
 /* The following variables are declared in: DDRAW.CPP								*/
 /*=========================================================================*/
-extern	LPDIRECTDRAW	DirectDrawObject;
-extern	LPDIRECTDRAW2	DirectDraw2Interface;
 extern	HWND				MainWindow;
 extern BOOL 				SystemToVideoBlits;
 extern BOOL				VideoToSystemBlits;
@@ -206,9 +193,9 @@ void __cdecl Shake_Screen(int shakes);
 /* The following prototypes are for the file: REVERSE.ASM						*/
 /*=========================================================================*/
 
-long __cdecl Reverse_Long(long number);
+int __cdecl Reverse_Long(int number);
 short __cdecl Reverse_Short(short number);
-long __cdecl Swap_Long(long number);
+int __cdecl Swap_Long(int number);
 #if (0)
 /*=========================================================================*/
 /* The following prototype is for the file: FACING8.ASM							*/
@@ -233,12 +220,12 @@ int __cdecl Desired_Facing256(int x1, int y1, int x2, int y2);
 /*=========================================================================*/
 #endif
 
-void * __cdecl Build_Fading_Table(void const *palette, void const *dest, long int color, long int frac);
+void * __cdecl Build_Fading_Table(void const *palette, void const *dest, int color, int frac);
 /*=========================================================================*/
 /* The following prototype is for the file: CRC.ASM							*/
 /*=========================================================================*/
 
-long __cdecl Calculate_CRC(void *buffer, long length);
+int __cdecl Calculate_CRC(void *buffer, int length);
 
 /*=========================================================================*/
 /* The following prototypes are for the file: DETPROC.ASM						*/
@@ -246,7 +233,6 @@ long __cdecl Calculate_CRC(void *buffer, long length);
 
 extern WORD __cdecl  Processor(void);
 extern WORD __cdecl Operating_System(void);
-extern unsigned long random ( unsigned long mod )  ;
 //extern void  randomize ( void ) ;
 
 extern int __cdecl Clip_Rect ( int * x , int * y , int * dw , int * dh ,

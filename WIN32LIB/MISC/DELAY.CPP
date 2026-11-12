@@ -32,16 +32,16 @@
  * Functions:                                                              *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"wwstd.h"
-#include <timer.h>
+#include	"WWSTD.H"
+#include <TIMER.H>
 
 void Delay(int duration)
 {
-	unsigned long count;
+	unsigned int count;
 	TimerClass timer(BT_SYSTEM,TRUE);
 
 	while (duration--) {
-		count = timer.Time() + 1L;
+		count = timer.Time() + 1;
 		while (count >= timer.Time()) {
 			;
 		}
@@ -59,4 +59,3 @@ void Vsync()
 	Wait_Vert_Blank(VertBlank);
 }
 #endif
-

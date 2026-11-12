@@ -36,11 +36,11 @@
  *   Main_Menu -- Menu processing                                                              *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include "function.h"
+#include "FUNCTION.H"
 #ifdef WIN32
-#include "ccdde.h"
+#include "CCDDE.H"
 #else	//WIN32
-#include	<sys\timeb.h>
+#include	<sys/timeb.h>
 #endif
 
 /*****************************
@@ -48,7 +48,7 @@
 ******************************/
 
 PRIVATE int Coordinates_In_Region(int x, int y, int inx1, int iny1, int inx2, int iny2);
-PRIVATE int Select_To_Entry(int select, unsigned long bitfield, int index);
+PRIVATE int Select_To_Entry(int select, unsigned int bitfield, int index);
 PRIVATE void Flash_Line(char const *text, int xpix, int ypix, unsigned nfgc, unsigned hfgc, unsigned bgc);
 
 int UnknownKey;
@@ -57,7 +57,7 @@ PRIVATE int MenuUpdate=1;
 PRIVATE int MenuSkip;
 
 #ifdef FIXIT_VERSION_3
-#include "WolStrng.h"
+#include "WOLSTRNG.H"
 #endif
 
 /*=========================================================================*/
@@ -71,20 +71,20 @@ PRIVATE int MenuSkip;
 /*				the starting index within the bit field.								*/
 /*	RETURNS:	int the index into the table of entries								*/
 /*=========================================================================*/
-PRIVATE int Select_To_Entry(int select, unsigned long bitfield, int index)
+PRIVATE int Select_To_Entry(int select, unsigned int bitfield, int index)
 {
 	int placement;
 
-	if (bitfield==0xFFFFFFFFL) 							/* if all bits are set	*/
+	if (bitfield==0xFFFFFFFF) 							/* if all bits are set	*/
 		return(select);										/*		then it as is		*/
 
 	placement=0;												/* current pos zero		*/
 	while (select) {											/* while still ones		*/
-		if (bitfield & (1L<<(placement+index)))			/* if this flagged then	*/
+		if (bitfield & (1<<(placement+index)))			/* if this flagged then	*/
 			select--;											/* decrement counter		*/
 		placement++;											/* and we moved a place	*/
 	}
-	while (!(bitfield & (1L<<(placement+index)))) {
+	while (!(bitfield & (1<<(placement+index)))) {
 		placement++;
 	}
 
@@ -146,15 +146,15 @@ PRIVATE int Coordinates_In_Region(int x, int y, int inx1, int iny1, int inx2, in
 /*				point to start at within the list.										*/
 /*	RETURNS:	int the total number of items in the menu							*/
 /*=========================================================================*/
- int Find_Menu_Items(int maxitems, unsigned long field, char index)
+ int Find_Menu_Items(int maxitems, unsigned int field, char index)
  {
 	int loop,ctr;
 
-	if (field==0xFFFFFFFFL) 										/* if all bits are set	*/
+	if (field==0xFFFFFFFF) 										/* if all bits are set	*/
 		return(maxitems);										/* then maxitems set		*/
 
 	for (loop=ctr=0;loop<maxitems;loop++) {			/* loop through items	*/
-		if (field & (1L<<(loop+index))) {				/* if the bit is set		*/
+		if (field & (1<<(loop+index))) {				/* if the bit is set		*/
 			ctr++;												/*		count the item		*/
 		}
 	}
@@ -173,7 +173,7 @@ PRIVATE int Coordinates_In_Region(int x, int y, int inx1, int iny1, int inx2, in
 /*				index into the field, int the number of lines to skip.			*/
 /*	RETURNS:	none																				*/
 /*=========================================================================*/
-void Setup_Menu(int menu, char const * text[], unsigned long field, int index, int skip)
+void Setup_Menu(int menu, char const * text[], unsigned int field, int index, int skip)
 {
 	int * menuptr,lp;
 	int menuy,menux,idx,item,num,drawy;
@@ -207,7 +207,7 @@ void Setup_Menu(int menu, char const * text[], unsigned long field, int index, i
 /*	INPUTS:																						*/
 /*	RETURNS:																						*/
 /*=========================================================================*/
-int Check_Menu(int menu, char const * text[], char *, long field, int index)
+int Check_Menu(int menu, char const * text[], char *, int field, int index)
 {
 	int maxitem,select,key,menuy,menux;
 	int mx1,mx2,my1,my2,tempy;
@@ -424,14 +424,14 @@ int Do_Menu(char const ** strings, bool )
 	Change_Window((int)WINDOW_MENU);
 	Show_Mouse();
 	Window_Box(WINDOW_MENU, BOXSTYLE_RAISED);
-	Setup_Menu(0, strings, 0xFFFFL, 0, 0);
+	Setup_Menu(0, strings, 0xFFFF, 0, 0);
 
 	Keyboard->Clear();
 	selection = -1;
 	UnknownKey = 0;
 	while (selection == -1) {
 		Call_Back();
-		selection = Check_Menu(0, strings, NULL, 0xFFL, 0);
+		selection = Check_Menu(0, strings, NULL, 0xFF, 0);
 		if (UnknownKey != 0 || UnknownKey == KN_ESC || UnknownKey==KN_LMOUSE || UnknownKey==KN_RMOUSE) break;
 	}
 	Keyboard->Clear();
@@ -460,7 +460,7 @@ int Do_Menu(char const ** strings, bool )
  * HISTORY:                                                                *
  *   05/17/1995 BRR : Created.                                             *
  *=========================================================================*/
-int Main_Menu(unsigned long )
+int Main_Menu(unsigned int )
 {
 	/*
 	**	Dialog & button dimensions
@@ -577,7 +577,7 @@ int Main_Menu(unsigned long )
 	int retval;										// return value
 	int curbutton;
 	TextButtonClass * buttons[7];
-	unsigned long starttime;
+	unsigned int starttime;
 
 	/*
 	**	Buttons

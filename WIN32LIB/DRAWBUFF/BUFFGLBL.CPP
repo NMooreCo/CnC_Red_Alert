@@ -34,7 +34,7 @@
  *-------------------------------------------------------------------------*
  * Functions:                                                              *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-#include "gbuffer.h"
+#include "GBUFFER.H"
 
 /*=========================================================================*/
 /* The following PRIVATE functions are in this file:                       */
@@ -56,17 +56,17 @@ BOOL (*GVPC_Scale_To_VVPC)(	void *, void *, int, int, int, int, int, int, int, i
 /*   pointers will be set to the proper function when set mode is called.	*/
 /*=========================================================================*/
 void (*VVPC_Clear_Func)(void *, unsigned char);
-long (*VVPC_To_Buffer_Func)(void *,int x, int y, int w, int h, void *buff, long size);
+int (*VVPC_To_Buffer_Func)(void *,int x, int y, int w, int h, void *buff, int size);
 void (*VVPC_Put_Pixel_Func)(void *,int x, int y, unsigned char color);
 int  (*VVPC_Get_Pixel_Func)(void *, int x, int y);
-long (*VVPC_Buffer_To_Page)(int x, int y, int w, int h, void *Buffer, void *view);
+int (*VVPC_Buffer_To_Page)(int x, int y, int w, int h, void *Buffer, void *view);
 BOOL (*VVPC_Blit_to_GVPC_Func)(void *, void *, int, int, int, int, int, int, BOOL);
 BOOL (*VVPC_Blit_to_VVPC_Func)(void *, void *, int, int, int, int, int, int, BOOL);
 BOOL (*VVPC_Scale_To_GVPC)(	void *, void *, int, int, int, int, int, int, int, int, BOOL, char *);
 BOOL (*VVPC_Scale_To_VVPC)(	void *, void *, int, int, int, int, int, int, int, int, BOOL, char *);
 LONG (*VVPC_Print_Func)(		void *, const char *, int, int, int, int);
 void (*VVPC_Draw_Stamp)(void *, void *, int, int, int, void *);
-long (*VVPC_Size_Of_Region)(void *, int, int);
+int (*VVPC_Size_Of_Region)(void *, int, int);
 
 #endif	//not_any_more_it_doesnt
 
@@ -75,7 +75,9 @@ long (*VVPC_Size_Of_Region)(void *, int, int);
 /*=========================================================================*/
 GraphicViewPortClass	*LogicPage;
 
+#ifndef RA_PORT	// RA_PORT: defined by ICONCACH.CPP (there is no video memory icon cache).
 BOOL IconCacheAllowed = TRUE;
+#endif
 
 /*
 ** Pointer to a function we will call if we detect loss of focus

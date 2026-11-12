@@ -45,6 +45,7 @@
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 #ifdef WIN32
+#include <winsock.h>
 
 #ifndef WOLAPI_INTEGRATION
 extern bool Server;
@@ -180,7 +181,7 @@ class TcpipManagerClass {
 extern TcpipManagerClass Winsock;
 
 extern char PlanetWestwoodIPAddress[IP_ADDRESS_MAX];
-extern long PlanetWestwoodPortNumber;
+extern int PlanetWestwoodPortNumber;
 extern bool PlanetWestwoodIsHost;
 extern int Read_Game_Options(char *);
 

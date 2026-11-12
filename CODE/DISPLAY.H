@@ -38,8 +38,8 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
-#include	"map.h"
-#include	"layer.h"
+#include	"MAP.H"
+#include	"LAYER.H"
 
 
 #define	ICON_PIXEL_W	 		24
@@ -147,7 +147,7 @@ class DisplayClass: public MapClass
 		void Constrained_Look(COORDINATE coord, LEPTON distance);
 		void Shroud_Cell(CELL cell/*KO, bool shadeit = false*/);
 		void Encroach_Shadow(void);
-		void Center_Map(COORDINATE center=0L);
+		void Center_Map(COORDINATE center=0);
 		virtual bool Map_Cell(CELL cell, HouseClass *house);
 		virtual CELL Click_Cell_Calc(int x, int y) const;
 		virtual void Help_Text(int , int =-1, int =-1, int =YELLOW, bool =false) {};

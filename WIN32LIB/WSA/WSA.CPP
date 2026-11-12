@@ -63,12 +63,12 @@
  *- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 
-#include <wwstd.h>
-#include "wsa.h"
-#include <wwmem.h>
-#include <file.h>
-#include <misc.h>
-#include <iff.h>
+#include <WWSTD.H>
+#include "WSA.H"
+#include <WWMEM.H>
+#include <FILE.H>
+#include <MISC.H>
+#include <IFF.H>
 #include <mem.h>
 #include <string.h>
 
@@ -112,13 +112,13 @@ typedef struct {
 	short flags;
 	// New fields that animate does not know about below this point. SEE EXTRA_charS_ANIMATE_NOT_KNOW_ABOUT
 	short file_handle;
-	unsigned long anim_mem_size;
+	unsigned int anim_mem_size;
 } SysAnimHeaderType;
 
 // NOTE:"THIS IS A BAD THING. SINCE sizeof(SysAnimHeaderType) CHANGED, THE ANIMATE.EXE
 // UTILITY DID NOT KNOW I UPDATED IT, IT ADDS IT TO largest_frame_size BEFORE SAVING
 // IT TO THE FILE.  THIS MEANS I HAVE TO ADD THESE charS ON NOW FOR IT TO WORK.
-#define EXTRA_charS_ANIMATE_NOT_KNOW_ABOUT	(sizeof(short) + sizeof(unsigned long))
+#define EXTRA_charS_ANIMATE_NOT_KNOW_ABOUT	(sizeof(short) + sizeof(unsigned int))
 
 
 //
@@ -134,19 +134,19 @@ typedef struct {
 	unsigned short pixel_height;
 	unsigned short largest_frame_size;
 	short	flags;
-	unsigned long frame0_offset;
-	unsigned long frame0_end;
+	unsigned int frame0_offset;
+	unsigned int frame0_end;
 	/* unsigned long data_seek_offset, unsigned short frame_size ... */
 } WSA_FileHeaderType;
 
-#define WSA_FILE_HEADER_SIZE	( sizeof(WSA_FileHeaderType) - (2 * sizeof(unsigned long)) )
+#define WSA_FILE_HEADER_SIZE	( sizeof(WSA_FileHeaderType) - (2 * sizeof(unsigned int)) )
 
 /*=========================================================================*/
 /* The following PRIVATE functions are in this file:                       */
 /*=========================================================================*/
 
-PRIVATE unsigned long Get_Resident_Frame_Offset( char *file_buffer, int frame );
-PRIVATE unsigned long Get_File_Frame_Offset( int file_handle, int frame, int palette_adjust);
+PRIVATE unsigned int Get_Resident_Frame_Offset( char *file_buffer, int frame );
+PRIVATE unsigned int Get_File_Frame_Offset( int file_handle, int frame, int palette_adjust);
 PRIVATE BOOL Apply_Delta(SysAnimHeaderType *sys_header, int curr_frame, char *dest_ptr, int dest_w);
 /*= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =*/
 
@@ -168,14 +168,14 @@ PRIVATE BOOL Apply_Delta(SysAnimHeaderType *sys_header, int curr_frame, char *de
  * HISTORY:                                                                *
  *   11/26/1991  SB : Created.                                             *
  *=========================================================================*/
-void * __cdecl Open_Animation(char const *file_name, char *user_buffer, long user_buffer_size, WSAOpenType user_flags, unsigned char *palette)
+void * __cdecl Open_Animation(char const *file_name, char *user_buffer, int user_buffer_size, WSAOpenType user_flags, unsigned char *palette)
 {
 	int						fh, anim_flags;
 	int						palette_adjust;
 	unsigned int						offsets_size;
 	unsigned int						frame0_size;
-	long						target_buffer_size, delta_buffer_size, file_buffer_size;
-	long						max_buffer_size,    min_buffer_size;
+	int						target_buffer_size, delta_buffer_size, file_buffer_size;
+	int						max_buffer_size,    min_buffer_size;
 	char						*sys_anim_header_buffer;
 	char						*target_buffer;
 	char						*delta_buffer, *delta_back;
@@ -200,8 +200,8 @@ void * __cdecl Open_Animation(char const *file_name, char *user_buffer, long use
 		palette_adjust	 = 768;
 
 		if (palette != NULL) {
-			Seek_File(fh, sizeof(unsigned long) * (file_header.total_frames), SEEK_CUR);
-			Read_File(fh, palette, 768L);
+			Seek_File(fh, sizeof(unsigned int) * (file_header.total_frames), SEEK_CUR);
+			Read_File(fh, palette, 768);
 		}
 
 	} else {
@@ -218,10 +218,10 @@ void * __cdecl Open_Animation(char const *file_name, char *user_buffer, long use
 
 	// Get the total file size minus the size of the first frame and the size
 	// of the file header.  These will not be read in to save even more space.
-	file_buffer_size = Seek_File(fh, 0L, SEEK_END);
+	file_buffer_size = Seek_File(fh, 0, SEEK_END);
 
 	if (file_header.frame0_offset) {
-		long tlong;
+		int tlong;
 
 		tlong = file_header.frame0_end - file_header.frame0_offset;
 		frame0_size = (unsigned short) tlong;
@@ -244,17 +244,17 @@ void * __cdecl Open_Animation(char const *file_name, char *user_buffer, long use
 	// Else size is zero.
 	//
 	if (user_flags & WSA_OPEN_DIRECT) {
-	 	target_buffer_size = 0L;
+	 	target_buffer_size = 0;
 	}
 	else {
 		anim_flags |= WSA_TARGET_IN_BUFFER;
-		target_buffer_size = (unsigned long) file_header.pixel_width * file_header.pixel_height;
+		target_buffer_size = (unsigned int) file_header.pixel_width * file_header.pixel_height;
 	}
 
 	// NOTE:"THIS IS A BAD THING. SINCE sizeof(SysAnimHeaderType) CHANGED, THE ANIMATE.EXE
 	// UTILITY DID NOT KNOW I UPDATED IT, IT ADDS IT TO largest_frame_size BEFORE SAVING
 	// IT TO THE FILE.  THIS MEANS I HAVE TO ADD THESE charS ON NOW FOR IT TO WORK.
-	delta_buffer_size  = (unsigned long) file_header.largest_frame_size + EXTRA_charS_ANIMATE_NOT_KNOW_ABOUT;
+	delta_buffer_size  = (unsigned int) file_header.largest_frame_size + EXTRA_charS_ANIMATE_NOT_KNOW_ABOUT;
 	min_buffer_size = target_buffer_size + delta_buffer_size;
 	max_buffer_size = min_buffer_size + file_buffer_size;
 
@@ -993,7 +993,7 @@ int __cdecl Get_Animation_Palette(void const *handle)
  * HISTORY:                                                                *
  *   05/23/1994 SKB : Created.                                             *
  *=========================================================================*/
-unsigned long __cdecl Get_Animation_Size(void const *handle)
+unsigned int __cdecl Get_Animation_Size(void const *handle)
 {
  	SysAnimHeaderType const *sys_header;
 
@@ -1020,13 +1020,13 @@ unsigned long __cdecl Get_Animation_Size(void const *handle)
  * HISTORY:                                                                *
  *   11/26/1991  SB : Created.                                             *
  *=========================================================================*/
-PRIVATE unsigned long Get_Resident_Frame_Offset( char *file_buffer, int frame )
+PRIVATE unsigned int Get_Resident_Frame_Offset( char *file_buffer, int frame )
 {
-	unsigned long frame0_size;
-	unsigned long *lptr;
+	unsigned int frame0_size;
+	unsigned int *lptr;
 
 	// If there is a frame 0, the calculate its size.
-	lptr = (unsigned long *) file_buffer;
+	lptr = (unsigned int *) file_buffer;
 
 	if (*lptr) {
 		frame0_size = lptr[1] - *lptr;
@@ -1039,7 +1039,7 @@ PRIVATE unsigned long Get_Resident_Frame_Offset( char *file_buffer, int frame )
 	if (*lptr)
 			return (*lptr - (frame0_size + WSA_FILE_HEADER_SIZE));
 	else
-		return (0L);
+		return (0);
 }
 
 
@@ -1056,14 +1056,14 @@ PRIVATE unsigned long Get_Resident_Frame_Offset( char *file_buffer, int frame )
  * HISTORY:                                                                *
  *   11/26/1991  SB : Created.                                             *
  *=========================================================================*/
-PRIVATE unsigned long Get_File_Frame_Offset( int file_handle, int frame, int palette_adjust)
+PRIVATE unsigned int Get_File_Frame_Offset( int file_handle, int frame, int palette_adjust)
 {
-	unsigned long offset;
+	unsigned int offset;
 
 	Seek_File(file_handle, (frame << 2) + WSA_FILE_HEADER_SIZE, SEEK_SET);
 
-	if (Read_File(file_handle, (char *) &offset, sizeof(unsigned long)) != sizeof(unsigned long)) {
-		offset = 0L;
+	if (Read_File(file_handle, (char *) &offset, sizeof(unsigned int)) != sizeof(unsigned int)) {
+		offset = 0;
 	}
 	offset += palette_adjust;
 	return( offset );
@@ -1087,7 +1087,7 @@ PRIVATE BOOL Apply_Delta(SysAnimHeaderType *sys_header, int curr_frame, char *de
 {
 	char *data_ptr, *delta_back;
 	int file_handle, palette_adjust;
-	unsigned long frame_data_size, frame_offset;
+	unsigned int frame_data_size, frame_offset;
 
 
 	palette_adjust = ((sys_header->flags & WSA_PALETTE_PRESENT) ? 768 : 0);
@@ -1120,7 +1120,7 @@ PRIVATE BOOL Apply_Delta(SysAnimHeaderType *sys_header, int curr_frame, char *de
 		//	Read it into buffer -- Return if correct amount not read.-- errors??
 
 		file_handle  = sys_header->file_handle;
-		Seek_File(file_handle, 0L, SEEK_SET);
+		Seek_File(file_handle, 0, SEEK_SET);
 
 		frame_offset = Get_File_Frame_Offset(file_handle, curr_frame, palette_adjust);
 		frame_data_size = Get_File_Frame_Offset(file_handle, curr_frame + 1, palette_adjust) - frame_offset;

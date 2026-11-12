@@ -45,22 +45,22 @@
  *   IPXConnClass::Send_To -- sends the packet to the given address			*
  *   IPXConnClass::Broadcast -- broadcasts the given packet						*
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-#include "function.h"
+#include "FUNCTION.H"
 #include <stdio.h>
 #include <mem.h>
 #include <string.h>
-#include "ipxconn.h"
+#include "IPXCONN.H"
 
 #ifdef WINSOCK_IPX
-#include "WSProto.h"
+#include "WSPROTO.H"
 
 #else
 
-#include "ipx95.h"
+#include "IPX95.H"
 #ifdef WIN32
-#include "tcpip.h"
+#include "TCPIP.H"
 #else	//WIN32
-#include "fakesock.h"
+#include "FAKESOCK.H"
 #endif	//WIN32
 #endif	//WINSOCK_IPX
 
@@ -77,7 +77,7 @@ char *				IPXConnClass::ListenBuf;
 ECBType *			IPXConnClass::SendECB;
 IPXHeaderType *	IPXConnClass::SendHeader;
 char *				IPXConnClass::SendBuf;
-long 					IPXConnClass::Handler;
+int 					IPXConnClass::Handler;
 int 					IPXConnClass::Configured = 0;
 int 					IPXConnClass::SocketOpen = 0;
 int 					IPXConnClass::Listening = 0;
@@ -227,7 +227,7 @@ void IPXConnClass::Init (void)
 void IPXConnClass::Configure (unsigned short socket, int conn_num,
 	ECBType *listen_ecb, ECBType *send_ecb, IPXHeaderType *listen_header,
 	IPXHeaderType *send_header, char *listen_buf, char *send_buf,
-	long handler_rm_ptr, int maxpacketlen)
+	int handler_rm_ptr, int maxpacketlen)
 {
 	/*------------------------------------------------------------------------
 	Save the values passed in
@@ -312,9 +312,9 @@ int IPXConnClass::Start_Listening(void)
 #else	//WIN32
 
 	void *hdr_ptr;
-	unsigned long hdr_val;
+	unsigned int hdr_val;
 	void *buf_ptr;
-	unsigned long buf_val;
+	unsigned int buf_val;
 	int rc;
 
 	/*------------------------------------------------------------------------
@@ -340,10 +340,10 @@ int IPXConnClass::Start_Listening(void)
 	/*------------------------------------------------------------------------
 	Convert protected-mode ptrs to real-mode ptrs
 	------------------------------------------------------------------------*/
-	hdr_val = (unsigned long)ListenHeader;
+	hdr_val = (unsigned int)ListenHeader;
 	hdr_ptr = (void *)(((hdr_val & 0xffff0) << 12) | (hdr_val & 0x000f));
 
-	buf_val = (unsigned long)ListenBuf;
+	buf_val = (unsigned int)ListenBuf;
 	buf_ptr = (void *)(((buf_val & 0xffff0) << 12) | (buf_val & 0x000f));
 
 	/*------------------------------------------------------------------------
@@ -356,7 +356,7 @@ int IPXConnClass::Start_Listening(void)
 	ListenECB->Packet[1].Address = buf_ptr;
 	ListenECB->Packet[1].Length = (unsigned short)PacketLen;
 
-	((long &)ListenECB->Event_Service_Routine) = Handler;
+	((int &)ListenECB->Event_Service_Routine) = Handler;
 
 	/*------------------------------------------------------------------------
 	Command IPX to listen
@@ -668,8 +668,8 @@ int IPXConnClass::Send_To(char *buf, int buflen, IPXAddressClass *address,
 
 	void *hdr_ptr;
 	void *buf_ptr;
-	unsigned long hdr_val;
-	unsigned long buf_val;
+	unsigned int hdr_val;
+	unsigned int buf_val;
 
 	/*------------------------------------------------------------------------
 	Clear the ECB & header
@@ -685,9 +685,9 @@ int IPXConnClass::Send_To(char *buf, int buflen, IPXAddressClass *address,
 	/*------------------------------------------------------------------------
 	Convert protected-mode ptrs to real-mode ptrs
 	------------------------------------------------------------------------*/
-	hdr_val = (unsigned long)SendHeader;
+	hdr_val = (unsigned int)SendHeader;
 	hdr_ptr = (void *)(((hdr_val & 0xffff0) << 12) | (hdr_val & 0x000f));
-	buf_val = (unsigned long)SendBuf;
+	buf_val = (unsigned int)SendBuf;
 	buf_ptr = (void *)(((buf_val & 0xffff0) << 12) | (buf_val & 0x000f));
 
 	/*------------------------------------------------------------------------
@@ -796,8 +796,8 @@ int IPXConnClass::Broadcast(char *buf, int buflen)
 
 	void *hdr_ptr;
 	void *buf_ptr;
-	unsigned long hdr_val;
-	unsigned long buf_val;
+	unsigned int hdr_val;
+	unsigned int buf_val;
 
 	/*------------------------------------------------------------------------
 	Clear the ECB & header
@@ -813,9 +813,9 @@ int IPXConnClass::Broadcast(char *buf, int buflen)
 	/*------------------------------------------------------------------------
 	Convert protected-mode ptrs to real-mode ptrs
 	------------------------------------------------------------------------*/
-	hdr_val = (unsigned long)SendHeader;
+	hdr_val = (unsigned int)SendHeader;
 	hdr_ptr = (void *)(((hdr_val & 0xffff0) << 12) | (hdr_val & 0x000f));
-	buf_val = (unsigned long)SendBuf;
+	buf_val = (unsigned int)SendBuf;
 	buf_ptr = (void *)(((buf_val & 0xffff0) << 12) | (buf_val & 0x000f));
 
 	/*------------------------------------------------------------------------

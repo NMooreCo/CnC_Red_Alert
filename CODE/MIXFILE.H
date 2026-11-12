@@ -36,12 +36,12 @@ typedef int bool;
 #endif
 
 #include	<stdlib.h>
-#include	"listnode.h"
-#include	"pk.h"
-#include "buff.h"
+#include	"LISTNODE.H"
+#include	"PK.H"
+#include "BUFF.H"
 
 template<class T>
-class MixFileClass : public Node<MixFileClass>
+class MixFileClass : public Node<MixFileClass<T> >
 {
 	public:
 		char const * Filename;			// Filename of mixfile.
@@ -54,13 +54,13 @@ class MixFileClass : public Node<MixFileClass>
 		void Free(void);
 		bool Cache(Buffer const * buffer = NULL);
 		static bool Cache(char const *filename, Buffer const * buffer=NULL);
-		static bool Offset(char const *filename, void ** realptr = 0, MixFileClass ** mixfile = 0, long * offset = 0, long * size = 0);
+		static bool Offset(char const *filename, void ** realptr = 0, MixFileClass ** mixfile = 0, int * offset = 0, int * size = 0);
 		static void const * Retrieve(char const *filename);
 
 		struct SubBlock {
-			long CRC;				// CRC code for embedded file.
-			long Offset;			// Offset from start of data section.
-			long Size;				// Size of data subfile.
+			int CRC;				// CRC code for embedded file.
+			int Offset;			// Offset from start of data section.
+			int Size;				// Size of data subfile.
 
 			int operator < (SubBlock & two) const {return (CRC < two.CRC);};
 			int operator > (SubBlock & two) const {return (CRC > two.CRC);};
@@ -69,7 +69,7 @@ class MixFileClass : public Node<MixFileClass>
 
 	private:
 		static MixFileClass * Finder(char const * filename);
-		long Offset(long crc, long * size = 0) const;
+		int Offset(int crc, int * size = 0) const;
 
 		/*
 		**	If this mixfile has an attached message digest, then this flag
@@ -97,7 +97,7 @@ class MixFileClass : public Node<MixFileClass>
 		*/
 		typedef struct {
 			short	count;
-			long	size;
+			int	size;
 		} FileHeader;
 
 		/*
@@ -109,12 +109,12 @@ class MixFileClass : public Node<MixFileClass>
 		**	This is the total size of all the data file embedded within the mixfile.
 		**	It does not include the header or digest bytes.
 		*/
-		long DataSize;
+		int DataSize;
 
 		/*
 		**	Start of raw data in within the mixfile.
 		*/
-		long DataStart;
+		int DataStart;
 
 		/*
 		**	Points to the file header control block array. Each file in the mixfile will

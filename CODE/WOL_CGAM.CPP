@@ -21,17 +21,17 @@
 //	Wol_CGam.cpp - Create game dialog.
 //	ajw 09/9/98
 
-#include "function.h"
+#include "FUNCTION.H"
 
 #ifndef FIXIT_CSII
 #error FIXIT_CSII must be defined.
 #endif
 
-#include "IconList.h"
-#include "WolapiOb.h"
-#include "WolStrng.h"
-#include "SEditDlg.h"
-#include "BigCheck.h"
+#include "ICONLIST.H"
+#include "WOLAPIOB.H"
+#include "WOLSTRNG.H"
+#include "SEDITDLG.H"
+#include "BIGCHECK.H"
 
 //extern char* LoadShpFile( const char* szShpFile );
 void SetPlayerCountList( IconListClass& PlayerCountList, int iPlayerMax, char* pShpBoxCheck, char* pShpBoxEmpty );
@@ -348,7 +348,7 @@ CREATEGAMEINFO WOL_CreateGame_Dialog( WolapiObject* pWO )
 	if( cgiReturn.bCreateGame && cgiReturn.bPrivate )
 	{
 		//	Get a password for the channel.
-		Fancy_Text_Print( TXT_NONE, 0, 0, TBLACK, TBLACK, TPF_TEXT );	//	Required before String_Pixel_Width() call, for god's sake.
+		Fancy_Text_Print( TXT_NONE, 0, 0, (RemapControlType *)NULL, TBLACK, TPF_TEXT );	//	Required before String_Pixel_Width() call, for god's sake.
 		SimpleEditDlgClass* pEditDlg = new SimpleEditDlgClass( 300, TXT_WOL_CREATEPRIVGAMETITLE, 
 												TXT_WOL_PASSPROMPT, WOL_CHANKEY_LEN_MAX );
 		pWO->bPump_In_Call_Back = true;

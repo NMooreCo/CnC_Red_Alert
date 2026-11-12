@@ -25,11 +25,11 @@
 **	Method to raise a number by an arbitrary whole exponent and then
 **	modulo the result by another number.
 */
-unsigned long Power_Mod(unsigned long root, unsigned long exponent, unsigned long mod)
+unsigned int Power_Mod(unsigned int root, unsigned int exponent, unsigned int mod)
 {
-	unsigned long s = 1;
-	unsigned long t = root;
-	unsigned long u = exponent;
+	unsigned int s = 1;
+	unsigned int t = root;
+	unsigned int u = exponent;
 
 	while (u) {
 		if (u & 1) {

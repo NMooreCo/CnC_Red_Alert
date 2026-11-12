@@ -42,21 +42,21 @@ enum {
 typedef struct _tagCOMPRESS_INFO {
 	char       *lpSource;
 	char       *lpDest;
-	unsigned long dwCompSize;
-	unsigned long dwUnCompSize;
+	unsigned int dwCompSize;
+	unsigned int dwUnCompSize;
 	short         wBitSize;
 	short			    wChannels;
-	unsigned long dwSampleIndex;
-	long          dwPredicted;
-	long          dwDifference;
+	unsigned int dwSampleIndex;
+	int          dwPredicted;
+	int          dwDifference;
 	short         wCodeBuf;
 	short         wCode;
 	short         wStep;
 	short         wIndex;
 
-	unsigned long dwSampleIndex2; //added BP for channel 2
-	long          dwPredicted2;   //added BP for channel 2
-	long          dwDifference2; 	//added BP for channel 2
+	unsigned int dwSampleIndex2; //added BP for channel 2
+	int          dwPredicted2;   //added BP for channel 2
+	int          dwDifference2; 	//added BP for channel 2
 	short         wCodeBuf2; 		//added BP for channel 2
 	short         wCode2; 			//added BP for channel 2
 	short         wStep2; 			//added BP for channel 2
@@ -65,10 +65,10 @@ typedef struct _tagCOMPRESS_INFO {
 
 /* compressed file type header */
 typedef struct _tagCOMPRESS_HEADER {
-	unsigned long dwType;              // type of compression
-	unsigned long dwCompressedSize;    // compressed file size
-	unsigned long dwUnCompressedSize;  // uncompressed file size
-	unsigned long dwSourceBitSize;     // original bit size
+	unsigned int dwType;              // type of compression
+	unsigned int dwCompressedSize;    // compressed file size
+	unsigned int dwUnCompressedSize;  // uncompressed file size
+	unsigned int dwSourceBitSize;     // original bit size
 	char          szName[16];          // file type, for error checking
 	} _SOS_COMPRESS_HEADER;
 
@@ -79,8 +79,8 @@ extern "C" {
 #endif
 
 void __cdecl VQA_sosCODECInitStream(_SOS_COMPRESS_INFO *);
-unsigned long __cdecl VQA_sosCODECCompressData(_SOS_COMPRESS_INFO *,unsigned long);
-unsigned long __cdecl VQA_sosCODECDecompressData(_SOS_COMPRESS_INFO *,unsigned long);
+unsigned int __cdecl VQA_sosCODECCompressData(_SOS_COMPRESS_INFO *,unsigned int);
+unsigned int __cdecl VQA_sosCODECDecompressData(_SOS_COMPRESS_INFO *,unsigned int);
 
 #ifdef __cplusplus
 }

@@ -42,7 +42,7 @@
 ****************************************************************************/
 
 /* Disable structure alignment.*/
-#ifdef __WATCOMC__
+#if defined(__WATCOMC__) || defined(RA_PORT)
 #pragma pack(1);
 #endif
 
@@ -57,7 +57,7 @@
  */
 typedef struct _MIXHeader {
 	short Count;
-	long  Size;
+	int  Size;
 } MIXHeader;
 
 /* MIXSubBlock: Mix file entry descriptor.
@@ -67,9 +67,9 @@ typedef struct _MIXHeader {
  * Size   - Size of entry.
  */
 typedef struct _MIXSubBlock {
-	long CRC;
-	long Offset;
-	long Size;
+	int CRC;
+	int Offset;
+	int Size;
 } MIXSubBlock;
 
 /* MIXHandle: Mix file handle.
@@ -82,9 +82,9 @@ typedef struct _MIXSubBlock {
  */
 typedef struct _MIXHandle {
 	char        *Name;
-	long        Size;
-	long        FH;
-	long        Count;
+	int        Size;
+	int        FH;
+	int        Count;
 	MIXSubBlock Entries[];
 } MIXHandle;
 
@@ -94,11 +94,11 @@ typedef struct _MIXHandle {
 
 MIXHandle *OpenMix(char *name);
 void CloseMix(MIXHandle *mix);
-long OpenMixEntry(MIXHandle *mix, char *name);
+int OpenMixEntry(MIXHandle *mix, char *name);
 
 /* Restore original alignment */
-#ifdef __WATCOMC__
-#pragma pack();
+#if defined(__WATCOMC__) || defined(RA_PORT)
+#pragma pack(1)		/* RA_PORT: Watcom "pack()" restored the /zp1 default. */
 #endif
 
 #endif /* VQMMIXFILE_H */

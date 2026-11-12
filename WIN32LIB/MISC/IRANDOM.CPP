@@ -34,7 +34,7 @@
 
 #include <stdlib.h>
 #include <time.h>
-#include "misc.h"
+#include "MISC.H"
 
 
 
@@ -66,4 +66,3 @@ int IRandom(int minval, int maxval)
 	while( (num = (rand() & mask) + minval) > maxval ) ;
 	return(num);
 }
-

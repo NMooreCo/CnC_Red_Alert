@@ -38,7 +38,7 @@
  *   Print_Statistics -- Prints statistics on country selected                                 *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
+#include	"FUNCTION.H"
 
 void Cycle_Call_Back_Delay(int time, PaletteClass &pal);
 extern int ControlQ;
@@ -155,7 +155,7 @@ char const * Map_Selection(void)
 //	Options.Set_Score_Volume(fixed(4, 10));
 	Theme.Queue_Song(THEME_MAP);
 
-	void *anim = Open_Animation(_filename, NULL, 0L, (WSAOpenType)(WSA_OPEN_FROM_MEM | WSA_OPEN_TO_PAGE), mappalette);
+	void *anim = Open_Animation(_filename, NULL, 0, (WSAOpenType)(WSA_OPEN_FROM_MEM | WSA_OPEN_TO_PAGE), mappalette);
 
 	Keyboard->Clear();
 	SeenPage.Clear();

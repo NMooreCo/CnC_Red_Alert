@@ -81,7 +81,7 @@
  *   FootClass::Unlimbo -- Unlimbos object and performs special fixups.                        *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
+#include	"FUNCTION.H"
 
 
 /***********************************************************************************************
@@ -188,7 +188,7 @@ void FootClass::Debug_Dump(MonoClass * mono) const
 		mono->Printf("%s", _p2c[((ABS((int)Path[index]+1)) % ARRAY_SIZE(_p2c))]);
 	}
 	mono->Set_Cursor(54, 5);mono->Printf("%2d", PathThreshhold);
-	mono->Set_Cursor(72, 3);mono->Printf("%4d", (long)PathDelay);
+	mono->Set_Cursor(72, 3);mono->Printf("%4d", (int)PathDelay);
 	mono->Set_Cursor(67, 3);mono->Printf("%3d", TryTryAgain);
 	if (HeadToCoord) {
 		mono->Set_Cursor(60, 5);mono->Printf("%08X", HeadToCoord);
@@ -797,12 +797,12 @@ COORDINATE FootClass::Sort_Y(void) const
 	assert(IsActive);
 
 	if (IsUnloading) {
-		return(Coord_Add(Coord, 0x01000000L));
+		return(Coord_Add(Coord, 0x01000000));
 	}
 	if (In_Radio_Contact() && IsTethered && Contact_With_Whom()->What_Am_I() == RTTI_UNIT) {
-		return(Coord_Add(Coord, 0x01000000L));
+		return(Coord_Add(Coord, 0x01000000));
 	}
-	return(Coord_Add(Coord, 0x00300000L));
+	return(Coord_Add(Coord, 0x00300000));
 }
 
 
@@ -1086,7 +1086,7 @@ bool FootClass::Unlimbo(COORDINATE coord, DirType dir)
  * HISTORY:                                                                                    *
  *   12/30/1994 JLB : Created.                                                                 *
  *=============================================================================================*/
-ResultType FootClass::Take_Damage(int & damage, int distance, WarheadType warhead, TechnoClass * source, int forced)
+ResultType FootClass::Take_Damage(int & damage, int distance, WarheadType warhead, TechnoClass * source, bool forced)
 {
 	assert(IsActive);
 
@@ -1418,7 +1418,8 @@ void FootClass::Per_Cell_Process(PCPType why)
 			*/
 			int x = Cell_X(Coord_Cell(Coord));
 			int y = Cell_Y(Coord_Cell(Coord));
-			for (int index = 0; index < Map.MapCellWidth; index++) {
+			int index;
+			for (index = 0; index < Map.MapCellWidth; index++) {
 				trigger = Map[XY_Cell(index+Map.MapCellX, y)].Trigger;
 				if (trigger != NULL) {
 					if (trigger->Class->Event1.Event == TEVENT_CROSS_HORIZONTAL || (trigger->Class->EventControl != MULTI_ONLY && trigger->Class->Event2.Event == TEVENT_CROSS_HORIZONTAL)) {
@@ -1555,7 +1556,7 @@ bool FootClass::Restore_Mission(void)
  * HISTORY:                                                                                    *
  *   05/14/1995 JLB : Created.                                                                 *
  *=============================================================================================*/
-RadioMessageType FootClass::Receive_Message(RadioClass * from, RadioMessageType message, long & param)
+RadioMessageType FootClass::Receive_Message(RadioClass * from, RadioMessageType message, int & param)
 {
 	assert(IsActive);
 
@@ -1608,7 +1609,7 @@ RadioMessageType FootClass::Receive_Message(RadioClass * from, RadioMessageType 
 		**	then it doesn't need further movement instructions.
 		*/
 		case RADIO_NEED_TO_MOVE:
-			param = (long)NavCom;
+			param = (int)NavCom;
 			if (!Target_Legal(NavCom)) {
 				return(RADIO_ROGER);
 			}

@@ -31,10 +31,10 @@
 *
 ****************************************************************************/
 
-#include "function.h"
+#include "FUNCTION.H"
 
 #ifdef MCIMPEG
-#include "mci.h"
+#include "MCI.H"
 
 /****************************************************************************
 *
@@ -199,7 +199,7 @@ void MCI::CloseDevice(MCIDEVICEID id)
 bool MCI::GetDeviceDescription(const char* name, MCIDevice* caps)
 	{
 	MCIDEVICEID id;
-	unsigned long result;
+	unsigned int result;
 
 	// Copy the name
 	strncpy(caps->name, name, 63);
@@ -256,8 +256,8 @@ bool MCI::GetDeviceDescription(const char* name, MCIDevice* caps)
 *
 ****************************************************************************/
 
-bool MCI::GetCapability(MCIDEVICEID id, unsigned long capItem,
-		unsigned long* result)
+bool MCI::GetCapability(MCIDEVICEID id, unsigned int capItem,
+		unsigned int* result)
 	{
 	MCIERROR rc;
 	MCI_GETDEVCAPS_PARMS devCaps;
@@ -287,9 +287,9 @@ bool MCI::GetCapability(MCIDEVICEID id, unsigned long capItem,
 *
 ****************************************************************************/
 
-const char* MCI::GetDeviceTypeName(unsigned long type)
+const char* MCI::GetDeviceTypeName(unsigned int type)
 	{
-	static struct _DeviceType {unsigned long typeID; const char* typeName;}
+	static struct _DeviceType {unsigned int typeID; const char* typeName;}
 		_deviceTypeNames[] =
 		{
 			{MCI_DEVTYPE_ANIMATION, "Animation"},

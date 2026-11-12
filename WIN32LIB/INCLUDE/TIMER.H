@@ -40,9 +40,6 @@
 
 #ifndef WIN32
 #define WIN32 1
-#ifndef _WIN32 // Denzil 6/2/98 Watcom 11.0 complains without this check
-#define _WIN32
-#endif // _WIN32
 #endif
 #include <windows.h>
 #include <windowsx.h>
@@ -74,24 +71,24 @@ class TimerClass {
 		~TimerClass(void){}
 
 		//
-		long Set(long value, BOOL start=TRUE);	// Set initial timer value.
-		long Stop(void);				// Pause timer.
-		long Start(void);				// Resume timer.
-		long Reset(BOOL start=TRUE);	// Reset timer to zero.
-		long Time(void);				// Fetch current timer value.
+		int Set(int value, BOOL start=TRUE);	// Set initial timer value.
+		int Stop(void);				// Pause timer.
+		int Start(void);				// Resume timer.
+		int Reset(BOOL start=TRUE);	// Reset timer to zero.
+		int Time(void);				// Fetch current timer value.
 
 	protected:
-		long Started;					// Time last started (0 == not paused).
-		long Accumulated;				//	Total accumulated ticks.
+		int Started;					// Time last started (0 == not paused).
+		int Accumulated;				//	Total accumulated ticks.
 
 	private:
 //		long (*Get_Ticks)(void);	// System timer fetch.
 		BaseTimerEnum	TickType;
-		long Get_Ticks (void);
+		int Get_Ticks (void);
 };
 
 
-inline long TimerClass::Reset(BOOL start)
+inline int TimerClass::Reset(BOOL start)
 {
 	return(Set(0, start));
 }
@@ -101,36 +98,36 @@ class CountDownTimerClass : private TimerClass {
 	public:
 		// Constructor.  Timers set before low level init has been done will not
 		// be able to be 'Started' or 'on' until timer system is in place.
-		CountDownTimerClass(BaseTimerEnum timer, long set, int on=FALSE);
+		CountDownTimerClass(BaseTimerEnum timer, int set, int on);	// (no default: was "long set", 2 argument calls meant the other constructor)
 		CountDownTimerClass(BaseTimerEnum timer=BT_SYSTEM, int on=FALSE);
 
 		// No destructor.
 		~CountDownTimerClass(void){}
 
 		// Public functions
-		long Set(long set, BOOL start=TRUE);	// Set count down value.
-		long Reset(BOOL start=TRUE);	// Reset timer to zero.
-		long Stop(void);			// Pause timer.
-		long Start(void);			// Resume timer.
-		long Time(void);			// Fetch current count down value.
+		int Set(int set, BOOL start=TRUE);	// Set count down value.
+		int Reset(BOOL start=TRUE);	// Reset timer to zero.
+		int Stop(void);			// Pause timer.
+		int Start(void);			// Resume timer.
+		int Time(void);			// Fetch current count down value.
 
 	protected:
-		long DelayTime;			// Ticks remaining before countdown timer expires.
+		int DelayTime;			// Ticks remaining before countdown timer expires.
 };
 
-inline long CountDownTimerClass::Stop(void)
+inline int CountDownTimerClass::Stop(void)
 {
 	TimerClass::Stop();
 	return(Time());
 }
 
-inline long CountDownTimerClass::Start(void)
+inline int CountDownTimerClass::Start(void)
 {
 	TimerClass::Start();
 	return(Time());
 }
 
-inline long CountDownTimerClass::Reset(BOOL start)
+inline int CountDownTimerClass::Reset(BOOL start)
 {
 	return (TimerClass::Reset(start));
 }
@@ -174,6 +171,15 @@ extern	WinTimerClass	*WindowsTimer;
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////// externs  //////////////////////////////////////////
 #ifndef FUNCTION_H
+#ifdef RA_PORT
+/*
+**	RA_PORT: The game has a global "TickCount" of its own, of a different type (and hides
+**	this declaration, see FUNCTION_H). Watcom put the type into the decorated name of a
+**	variable, so the two never clashed; modern C++ ABIs don't, so the library's one gets a
+**	name of its own.
+*/
+#define TickCount	WWLib_TickCount
+#endif
 extern TimerClass					TickCount;
 #endif
 extern CountDownTimerClass		CountDown;
@@ -182,8 +188,8 @@ extern CountDownTimerClass		CountDown;
 //////////////////////////////////////// Prototypes //////////////////////////////////////////
 
 extern "C" {
-	long __cdecl Get_System_Tick_Count(void);
-	long __cdecl Get_User_Tick_Count(void);
+	int __cdecl Get_System_Tick_Count(void);
+	int __cdecl Get_User_Tick_Count(void);
 	void far __cdecl Timer_Interrupt_Func(void);
 //	long Get_Num_Interrupts(unsigned int realmode);
 	void __cdecl Disable_Timer_Interrupt(void);

@@ -84,7 +84,7 @@
  *   InfantryClass::~InfantryClass -- Default destructor for infantry units.                   *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
+#include	"FUNCTION.H"
 
 
 int const InfantryClass::HumanShape[32] = {0,0,7,7,7,7,6,6,6,6,5,5,5,5,5,4,4,4,3,3,3,3,2,2,2,2,1,1,1,1,1,0};
@@ -316,7 +316,7 @@ void InfantryClass::operator delete(void * ptr)
  *   11/22/1994 JLB : Shares base damage handler for techno objects.                           *
  *   03/31/1995 JLB : Revenge factor.                                                          *
  *=============================================================================================*/
-ResultType InfantryClass::Take_Damage(int & damage, int distance, WarheadType warhead, TechnoClass * source, int forced)
+ResultType InfantryClass::Take_Damage(int & damage, int distance, WarheadType warhead, TechnoClass * source, bool forced)
 {
 	assert(Infantry.ID(this) == ID);
 	assert(IsActive);
@@ -686,14 +686,14 @@ void InfantryClass::Per_Cell_Process(PCPType why)
 									*/
 									if (IsOwnedByPlayer || bldg->IsOwnedByPlayer) Speak(VOX_MONEY_STOLEN);
 #ifdef OBSOLETE
-									long capacity = bldg->Class->Capacity * 256;
+									int capacity = bldg->Class->Capacity * 256;
 									capacity /= (bldg->House->Tiberium+1);
 									int bldgcap = bldg->Class->Capacity;
 
-									long cash = (bldgcap * 256) / (capacity+1);
+									int cash = (bldgcap * 256) / (capacity+1);
 									if (cash > (bldgcap / 2)) cash = bldgcap / 2;
 #else
-									long cash = bldg->House->Available_Money() / 2;
+									int cash = bldg->House->Available_Money() / 2;
 #endif
 									bldg->House->Spend_Money(cash);
 									House->Refund_Money(cash);
@@ -1891,7 +1891,7 @@ void InfantryClass::Scatter(COORDINATE threat, bool forced, bool nokidding)
 		} else {
 			COORDINATE coord = Coord_Fraction(Center_Coord());
 
-			if (coord != 0x00800080L) {
+			if (coord != 0x00800080) {
 				toface = Dir_Facing((DirType)Desired_Facing8(0x0080, 0x0080, Coord_X(coord), Coord_Y(coord)));
 			} else {
 				toface = Dir_Facing(PrimaryFacing.Current());
@@ -1901,7 +1901,8 @@ void InfantryClass::Scatter(COORDINATE threat, bool forced, bool nokidding)
 
 		CELL newcell = 0;
 		CELL altcell = 0;
-		for (FacingType face = FACING_N; face < FACING_COUNT; face++) {
+		FacingType face;
+		for (face = FACING_N; face < FACING_COUNT; face++) {
 			FacingType newface = toface + face;
 			newcell = Adjacent_Cell(Coord_Cell(Coord), newface);
 
@@ -2228,8 +2229,8 @@ bool InfantryClass::Unlimbo(COORDINATE coord, DirType facing)
 		**	Ensure that the owning house knows about the
 		**	new object.
 		*/
-		House->IScan |= (1L << Class->Type);
-		House->ActiveIScan |= (1L << Class->Type);
+		House->IScan |= (1 << Class->Type);
+		House->ActiveIScan |= (1 << Class->Type);
 
 		/*
 		**	If there is no sight range, then this object isn't discovered by the player unless

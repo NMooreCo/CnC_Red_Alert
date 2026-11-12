@@ -19,7 +19,7 @@
 #ifndef mpmgr_h
 #define mpmgr_h
 
-#include "connmgr.h"
+#include "CONNMGR.H"
 
 // maximum number of connections
 #define CONNECT_MAX    7
@@ -62,8 +62,8 @@ public:
 
    // timing magnagement
    void Reset_Response_Time(void);
-   unsigned long Response_Time(void);
-   void Set_Timing(unsigned long retrydelta, unsigned long maxretries, unsigned long timeout);
+   unsigned int Response_Time(void);
+   void Set_Timing(unsigned int retrydelta, unsigned int maxretries, unsigned int timeout);
 
    // debug
    void Configure_Debug(int index, int type_offset, int type_size, char **names, int namestart,
@@ -79,5 +79,3 @@ private:
 };
 
 #endif // mpmgr_h
-
-

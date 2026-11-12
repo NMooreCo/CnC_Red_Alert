@@ -122,7 +122,5 @@ extern   WORD  wDetectParam;
 }
 #endif 
 
-#pragma pack()
-
+#pragma pack(1)		/* RA_PORT: Watcom "pack()" restored the /zp1 default. */
 #endif
-

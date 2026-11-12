@@ -38,10 +38,10 @@
  *   RandomClass::operator() -- Ranged random number generator.                                *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include "random.h"
+#include "RANDOM.H"
 #ifdef RANDOM_COUNT
 #include <stdio.h>
-extern long Frame;
+extern int Frame;
 #endif
 
 /***********************************************************************************************
@@ -164,7 +164,7 @@ int RandomClass::operator() (int minval, int maxval)
 	**	Create a full bit mask pattern that has all bits set that just
 	**	barely covers the magnitude of the number range desired.
 	*/
-	int mask = ~( (~0L) << (highbit+1) );
+	int mask = ~( (~0) << (highbit+1) );
 
 	/*
 	**	Keep picking random numbers until it fits within the magnitude desired.

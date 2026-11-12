@@ -40,8 +40,8 @@
  *   CDTC::Reset -- Clear the timer.                                       *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include <wwstd.h>
-#include "timer.H"
+#include <WWSTD.H>
+#include "TIMER.H"
 
 /////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////// Defines /////////////////////////////////////
@@ -63,7 +63,7 @@
  * HISTORY:                                                                *
  *   07/12/1994 SKB : Created.                                             *
  *=========================================================================*/
-CountDownTimerClass::CountDownTimerClass(BaseTimerEnum timer, long set, int on)
+CountDownTimerClass::CountDownTimerClass(BaseTimerEnum timer, int set, int on)
 							:TimerClass(timer, on)
 {
 	Set(set, on);
@@ -90,9 +90,9 @@ CountDownTimerClass::CountDownTimerClass(BaseTimerEnum timer, int on)
  * HISTORY:                                                                *
  *   07/12/1994 SKB : Created.                                             *
  *=========================================================================*/
-long CountDownTimerClass::Time()
+int CountDownTimerClass::Time()
 {
-	long ticks = DelayTime - TimerClass::Time();
+	int ticks = DelayTime - TimerClass::Time();
 
 	if (ticks < 0) {
 		ticks = 0;
@@ -115,7 +115,7 @@ long CountDownTimerClass::Time()
  * HISTORY:                                                                *
  *   07/12/1994 SKB : Created.                                             *
  *=========================================================================*/
-long CountDownTimerClass::Set(long value, BOOL start)
+int CountDownTimerClass::Set(int value, BOOL start)
 {
 	DelayTime = value;
 	TimerClass::Reset(start);

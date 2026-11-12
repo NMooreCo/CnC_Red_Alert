@@ -51,7 +51,7 @@
  *   Set_Path_Overlap -- Sets the overlap bit for given cell                                   *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
+#include	"FUNCTION.H"
 //#include	<string.h>
 
 /*
@@ -147,9 +147,9 @@ inline static FacingType Next_Direction(FacingType facing, FacingType dir)
 /* Define a couple of variables which are private to the module they are   */
 /*      declared in.                                                       */
 /*=========================================================================*/
-static unsigned long MainOverlap[MAP_CELL_TOTAL/32];		// overlap list for the main path
-static unsigned long LeftOverlap[MAP_CELL_TOTAL/32];		// overlap list for the left path
-static unsigned long RightOverlap[MAP_CELL_TOTAL/32];	// overlap list for the right path
+static unsigned int MainOverlap[MAP_CELL_TOTAL/32];		// overlap list for the main path
+static unsigned int LeftOverlap[MAP_CELL_TOTAL/32];		// overlap list for the left path
+static unsigned int RightOverlap[MAP_CELL_TOTAL/32];	// overlap list for the right path
 
 
 //static CELL MoveMask = 0;
@@ -190,7 +190,7 @@ static CELL StartLocation;
  *=========================================================================*/
 int Point_Relative_To_Line(int x, int z, int x1, int z1, int x2, int z2)
 {
-	return((((long)x - (long)x2) * ((long)z1 - (long)z2)) - (((long)z - (long)z2) * ((long)x1 - (long)x2)));
+	return((((int)x - (int)x2) * ((int)z1 - (int)z2)) - (((int)z - (int)z2) * ((int)x1 - (int)x2)));
 }
 
 

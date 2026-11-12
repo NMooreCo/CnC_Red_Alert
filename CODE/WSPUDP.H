@@ -37,7 +37,7 @@
 #ifndef WSPUDP_H
 #define WSPUDP_H
 
-#include	"WSProto.h"
+#include	"WSPROTO.H"
 #include	<nspapi.h>
 
 
@@ -54,7 +54,7 @@ class UDPInterfaceClass : public WinsockInterfaceClass {
 		UDPInterfaceClass (void);
 		virtual ~UDPInterfaceClass(void);
 
-	 	virtual long Message_Handler(HWND window, UINT message, UINT wParam, LONG lParam);
+	 	virtual int Message_Handler(HWND window, UINT message, UINT wParam, LONG lParam);
 		virtual bool Open_Socket ( SOCKET socketnum );
 		virtual void Set_Broadcast_Address ( void *address );
 		virtual void Broadcast (void *buffer, int buffer_len);

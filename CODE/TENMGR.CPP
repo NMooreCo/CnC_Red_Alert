@@ -62,7 +62,7 @@
  *   doIncomingPacket -- Callback: packet has arrived                      * 
  *   doPlayerJoins -- Callback: player joins                               * 
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-#include "function.h"
+#include "FUNCTION.H"
 
 #ifdef WIN32
 #define WINDOWS
@@ -86,7 +86,7 @@ static void doAlert(int, int, char *);
 static void doPregameHook(char * joinType,  char *,  char *, 
 	char *,  char *,  char *);
 void doIncomingPacket(int addr, void *buf, size_t size);
-void doPlayerEntered(int pid, int isYou, char *, char *, char *, long , char *);
+void doPlayerEntered(int pid, int isYou, char *, char *, char *, int , char *);
 
 
 //**************************************************************************
@@ -814,7 +814,7 @@ void TenConnManClass::Reset_Response_Time(void)
  * HISTORY:                                                                * 
  *   07/22/1996 BRR : Created.                                             * 
  *=========================================================================*/
-unsigned long TenConnManClass::Response_Time(void)
+unsigned int TenConnManClass::Response_Time(void)
 {
    return((Session.NetResponseTime * 60) / 1000);   // 300 milliseconds one way
 
@@ -836,8 +836,8 @@ unsigned long TenConnManClass::Response_Time(void)
  * HISTORY:                                                                * 
  *   07/22/1996 BRR : Created.                                             * 
  *=========================================================================*/
-void TenConnManClass::Set_Timing(unsigned long /*retrydelta*/, 
-	unsigned long /*maxretries*/, unsigned long /*timeout*/)
+void TenConnManClass::Set_Timing(unsigned int /*retrydelta*/, 
+	unsigned int /*maxretries*/, unsigned int /*timeout*/)
 {
 	//
 	// (This function intentionally left blank.)
@@ -1107,7 +1107,7 @@ void doIncomingPacket(int addr, void *buf, size_t size)
  *   07/22/1996 BRR : Created.                                             * 
  *=========================================================================*/
 void doPlayerEntered(int pid, int isYou, char * /*options*/, 
-	char */*termOptions*/, char */*address*/, long /*uniqueId*/, 
+	char */*termOptions*/, char */*address*/, int /*uniqueId*/, 
 	char */*joinType*/)
 {
 	if (isYou) {

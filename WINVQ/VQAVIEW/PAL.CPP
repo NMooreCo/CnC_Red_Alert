@@ -41,12 +41,12 @@
 #include <westwood.h>
 #include <vidmode.h>
 #include <pal.h>
-#include <gbuffer.h>
+#include <GBUFFER.H>
 #include <main.h>
 #include <monochrm.h>
 #include <wwlib.h>
-#include <memflag.h>
-#include <vq.h>
+#include <MEMFLAG.H>
+#include <VQ.H>
 
 
 //---------------------------------------------------------------------------------------------
@@ -101,10 +101,10 @@ void Update_Full_Palette( unsigned char *palette )
 extern	VQAClass	*TestVqa;
 
 extern "C"{
-	void __cdecl SetPalette(unsigned char *palette,long ,unsigned long );
+	void __cdecl SetPalette(unsigned char *palette,int ,unsigned int );
 }
 
-void __cdecl SetPalette(unsigned char *palette,long ,unsigned long )
+void __cdecl SetPalette(unsigned char *palette,int ,unsigned int )
 {
 	TestVqa->Update_Palette(palette);
 }

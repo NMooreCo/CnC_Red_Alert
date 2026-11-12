@@ -191,7 +191,7 @@ class EventClass
 			** Delay: sender's propagation delay value for this frame
 			*/
 			struct {
-				unsigned long CRC;
+				unsigned int CRC;
 				unsigned short CommandCount;	// # commands sent so far
 				unsigned char Delay;				// propagation delay used this frame
 														// (Frame - Delay = sender's current frame #)
@@ -204,7 +204,7 @@ class EventClass
 			*/
 			struct {
 				void * Pointer;
-				unsigned long Size;
+				unsigned int Size;
 			} Variable;
 
 			//
@@ -243,8 +243,8 @@ class EventClass
 		EventClass(EventType type, RTTIType object, CELL cell);
 		EventClass(EventType type, int id, CELL cell);
 		EventClass(AnimType anim, HousesType owner, COORDINATE coord);
-		EventClass(void *ptr, unsigned long size);
-		EventClass(EventType type, void *ptr, unsigned long size);
+		EventClass(void *ptr, unsigned int size);
+		EventClass(EventType type, void *ptr, unsigned int size);
 
 		// Process the event.
 		void Execute(void);

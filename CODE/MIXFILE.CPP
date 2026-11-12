@@ -47,17 +47,17 @@
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 
-#include	"buff.h"
-#include	"function.h"
+#include	"BUFF.H"
+#include	"FUNCTION.H"
 #include	<direct.h>
 #include	<fcntl.h>
 #include	<io.h>
 #include	<dos.h>
 #include	<errno.h>
 #include	<share.h>
-#include	"mixfile.h"
+#include	"MIXFILE.H"
 
-#include	"cdfile.h"
+#include	"CDFILE.H"
 extern MFCD temp;
 
 
@@ -424,7 +424,7 @@ bool MixFileClass<T>::Cache(Buffer const * buffer)
 		**	Fetch the whole mixfile data in one step. If the number of bytes retrieved
 		**	does not equal that requested, then this indicates a serious error.
 		*/
-		long actual = straw->Get(Data, DataSize);
+		int actual = straw->Get(Data, DataSize);
 		if (actual != DataSize) {
 			delete [] Data;
 			Data = NULL;
@@ -486,8 +486,8 @@ void MixFileClass<T>::Free(void)
 
 int compfunc(void const * ptr1, void const * ptr2)
 {
-	if (*(long const *)ptr1 < *(long const *)ptr2) return(-1);
-	if (*(long const *)ptr1 > *(long const *)ptr2) return(1);
+	if (*(int const *)ptr1 < *(int const *)ptr2) return(-1);
+	if (*(int const *)ptr1 > *(int const *)ptr2) return(1);
 	return(0);
 }
 
@@ -523,7 +523,7 @@ int compfunc(void const * ptr1, void const * ptr2)
  *   10/17/1994 JLB : Created.                                                                 *
  *=============================================================================================*/
 template<class T>
-bool MixFileClass<T>::Offset(char const * filename, void ** realptr, MixFileClass ** mixfile, long * offset, long * size) const
+bool MixFileClass<T>::Offset(char const * filename, void ** realptr, MixFileClass ** mixfile, int * offset, int * size)
 {
 	MixFileClass<T> * ptr;
 
@@ -535,7 +535,7 @@ assert(filename != NULL);//BG
 	/*
 	**	Create the key block that will be used to binary search for the file.
 	*/
-	long crc = Calculate_CRC(strupr((char *)filename), strlen(filename));
+	int crc = Calculate_CRC(strupr((char *)filename), strlen(filename));
 	SubBlock key;
 	key.CRC = crc;
 
@@ -578,3 +578,9 @@ assert(1);//BG
 	return(false);
 }
 
+
+
+/*
+**	Modern port: explicit instantiation (the game uses MFCD == MixFileClass<CCFileClass>).
+*/
+template class MixFileClass<CCFileClass>;

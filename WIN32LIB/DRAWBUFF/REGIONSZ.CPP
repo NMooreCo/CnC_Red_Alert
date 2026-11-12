@@ -54,7 +54,7 @@
  * HISTORY:                                                                *
  *   11/03/1994 PWG : Created.                                             *
  *=========================================================================*/
-long Size_Of_Region(int width, int height)                                 
+int Size_Of_Region(int width, int height)                                 
 {
 	return(width * height);
 }

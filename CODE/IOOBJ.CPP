@@ -65,7 +65,7 @@
  *   TriggerClass::Decode_Pointers -- decodes pointers for load/save                           *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include "function.h"
+#include "FUNCTION.H"
 
 
 /***********************************************************************************************
@@ -371,7 +371,7 @@ void FactoryClass::Decode_Pointers(void)
 		assert(Object != NULL);
 	}
 
-	((HouseClass *&)House) = HouseClass::As_Pointer((HousesType)House);
+	((HouseClass *&)House) = HouseClass::As_Pointer((HousesType)(intptr_t)(HouseClass *)House);
 	assert(House != NULL);
 }
 

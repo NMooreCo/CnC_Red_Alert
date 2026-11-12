@@ -38,8 +38,8 @@
 #ifndef SCORE_H
 #define SCORE_H
 
-#include	"unit.h"
-#include	"building.h"
+#include	"UNIT.H"
+#include	"BUILDING.H"
 
 class ScoreClass {
 	public:
@@ -56,7 +56,7 @@ class ScoreClass {
 		int NHarvested;
 		int GHarvested;
 		int CHarvested;
-		unsigned long ElapsedTime;
+		unsigned int ElapsedTime;
 		TTimerClass<SystemTimerClass> RealTime;
 
 		void Init(void);

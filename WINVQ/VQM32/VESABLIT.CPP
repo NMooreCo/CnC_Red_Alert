@@ -43,11 +43,11 @@
 ****************************************************************************/
 
 #include <stdio.h>
-#include <mem.h>
+#include <MEM.H>
 #include <dos.h>
-#include "video.h"
-#include "vesavid.h"
-#include "vesablit.h"
+#include "VIDEO.H"
+#include "VESAVID.H"
+#include "VESABLIT.H"
 
 
 /****************************************************************************
@@ -75,40 +75,40 @@
 *
 ****************************************************************************/
 
-void VESA_Blit_640x480(DisplayInfo *disp,unsigned char *buf,long x1,long y1,
-		long width,long height)
+void VESA_Blit_640x480(DisplayInfo *disp,unsigned char *buf,int x1,int y1,
+		int width,int height)
 {
 	VESAModeInfo *vminfo;
-	long         bank;
-	long         last_bank;
-	long         bank_offset;
-	long         scrn_offset;
-	long         grains_per_win;
-	long         part1;
-	long         part2;
-	long         i;
+	int         bank;
+	int         last_bank;
+	int         bank_offset;
+	int         scrn_offset;
+	int         grains_per_win;
+	int         part1;
+	int         part2;
+	int         i;
 
 	/* Initialize values */
 	vminfo = (VESAModeInfo *)disp->Extended;
 	scrn_offset = ((disp->XRes * y1) + x1);
-	grains_per_win = ((long)vminfo->WinSize / (long)vminfo->WinGranularity);
-	bank_offset = scrn_offset % 65536L;
+	grains_per_win = ((int)vminfo->WinSize / (int)vminfo->WinGranularity);
+	bank_offset = scrn_offset % 65536;
 	last_bank = -1;
 
 	for (i = 0; i < height; i++) {
 
 		/* Compute which bank this scanline is in */
-		bank = (scrn_offset / 65536L);
+		bank = (scrn_offset / 65536);
 
 		/* Set a new bank */
 		if (bank != last_bank) {
 			SetVESAWindow(bank);
 			last_bank = bank;
-			bank_offset = (scrn_offset % 65536L);
+			bank_offset = (scrn_offset % 65536);
 		}
 
 		/* Copy a full scanline */
-		if ((bank_offset + width) < 65536L) {
+		if ((bank_offset + width) < 65536) {
 			Copy_Row((char *)buf, (char *)bank_offset, width);
 			buf += width;
 			scrn_offset += disp->XRes;
@@ -117,7 +117,7 @@ void VESA_Blit_640x480(DisplayInfo *disp,unsigned char *buf,long x1,long y1,
 
 		/* Copy two partial scanlines */
 		else {
-			part1 = (65536L - bank_offset);
+			part1 = (65536 - bank_offset);
 			part2 = (width - part1);
 			Copy_Row((char *)buf, (char *)bank_offset, part1);
 
@@ -129,7 +129,7 @@ void VESA_Blit_640x480(DisplayInfo *disp,unsigned char *buf,long x1,long y1,
 
 			buf += part2;
 			scrn_offset += disp->XRes;
-			bank_offset = (scrn_offset % 65536L);
+			bank_offset = (scrn_offset % 65536);
 		}
 	}
 }

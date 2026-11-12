@@ -54,7 +54,7 @@
  *   Shorten_Attached_Anims -- Reduces attached animation durations.                           *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
+#include	"FUNCTION.H"
 #define   VIC   1
 
 /***********************************************************************************************
@@ -144,7 +144,7 @@ COORDINATE AnimClass::Sort_Y(void) const
 	assert(IsActive);
 
 	if (xObject != TARGET_NONE) {
-		return(Coord_Add(As_Object(xObject)->Sort_Y(), 0x00010000L));
+		return(Coord_Add(As_Object(xObject)->Sort_Y(), 0x00010000));
 	}
 	if (*this == ANIM_MOVE_FLASH) {
 		return(Coord_Add(Center_Coord(), XYP_COORD(0, -24)));
@@ -590,7 +590,8 @@ AnimClass::~AnimClass(void)
 			**	this animation is attached to. If there are no others, then inform the
 			**	attached object of this fact.
 			*/
-			for (int index = 0; index < Anims.Count(); index++) {
+			int index;
+			for (index = 0; index < Anims.Count(); index++) {
 				if (Anims.Ptr(index) != this && Anims.Ptr(index)->xObject == xObject) break;
 			}
 

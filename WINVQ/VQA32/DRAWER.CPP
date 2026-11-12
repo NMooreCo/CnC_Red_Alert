@@ -76,55 +76,55 @@
 #include <conio.h>
 #include <dos.h>
 #include <mem.h>
-#include "vq.h"
-#include "unvq.h"
-#include "vqaplayp.h"
-#include <vqm32\all.h>
-#include "caption.h"
+#include "VQ.H"
+#include "UNVQ.H"
+#include "VQAPLAYP.H"
+#include <VQM32/ALL.H>
+#include "CAPTION.H"
 
 /*---------------------------------------------------------------------------
  * PRIVATE DECLARATIONS
  *-------------------------------------------------------------------------*/
-static long Select_Frame(VQAHandleP *vqap);
+static int Select_Frame(VQAHandleP *vqap);
 static void Prepare_Frame(VQAData *vqabuf);
 
 #if(VQAMCGA_ON)
-static long DrawFrame_MCGABuf(VQAHandle *vqa);
-static long PageFlip_MCGABuf(VQAHandle *vqa);
-static long DrawFrame_MCGA(VQAHandle *vqa);
-static long PageFlip_MCGA(VQAHandle *vqa);
+static int DrawFrame_MCGABuf(VQAHandle *vqa);
+static int PageFlip_MCGABuf(VQAHandle *vqa);
+static int DrawFrame_MCGA(VQAHandle *vqa);
+static int PageFlip_MCGA(VQAHandle *vqa);
 #endif /* VQAMCGA_ON */
 
 #if(VQAXMODE_ON)
-static long DrawFrame_XmodeBuf(VQAHandle *vqa);
-static long DrawFrame_Xmode(VQAHandle *vqa);
-static long DrawFrame_XmodeVRAM(VQAHandle *vqa);
+static int DrawFrame_XmodeBuf(VQAHandle *vqa);
+static int DrawFrame_Xmode(VQAHandle *vqa);
+static int DrawFrame_XmodeVRAM(VQAHandle *vqa);
 static void PageFlip_Xmode(VQAHandle *vqabuf);
 #endif /* VQAXMODE_ON */
 
 #if(VQAVESA_ON)
-static long DrawFrame_VESA640(VQAHandle *vqa);
-static long DrawFrame_VESA320_32K(VQAHandle *vqa);
-static long DrawFrame_VESA320_32KBuf(VQAHandle *vqa);
+static int DrawFrame_VESA640(VQAHandle *vqa);
+static int DrawFrame_VESA320_32K(VQAHandle *vqa);
+static int DrawFrame_VESA320_32KBuf(VQAHandle *vqa);
 static void PageFlip_VESA(VQAHandle *vqabuf);
 #endif /* VQAVESA_ON */
 
-static long DrawFrame_Buffer(VQAHandle *vqa);
-static long PageFlip_Nop(VQAHandle *vqa);
+static int DrawFrame_Buffer(VQAHandle *vqa);
+static int PageFlip_Nop(VQAHandle *vqa);
 
 #ifndef PHARLAP_TNT
 static void __cdecl UnVQ_Nop(unsigned char *codebook, unsigned char *pointers,
-		unsigned char *buffer, unsigned long blocksperrow,
-		unsigned long numrows, unsigned long bufwidth);
+		unsigned char *buffer, unsigned int blocksperrow,
+		unsigned int numrows, unsigned int bufwidth);
 #else
 static void __cdecl UnVQ_Nop(unsigned char *codebook, unsigned char *pointers,
-		FARPTR buffer, unsigned long blocksperrow, unsigned long numrows,
-		unsigned long bufwidth);
+		FARPTR buffer, unsigned int blocksperrow, unsigned int numrows,
+		unsigned int bufwidth);
 #endif
 
 #if(0)
-static void Mask_Rect(VQAHandle *vqa, unsigned long x1, unsigned long y1,
-		unsigned long x2, unsigned long y2);
+static void Mask_Rect(VQAHandle *vqa, unsigned int x1, unsigned int y1,
+		unsigned int x2, unsigned int y2);
 static void Mask_Pointers(VQAData *vqabuf);
 #endif
 
@@ -189,7 +189,7 @@ unsigned char *VQA_GetPalette(VQAHandle *vqa)
 *
 ****************************************************************************/
 
-long VQA_GetPaletteSize(VQAHandle *vqa)
+int VQA_GetPaletteSize(VQAHandle *vqa)
 {
 	VQADrawer *drawer;
 
@@ -229,13 +229,13 @@ long VQA_GetPaletteSize(VQAHandle *vqa)
 ****************************************************************************/
 
 void VQA_Set_DrawBuffer(VQAHandle *vqa, unsigned char *buffer,
-		unsigned long width, unsigned long height,
-		long xpos, long ypos)
+		unsigned int width, unsigned int height,
+		int xpos, int ypos)
 {
 	VQAHeader *header;
 	VQADrawer *drawer;
 	VQAConfig *config;
-	long      origin;
+	int      origin;
 
 	/* Dereference commonly used data members for quick access. */
 	header = &((VQAHandleP *)vqa)->Header;
@@ -325,8 +325,8 @@ void VQA_Configure_Drawer(VQAHandleP *vqap)
 	VQAConfig *config;
 	VQAHeader *header;
 	VQADrawer *drawer;
-	long      origin;
-	long      blkdim;
+	int      origin;
+	int      blkdim;
 
 	/* Dereference commonly used data members for quicker access. */
 	vqabuf = vqap->VQABuf;
@@ -586,15 +586,15 @@ void VQA_Configure_Drawer(VQAHandleP *vqap)
 *
 ****************************************************************************/
 
-static long Select_Frame(VQAHandleP *vqap)
+static int Select_Frame(VQAHandleP *vqap)
 {
 	VQAData      *vqabuf;
 	VQADrawer    *drawer;
 	VQAConfig    *config;
 	VQAFrameNode *curframe;
-	long         desiredframe;
+	int         desiredframe;
 	// MEG 11.29.95 - changed from long to unsigned long
-	unsigned long curtime;
+	unsigned int curtime;
 
 	/* Dereference commonly used data members for quicker access. */
 	config = &vqap->Config;
@@ -712,7 +712,7 @@ static long Select_Frame(VQAHandleP *vqap)
 			}
 
 			/* Skip the frame */
-			curframe->Flags = 0L;
+			curframe->Flags = 0;
 			curframe = curframe->Next;
 			drawer->CurFrame = curframe;
 			drawer->NumSkipped++;
@@ -838,14 +838,14 @@ static void Prepare_Frame(VQAData *vqabuf)
 *
 ****************************************************************************/
 
-static long DrawFrame_Xmode(VQAHandle *vqa)
+static int DrawFrame_Xmode(VQAHandle *vqa)
 {
 	VQAData       *vqabuf;
 	VQADrawer     *drawer;
 	VQAFrameNode  *curframe;
 	VQAConfig     *config;
 	unsigned char *scrn;
-	long          rc;
+	int          rc;
 
 	/* Dereference data members for quick access */
 	vqabuf = ((VQAHandleP *)vqa)->VQABuf;
@@ -952,7 +952,7 @@ static long DrawFrame_Xmode(VQAHandle *vqa)
 *
 ****************************************************************************/
 
-static long DrawFrame_XmodeBuf(VQAHandle *vqa)
+static int DrawFrame_XmodeBuf(VQAHandle *vqa)
 {
 	VQAData       *vqabuf;
 	VQADrawer     *drawer;
@@ -960,7 +960,7 @@ static long DrawFrame_XmodeBuf(VQAHandle *vqa)
 	VQAHeader     *header;
 	VQAConfig     *config;
 	unsigned char *scrn;
-	long          rc;
+	int          rc;
 
 	/* Dereference data members for quicker access */
 	vqabuf = ((VQAHandleP *)vqa)->VQABuf;
@@ -1078,14 +1078,14 @@ static long DrawFrame_XmodeBuf(VQAHandle *vqa)
 *
 ****************************************************************************/
 
-static long DrawFrame_XmodeVRAM(VQAHandle *vqa)
+static int DrawFrame_XmodeVRAM(VQAHandle *vqa)
 {
 	VQAData       *vqabuf;
 	VQADrawer     *drawer;
 	VQAFrameNode  *curframe;
 	VQAConfig     *config;
 	unsigned char *scrn;
-	long          rc;
+	int          rc;
 
 	/* Dereference data members for quicker access */
 	vqabuf = ((VQAHandleP *)vqa)->VQABuf;
@@ -1189,8 +1189,8 @@ static void PageFlip_Xmode(VQAHandle *vqa)
 	VQAFrameNode  *curframe;
 	unsigned char *pal;
 	VQAConfig     *config;
-	long          palsize;
-	long          slowpal;
+	int          palsize;
+	int          slowpal;
 
 	/* Dereference commonly used data members for quicker access. */
 	config = &((VQAHandleP *)vqa)->Config;
@@ -1222,7 +1222,7 @@ static void PageFlip_Xmode(VQAHandle *vqa)
 		/* Notify the client of the palette change. */
 		if ((config->NotifyFlags & VQAEVENT_PALETTE)
 				&& (config->EventHandler != NULL)) {
-			config->EventHandler(VQAEVENT_PALETTE, (void *)pal, (long)palsize);
+			config->EventHandler(VQAEVENT_PALETTE, (void *)pal, (int)palsize);
 		}
 	}
 	else if (drawer->Flags & VQADRWF_SETPAL) {
@@ -1240,7 +1240,7 @@ static void PageFlip_Xmode(VQAHandle *vqa)
 				&& (config->EventHandler != NULL)) {
 
 			config->EventHandler(VQAEVENT_PALETTE, (void *)drawer->Palette_24,
-					(long)drawer->CurPalSize);
+					(int)drawer->CurPalSize);
 		}
 	} else {
 		FlipXPage();
@@ -1288,12 +1288,12 @@ static void PageFlip_Xmode(VQAHandle *vqa)
 *
 ****************************************************************************/
 
-static long DrawFrame_MCGA(VQAHandle *vqa)
+static int DrawFrame_MCGA(VQAHandle *vqa)
 {
 	VQAData      *vqabuf;
 	VQADrawer    *drawer;
 	VQAFrameNode *curframe;
-	long         rc;
+	int         rc;
 
 	/* Dereference commonly used data members for quicker access */
 	vqabuf = ((VQAHandleP *)vqa)->VQABuf;
@@ -1363,7 +1363,7 @@ static long DrawFrame_MCGA(VQAHandle *vqa)
 *
 ****************************************************************************/
 
-static long PageFlip_MCGA(VQAHandle *vqa)
+static int PageFlip_MCGA(VQAHandle *vqa)
 {
 	VQAData       *vqabuf;
 	VQADrawer     *drawer;
@@ -1372,10 +1372,10 @@ static long PageFlip_MCGA(VQAHandle *vqa)
 	unsigned char *pal;
 	unsigned char *ptrs;
 	unsigned char *cb;
-	long          palsize;
-	long          slowpal;
-	long          blocksperrow;
-	long          numrows;
+	int          palsize;
+	int          slowpal;
+	int          blocksperrow;
+	int          numrows;
 
 	#ifndef PHARLAP_TNT
 	unsigned char *scrn;
@@ -1413,7 +1413,7 @@ static long PageFlip_MCGA(VQAHandle *vqa)
 			if ((config->NotifyFlags & VQAEVENT_PALETTE)
 					&& (config->EventHandler != NULL)) {
 
-				config->EventHandler(VQAEVENT_PALETTE, (void *)pal, (long)palsize);
+				config->EventHandler(VQAEVENT_PALETTE, (void *)pal, (int)palsize);
 			}
 		}
 		else if (drawer->Flags & VQADRWF_SETPAL) {
@@ -1428,7 +1428,7 @@ static long PageFlip_MCGA(VQAHandle *vqa)
 					&& (config->EventHandler != NULL)) {
 
 				config->EventHandler(VQAEVENT_PALETTE, (void *)drawer->Palette_24,
-						(long)drawer->CurPalSize);
+						(int)drawer->CurPalSize);
 			}
 		}
 	}
@@ -1439,7 +1439,7 @@ static long PageFlip_MCGA(VQAHandle *vqa)
 
 	/* Get screen address, blocks per row and number of rows. */
 	#ifndef PHARLAP_TNT
-	scrn = (unsigned char *)(0xA0000 + (unsigned long)drawer->ScreenOffset);
+	scrn = (unsigned char *)(0xA0000 + (unsigned int)drawer->ScreenOffset);
 	#else
 	FP_SET(scrn, drawer->ScreenOffset, 0x1C);
 	#endif
@@ -1515,12 +1515,12 @@ static long PageFlip_MCGA(VQAHandle *vqa)
 *
 ****************************************************************************/
 
-static long DrawFrame_MCGABuf(VQAHandle *vqa)
+static int DrawFrame_MCGABuf(VQAHandle *vqa)
 {
 	VQAData      *vqabuf;
 	VQADrawer    *drawer;
 	VQAFrameNode *curframe;
-	long         rc;
+	int         rc;
 
 	#ifndef PHARLAP_TNT
 	unsigned char *scrn;
@@ -1605,7 +1605,7 @@ static long DrawFrame_MCGABuf(VQAHandle *vqa)
 *
 ****************************************************************************/
 
-static long PageFlip_MCGABuf(VQAHandle *vqa)
+static int PageFlip_MCGABuf(VQAHandle *vqa)
 {
 	VQAData       *vqabuf;
 	VQADrawer     *drawer;
@@ -1614,10 +1614,10 @@ static long PageFlip_MCGABuf(VQAHandle *vqa)
 	unsigned char *pal;
 	unsigned char *buf;
 	unsigned char *scrn;
-	long          palsize;
-	long          slowpal;
-	long          imgwidth;
-	long          imgheight;
+	int          palsize;
+	int          slowpal;
+	int          imgwidth;
+	int          imgheight;
 
 	/* Derefernce commonly used data members for quicker access. */
 	vqabuf = ((VQAHandleP *)vqa)->VQABuf;
@@ -1649,7 +1649,7 @@ static long PageFlip_MCGABuf(VQAHandle *vqa)
 		if ((config->NotifyFlags & VQAEVENT_PALETTE)
 				&& (config->EventHandler != NULL)) {
 
-			config->EventHandler(VQAEVENT_PALETTE, (void *)pal, (long)palsize);
+			config->EventHandler(VQAEVENT_PALETTE, (void *)pal, (int)palsize);
 		}
 	}
 	else if (drawer->Flags & VQADRWF_SETPAL) {
@@ -1666,7 +1666,7 @@ static long PageFlip_MCGABuf(VQAHandle *vqa)
 				&& (config->EventHandler != NULL)) {
 
 			config->EventHandler(VQAEVENT_PALETTE, (void *)drawer->Palette_24,
-					(long)drawer->CurPalSize);
+					(int)drawer->CurPalSize);
 		}
 	}
 
@@ -1724,12 +1724,12 @@ static long PageFlip_MCGABuf(VQAHandle *vqa)
 *
 ****************************************************************************/
 
-static long DrawFrame_VESA640(VQAHandle *vqa)
+static int DrawFrame_VESA640(VQAHandle *vqa)
 {
 	VQAData      *vqabuf;
 	VQADrawer    *drawer;
 	VQAFrameNode *curframe;
-	long         rc;
+	int         rc;
 
 	#ifndef PHARLAP_TNT
 	unsigned char *scrn;
@@ -1813,14 +1813,14 @@ static long DrawFrame_VESA640(VQAHandle *vqa)
 *
 ****************************************************************************/
 
-static long DrawFrame_VESA320_32K(VQAHandle *vqa)
+static int DrawFrame_VESA320_32K(VQAHandle *vqa)
 {
 	VQAData      *vqabuf;
 	VQADrawer    *drawer;
 	VQAFrameNode *curframe;
 	VQAConfig    *config;
-	long         rc;
-	long         grain;
+	int         rc;
+	int         grain;
 
 	/* Dereference data members for quicker access. */
 	config = &((VQAHandleP *)vqa)->Config;
@@ -1925,14 +1925,14 @@ static long DrawFrame_VESA320_32K(VQAHandle *vqa)
 *
 ****************************************************************************/
 
-static long DrawFrame_VESA320_32KBuf(VQAHandle *vqa)
+static int DrawFrame_VESA320_32KBuf(VQAHandle *vqa)
 {
 	VQAData      *vqabuf;
 	VQADrawer    *drawer;
 	VQAFrameNode *curframe;
 	VQAConfig    *config;
-	long         rc;
-	long         grain;
+	int         rc;
+	int         grain;
 
 	/* Dereference data members for quicker access. */
 	vqabuf = ((VQAHandleP *)vqa)->VQABuf;
@@ -2046,9 +2046,9 @@ static void PageFlip_VESA(VQAHandle *vqa)
 	VQAFrameNode  *curframe;
 	VQAConfig     *config;
 	unsigned char *pal;
-	long          palsize;
-	long          slowpal;
-	long          grain;
+	int          palsize;
+	int          slowpal;
+	int          grain;
 
 	/* Dereference date members for quicker access. */
 	vqabuf = ((VQAHandleP *)vqa)->VQABuf;
@@ -2074,7 +2074,7 @@ static void PageFlip_VESA(VQAHandle *vqa)
 		if ((config->NotifyFlags & VQAEVENT_PALETTE)
 				&& (config->EventHandler != NULL)) {
 
-			config->EventHandler(VQAEVENT_PALETTE, (void *)pal, (long)palsize);
+			config->EventHandler(VQAEVENT_PALETTE, (void *)pal, (int)palsize);
 		}
 	}
 	else if (drawer->Flags & VQADRWF_SETPAL) {
@@ -2091,7 +2091,7 @@ static void PageFlip_VESA(VQAHandle *vqa)
 				&& (config->EventHandler != NULL)) {
 
 			config->EventHandler(VQAEVENT_PALETTE, (void *)drawer->Palette_24,
-					(long)drawer->CurPalSize);
+					(int)drawer->CurPalSize);
 		}
 	}
 
@@ -2146,17 +2146,17 @@ static void PageFlip_VESA(VQAHandle *vqa)
 ****************************************************************************/
 
 extern void __cdecl Set_Palette(void *palette);
-extern void Flag_To_Set_Palette(unsigned char *palette,long numbytes,unsigned long slowpal);
-static long DrawFrame_Buffer(VQAHandle *vqa)
+extern void Flag_To_Set_Palette(unsigned char *palette,int numbytes,unsigned int slowpal);
+static int DrawFrame_Buffer(VQAHandle *vqa)
 {
 	VQAData      *vqabuf;
 	VQADrawer    *drawer;
 	VQAFrameNode *curframe;
 	VQAConfig    *config;
-	long         rc;
+	int         rc;
 	unsigned char *pal;
-	long          palsize;
-	long          slowpal;
+	int          palsize;
+	int          slowpal;
 
 	#ifndef PHARLAP_TNT
 	unsigned char *buff;
@@ -2269,12 +2269,12 @@ static long DrawFrame_Buffer(VQAHandle *vqa)
 
 #ifndef PHARLAP_TNT
 static void __cdecl UnVQ_Nop(unsigned char *codebook, unsigned char *pointers,
-		unsigned char *buffer, unsigned long blocksperrow,
-		unsigned long numrows, unsigned long bufwidth)
+		unsigned char *buffer, unsigned int blocksperrow,
+		unsigned int numrows, unsigned int bufwidth)
 #else
 static void __cdecl UnVQ_Nop(unsigned char *codebook, unsigned char *pointers,
-		FARPTR buffer, unsigned long blocksperrow, unsigned long numrows,
-		unsigned long bufwidth)
+		FARPTR buffer, unsigned int blocksperrow, unsigned int numrows,
+		unsigned int bufwidth)
 #endif
 {
 	/* Suppress compiler warnings */
@@ -2307,7 +2307,7 @@ static void __cdecl UnVQ_Nop(unsigned char *codebook, unsigned char *pointers,
 *
 ****************************************************************************/
 
-static long PageFlip_Nop(VQAHandle *vqa)
+static int PageFlip_Nop(VQAHandle *vqa)
 {
 	vqa = vqa;
 
@@ -2341,13 +2341,13 @@ static long PageFlip_Nop(VQAHandle *vqa)
 *
 ****************************************************************************/
 
-static void Mask_Rect(VQAHandle *vqa, unsigned long x1, unsigned long y1,
-		unsigned long x2, unsigned long y2)
+static void Mask_Rect(VQAHandle *vqa, unsigned int x1, unsigned int y1,
+		unsigned int x2, unsigned int y2)
 {
 	VQAData   *vqabuf;
 	VQADrawer *drawer;
 	VQAHeader *header;
-	long      blocks_per_row;
+	int      blocks_per_row;
 
 	/* Dereference data members for quicker access. */
 	vqabuf = ((VQAHandleP *)vqa)->VQABuf;
@@ -2419,9 +2419,9 @@ static void Mask_Pointers(VQAData *vqabuf)
 {
 	VQADrawer     *drawer;
 	VQAFrameNode  *curframe;
-	unsigned long *ptr;
-	unsigned long i,j;
-	unsigned long start;
+	unsigned int *ptr;
+	unsigned int i,j;
+	unsigned int start;
 
 	/* Dereference data members for quicker access. */
 	drawer = &vqabuf->Drawer;
@@ -2429,7 +2429,7 @@ static void Mask_Pointers(VQAData *vqabuf)
 	start = vqabuf->Drawer.MaskStart;
 
 	for (i = 0; i < drawer->MaskHeight; i++) {
-		ptr = (unsigned long *)(curframe->Pointers) + start;
+		ptr = (unsigned int *)(curframe->Pointers) + start;
 
 		for (j = 0; j < drawer->MaskWidth; j++) {
 			ptr[j] = VQA_MASK_POINTER;

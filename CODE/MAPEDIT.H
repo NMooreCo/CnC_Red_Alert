@@ -48,7 +48,7 @@
 #ifndef MAPEDIT_H
 #define MAPEDIT_H
 
-#include	"function.h"
+#include	"FUNCTION.H"
 
 /*
 **	This is the maximum # of ObjectTypeClasses the editor has to deal with.
@@ -281,7 +281,7 @@ class MapEditClass : public MouseClass
 		*/
 		ObjectClass * GrabbedObject;		// object "grabbed" with mouse
 		CELL GrabOffset;						// offset to grabbed obj's upper-left
-		unsigned long LastClickTime;		// time of last LMOUSE click
+		unsigned int LastClickTime;		// time of last LMOUSE click
 
 		/*
 		**	Number of each type of object in Objects, so we can switch categories

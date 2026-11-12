@@ -59,7 +59,7 @@
  *   TeamTypeClass::~TeamTypeClass -- class destructor                                         *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include "function.h"
+#include "FUNCTION.H"
 
 
 TeamMissionClass TeamMissions[TMISSION_COUNT] = {
@@ -416,7 +416,7 @@ void TeamTypeClass::Destroy_All_Of(void) const
  *   07/13/1995 JLB : Created.                                                                 *
  *   07/21/1995 JLB : Will autocreate team even if no members in field.                        *
  *=============================================================================================*/
-TeamTypeClass const * TeamTypeClass::Suggested_New_Team(HouseClass * house, long , long , long , long , bool alerted)
+TeamTypeClass const * TeamTypeClass::Suggested_New_Team(HouseClass * house, int , int , int , int , bool alerted)
 //TeamTypeClass const * TeamTypeClass::Suggested_New_Team(HouseClass * house, long atypes, long utypes, long itypes, long vtypes, bool alerted)
 {
 //	TeamTypeClass const * best = NULL;
@@ -445,10 +445,10 @@ TeamTypeClass const * TeamTypeClass::Suggested_New_Team(HouseClass * house, long
 			/*
 			**	Determine what kind of units this team requires.
 			*/
-			long uneeded = 0;
-			long ineeded = 0;
-			long vneeded = 0;
-			long aneeded = 0;
+			int uneeded = 0;
+			int ineeded = 0;
+			int vneeded = 0;
+			int aneeded = 0;
 			for (int ctype = 0; ctype < ttype->ClassCount; ctype++) {
 				switch (ttype->Members[ctype].Class->What_Am_I()) {
 					case RTTI_INFANTRYTYPE:
@@ -1710,7 +1710,8 @@ void TeamTypeClass::Fill_In(char * name, char * entry)
 	**	Fetch the team member types and quantity values.
 	*/
 	ClassCount = atoi(strtok(NULL, ","));
-	for (int index = 0; index < ClassCount; index++) {
+	int index;
+	for (index = 0; index < ClassCount; index++) {
 		char * p1 = strtok(NULL, ",:");
 		char * p2 = strtok(NULL, ",:");
 		TechnoTypeClass const * otype = NULL;
@@ -1860,7 +1861,8 @@ void TeamTypeClass::Build_INI_Entry(char * buf)
 	*/
 	sprintf (buf, ",%d", ClassCount);
 	buf += strlen(buf);
-	for (int i = 0; i < ClassCount; i++) {
+	int i;
+	for (i = 0; i < ClassCount; i++) {
 		sprintf (buf, ",%s:%d", Members[i].Class->IniName, Members[i].Quantity);
 		buf += strlen(buf);
 	}

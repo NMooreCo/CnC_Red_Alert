@@ -66,8 +66,8 @@ class FieldClass {
 		FieldClass(char *id, unsigned char data);
 		FieldClass(char *id, short data);
 		FieldClass(char *id, unsigned short data);
-		FieldClass(char *id, long data);
-		FieldClass(char *id, unsigned long data);
+		FieldClass(char *id, int data);
+		FieldClass(char *id, unsigned int data);
 		FieldClass(char *id, char *data);
 		FieldClass(char *id, void *data, int length);
 

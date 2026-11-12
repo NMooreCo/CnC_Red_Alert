@@ -42,7 +42,7 @@
 extern "C" {
 #endif
 
-long __cdecl Calculate_CRC(void const *buffer, long length);
+int __cdecl Calculate_CRC(void const *buffer, int length);
 
 #ifdef __cplusplus
 }

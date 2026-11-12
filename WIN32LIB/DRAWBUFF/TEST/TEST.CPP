@@ -57,13 +57,13 @@
 #define WIN32
 #include <windows.h>
 #include <windowsx.h>
-#include "..\gbuffer.h"
+#include "../GBUFFER.H"
 #include <ddraw.h>
-#include <font.h>
-#include <tile.h>
-#include <file.h>
-#include <iconcach.h>
-#include <wwmem.h>
+#include <FONT.H>
+#include <TILE.H>
+#include <FILE.H>
+#include <ICONCACH.H>
+#include <WWMEM.H>
 
 #define NAME "DRAWBUFF test"
 #define TITLE "DRAWBUFF library test"
@@ -129,7 +129,7 @@ extern LPDIRECTDRAWPALETTE	PalettePtr;				// Pointer to direct draw palette obje
 //
 // Prototypes
 //
-long FAR PASCAL _export WndProc (HWND, UINT, UINT, LONG) ;
+int FAR PASCAL _export WndProc (HWND, UINT, UINT, LONG) ;
 BOOL Set_Video_Mode(HWND hwnd, int w, int h, int bits_per_pixel);
 void Reset_Video_Mode(void);
 extern "C" void Wait_Vert_Blank(void);
@@ -437,7 +437,7 @@ void Set_Mode ( int width , int height , int bpp )
  *    9/27/95 1:39PM ST : Pilfered                                                             *
  *=============================================================================================*/
 
-long FAR PASCAL _export WndProc (HWND hwnd, UINT message, UINT wParam,
+int FAR PASCAL _export WndProc (HWND hwnd, UINT message, UINT wParam,
 														  LONG lParam)
  {
 

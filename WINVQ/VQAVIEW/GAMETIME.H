@@ -39,7 +39,7 @@
 // PUBLIC FUNCTIONS
 //==========================================================================
 
-extern unsigned long Get_Game_Time();
+extern unsigned int Get_Game_Time();
 
 //==========================================================================
 // PUBLIC DEFINES
@@ -53,11 +53,11 @@ extern unsigned long Get_Game_Time();
 
 class GameTimeClass {
 	private:
-		unsigned long game_start_time;
+		unsigned int game_start_time;
 
 	public:
 		GameTimeClass( void );
-		unsigned long Get_Time( void );
+		unsigned int Get_Time( void );
 
 }; /* VQAClass */
 

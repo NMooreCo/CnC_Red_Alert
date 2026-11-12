@@ -42,10 +42,10 @@
 
 #include <windows.h>
 #include <windowsx.h>
-#include <gbuffer.h>
+#include <GBUFFER.H>
 #include <ddraw.h>
-#include <file.h>
-#include <wwmem.h>
+#include <FILE.H>
+#include <WWMEM.H>
 
 #include <westwood.h>
 #include <main.h>

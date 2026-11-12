@@ -47,7 +47,7 @@
  *   Debug_Mono_Print_Whose_Turn -- Displays current turn on MONO display  *
  *   Build_Debug_Log_File_Name -- Based on the date and time of system     *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-#include "function.h"
+#include "FUNCTION.H"
 #include "debug.rh"
 #include "strings.rh"
 
@@ -410,12 +410,12 @@ VOID Debug_Shape_Test( VOID )
 	INT wwfh;
 	
 	Debug_Mono_Message( "------------------------------------------\r\n" );
-	sprintf( Text_String, "Mem before shape buff alloc(5000): %ld\r\n", Ram_Free( MEM_NORMAL ) );
+	sprintf( Text_String, "Mem before shape buff alloc(5000): %d\r\n", Ram_Free( MEM_NORMAL ) );
 	Debug_Mono_Message( Text_String );
 	
 	shapebuf = (char *) Alloc( 5000, MEM_NORMAL );
 	
-	sprintf( Text_String, "Mem after shape buff alloc(5000): %ld\r\n", Ram_Free( MEM_NORMAL ) );
+	sprintf( Text_String, "Mem after shape buff alloc(5000): %d\r\n", Ram_Free( MEM_NORMAL ) );
 	Debug_Mono_Message( Text_String );
 	
 	if ( shapebuf == NULL ) {
@@ -441,14 +441,14 @@ VOID Debug_Shape_Test( VOID )
 		Close_File( wwfh );
 	}
 	
-	sprintf( Text_String, "Mem after shapedata alloc: %ld\r\n", Ram_Free( MEM_NORMAL ) );
+	sprintf( Text_String, "Mem after shapedata alloc: %d\r\n", Ram_Free( MEM_NORMAL ) );
 	Debug_Mono_Message( Text_String );
 
 	for( i = 0; i <= 36; i++ ) {
 		shape_ptr[ i ] = Get_Shape( shapes, i );
 	}
 
-	sprintf( Text_String, "Mem after all shapes alloc: %ld\r\n", Ram_Free( MEM_NORMAL ) );
+	sprintf( Text_String, "Mem after all shapes alloc: %d\r\n", Ram_Free( MEM_NORMAL ) );
 	Debug_Mono_Message( Text_String );
 	
 	Free( shapes );
@@ -489,7 +489,7 @@ VOID Debug_Shape_Test( VOID )
 	
 	Free( shapebuf );
 
-	sprintf( Text_String, "Mem when all done: %ld\r\n", Ram_Free( MEM_NORMAL ) );
+	sprintf( Text_String, "Mem when all done: %d\r\n", Ram_Free( MEM_NORMAL ) );
 	Debug_Mono_Message( Text_String );
 	Debug_Mono_Message( "------------------------------------------\r\n" );
 #endif
@@ -981,7 +981,7 @@ VOID Debug_Broadcast_Save_Game_Checksum_Other_Sites( VOID )
 	/*
 		now checksum the buffer
 	*/
-	check_sum = 0L;
+	check_sum = 0;
 	for ( i = 0; i < file_size; i ++ ) {
 		add_byte = (UBYTE) *(buffer + i);
 		check_sum += (add_byte * (i+1));
@@ -991,7 +991,7 @@ VOID Debug_Broadcast_Save_Game_Checksum_Other_Sites( VOID )
 
 	#if( DEBUG_CODE )
 		sprintf( Text_String,
-					"Local checksum of %s is %ld, sending %d (low) & %d (high)...\r\n",
+					"Local checksum of %s is %d, sending %d (low) & %d (high)...\r\n",
 					file_name,
 					check_sum,
 					low_int,
@@ -1044,7 +1044,7 @@ VOID Debug_Compare_Local_Checksum_With_Received_Checksum( INT received_file_size
 
 	#if( DEBUG_CODE )
 		sprintf( Text_String,
-					"Getting ready to compare other sites file, size = %d, checksum = %ld\r\n",
+					"Getting ready to compare other sites file, size = %d, checksum = %d\r\n",
 					received_file_size,
 					received_check_sum );
 		Debug_Mono_Message( Text_String );
@@ -1084,7 +1084,7 @@ VOID Debug_Compare_Local_Checksum_With_Received_Checksum( INT received_file_size
 	/*
 		now checksum the buffer
 	*/
-	local_check_sum = 0L;
+	local_check_sum = 0;
 	for ( i = 0; i < local_file_size; i ++ ) {
 		add_byte = (UBYTE) *(buffer + i);
 		local_check_sum += (add_byte * (i+1));
@@ -1119,7 +1119,7 @@ VOID Debug_Compare_Local_Checksum_With_Received_Checksum( INT received_file_size
 
 		#if( DEBUG_CODE )
 			sprintf( Text_String,
-						"ERROR! TEMPSAVE.TMP (local, %ld) & TEMPSEND.TMP (remote, %ld) checksums don't match!\r\n",
+						"ERROR! TEMPSAVE.TMP (local, %d) & TEMPSEND.TMP (remote, %d) checksums don't match!\r\n",
 						local_check_sum, received_check_sum );
 // 		Give_To_The_Mikes();
 			Debug_Mono_Message( Text_String );
@@ -1133,7 +1133,7 @@ VOID Debug_Compare_Local_Checksum_With_Received_Checksum( INT received_file_size
 	*/
 	#if( DEBUG_CODE )
 		sprintf( Text_String,
-					"TEMPSAVE.TMP (local, %ld) & TEMPSEND.TMP (remote, %ld) checksums match!\r\n",
+					"TEMPSAVE.TMP (local, %d) & TEMPSEND.TMP (remote, %d) checksums match!\r\n",
 					local_check_sum, received_check_sum );
 		Debug_Mono_Message( Text_String );
 	#endif
@@ -1153,7 +1153,7 @@ PRIVATE VOID Give_To_The_Mikes( VOID )
 #if( DEBUG_WRITE_IDS_IN_SAVES )
 LONG Debug_Write_ID_Save_Game_File( INT file_handle, BYTE *three_byte_id )
 {
-	LONG bytes_read_or_written = 0L;
+	LONG bytes_read_or_written = 0;
 
 	if ( file_handle > -1 ) {
 		bytes_read_or_written += Write_File( file_handle, three_byte_id, 3 );
@@ -1166,7 +1166,7 @@ LONG Debug_Write_ID_Save_Game_File( INT file_handle, BYTE *three_byte_id )
 #if( DEBUG_WRITE_IDS_IN_SAVES )
 LONG Debug_Read_ID_Save_Game_File( INT file_handle )
 {
-	LONG bytes_read_or_written = 0L;
+	LONG bytes_read_or_written = 0;
 	BYTE junk[ 4 ];
 
 	if ( file_handle > -1 ) {
@@ -1180,7 +1180,7 @@ LONG Debug_Read_ID_Save_Game_File( INT file_handle )
 #if( DEBUG_WRITE_IDS_IN_SAVES )
 LONG Debug_Write_ID_Save_Game_Memory( MemorySaveBufferType buffer_num, BYTE *three_byte_id )
 {
-	LONG bytes_read_or_written = 0L;
+	LONG bytes_read_or_written = 0;
 
 	bytes_read_or_written += Memory_Save_Games[ buffer_num ].Write_Data( (UBYTE *) three_byte_id, 3 );
 
@@ -1191,7 +1191,7 @@ LONG Debug_Write_ID_Save_Game_Memory( MemorySaveBufferType buffer_num, BYTE *thr
 #if( DEBUG_WRITE_IDS_IN_SAVES )
 LONG Debug_Read_ID_Save_Game_Memory( MemorySaveBufferType buffer_num )
 {
-	LONG bytes_read_or_written = 0L;
+	LONG bytes_read_or_written = 0;
 	BYTE junk[ 4 ];
 
 	bytes_read_or_written += Memory_Save_Games[ buffer_num ].Read_Data( (UBYTE *) &junk, 3 );
@@ -1432,7 +1432,7 @@ BOOL Get_Windows_System_Info( VOID )
 	version_info.dwOSVersionInfoSize = sizeof( OSVERSIONINFO );
 	if ( GetVersionEx( &version_info ) ) {
 		sprintf( Text_String,
-					"Windows OS version: %ld.%ld, build #%ld, %s\r\n",
+					"Windows OS version: %d.%d, build #%d, %s\r\n",
 					version_info.dwMajorVersion,	
 					version_info.dwMinorVersion,	
 					version_info.dwBuildNumber,
@@ -1451,7 +1451,7 @@ BOOL Get_Windows_System_Info( VOID )
 			major = version_info.dwMajorVersion;
 			minor = version_info.dwMinorVersion;
 			sprintf( Text_String,
-						"%ld.%ld",
+						"%d.%d",
 						major, minor );
 			sscanf( Text_String, "%f", &float_version );
 //			if ( major < REQUIRED_WIN32S_MAJOR_VERSION || 

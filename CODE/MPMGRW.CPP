@@ -20,7 +20,7 @@
 #define MP_LOAD_DLL_DYNAMICALLY
 #endif
 
-#include "mpmgrw.h"
+#include "MPMGRW.H"
 
 extern "C" {
 #include <stdio.h>
@@ -252,16 +252,16 @@ MPlayerManClass::Reset_Response_Time(void)
    // unsupported
 }
 
-unsigned long
+unsigned int
 MPlayerManClass::Response_Time(void)
 {
    return (160 * 60) / 1000;   // 160 microseconds one way (9 ticks)
 }
 
 void
-MPlayerManClass::Set_Timing(unsigned long /*retrydelta*/,
-                            unsigned long /*maxretries*/,
-                            unsigned long /*timeout*/)
+MPlayerManClass::Set_Timing(unsigned int /*retrydelta*/,
+                            unsigned int /*maxretries*/,
+                            unsigned int /*timeout*/)
 {
    // unsupported
 }

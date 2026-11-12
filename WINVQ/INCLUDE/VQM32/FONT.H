@@ -61,7 +61,7 @@ typedef struct _Font {
 } Font;
 
 typedef struct _FontInfo {
-	long huh;
+	int huh;
 	unsigned char MaxHeight;
 	unsigned char MaxWidth;
 } FontInfo;
@@ -92,9 +92,9 @@ extern "C" {
 #endif
 
 #ifdef __WATCOMC__
-long __cdecl __saveregs Char_Pixel_Width(char chr);
+int __cdecl __saveregs Char_Pixel_Width(char chr);
 #else
-long __cdecl Char_Pixel_Width(char chr);
+int __cdecl Char_Pixel_Width(char chr);
 #endif
 
 #ifdef __cplusplus

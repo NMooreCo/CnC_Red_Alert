@@ -50,14 +50,14 @@
 
 #include <stdio.h>
 #include <malloc.h>
-#include <mem.h>
+#include <MEM.H>
 #include <io.h>
 #include <fcntl.h>
-#include <sys\stat.h>
-#include "targa.h"
+#include <sys/stat.h>
+#include "TARGA.H"
 
 /* Private data declerations. */
-static long DecodeImageData(TGAHandle *, char *);
+static int DecodeImageData(TGAHandle *, char *);
 static void InvertImageData(TGAHeader *, char *);
 
 /****************************************************************************
@@ -86,8 +86,8 @@ static void InvertImageData(TGAHeader *, char *);
 TGAHandle *OpenTarga(char *name, unsigned short mode)
 {
 	TGAHandle *tga;
-	long       size;
-	long       error = 0;
+	int       size;
+	int       error = 0;
 
 	/* Allocate TGAHandle */
 	if ((tga = (TGAHandle *)malloc(sizeof(TGAHandle))) != NULL) {
@@ -225,14 +225,14 @@ void CloseTarga(TGAHandle *tga)
 *
 ****************************************************************************/
 
-long LoadTarga(char *name, char *palette, char *image)
+int LoadTarga(char *name, char *palette, char *image)
 {
 	TGAHandle *tga;
-	long       size;
-	long       depth;
-	long       i,n;
+	int       size;
+	int       depth;
+	int       i,n;
 	char       c;
-	long       error = 0;
+	int       error = 0;
 
 	/* Open the Targa */
 	if ((tga = OpenTarga(name, TGA_READMODE)) != NULL) {
@@ -364,16 +364,16 @@ long LoadTarga(char *name, char *palette, char *image)
 *
 ****************************************************************************/
 
-long SaveTarga(char *name, TGAHeader *tgahd, char *palette, char *image)
+int SaveTarga(char *name, TGAHeader *tgahd, char *palette, char *image)
 {
 	TGAHandle *tga;
-	long       size;
-	long       depth;
+	int       size;
+	int       depth;
 	char      *temppal;
 	char      *ptr;
-	long       i,n;
+	int       i,n;
 	char       c;
-	long       error = 0;
+	int       error = 0;
 
 	/* Open the Targa for write. */
 	if ((tga = OpenTarga(name, TGA_WRITEMODE)) != NULL) {
@@ -470,7 +470,7 @@ long SaveTarga(char *name, TGAHeader *tgahd, char *palette, char *image)
 void XFlipTarga(TGAHeader *tga, char *image)
 {
 	char *ptr,*ptr1;
-	long  x,y,d;
+	int  x,y,d;
 	char  v,v1;
 	char  depth;
 
@@ -521,7 +521,7 @@ void XFlipTarga(TGAHeader *tga, char *image)
 void YFlipTarga(TGAHeader *tga, char *image)
 {
 	char *ptr,*ptr1;
-	long  x,y;
+	int  x,y;
 	char  v,v1;
 	char  depth;
 
@@ -571,15 +571,15 @@ void YFlipTarga(TGAHeader *tga, char *image)
 *
 ****************************************************************************/
 
-static long DecodeImageData(TGAHandle *tga, char *image)
+static int DecodeImageData(TGAHandle *tga, char *image)
 {
 	char          *packet;
 	unsigned char  count;
 	unsigned char  depth;
-	unsigned long  pixel_count;
-	unsigned long  size;
-	unsigned long  c,i;
-	long           error = 0;
+	unsigned int  pixel_count;
+	unsigned int  size;
+	unsigned int  c,i;
+	int           error = 0;
 
 	/* Compute pixel depth in bytes. */
 	depth = (tga->header.PixelDepth >> 3);
@@ -668,9 +668,9 @@ static long DecodeImageData(TGAHandle *tga, char *image)
 
 static void InvertImageData(TGAHeader *tga, char *image)
 {
-	long depth;
-	long pixel_count;
-	long i;
+	int depth;
+	int pixel_count;
+	int i;
 	char c;
 
 	/* Compute the pixel depth in bytes. */

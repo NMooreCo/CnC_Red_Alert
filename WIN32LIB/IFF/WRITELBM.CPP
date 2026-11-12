@@ -44,9 +44,9 @@
 
 // At the end of this file there is an IFF definition for a .LBM file.
 
-#include "iff.h"
-#include "file.h"
-#include <wwstd.h>
+#include "IFF.H"
+#include "FILE.H"
+#include <WWSTD.H>
 #include <stdio.h>
 #include <string.h>
 
@@ -75,17 +75,17 @@ PRIVATE BitMapHeaderType LocalHeader = {
 
 	
 	// Used to verify that the write of the header was valid
-#define BM_HEADER_SIZE		(((sizeof(BitMapHeaderType) + 1) & 0xFFFE) + 8L)
+#define BM_HEADER_SIZE		(((sizeof(BitMapHeaderType) + 1) & 0xFFFE) + 8)
 
 
 /*=========================================================================*/
 /* The following PRIVATE functions are in this file:                       */
 /*=========================================================================*/
 
-PRIVATE long Write_BMHD(int lbmhandle, int bitplanes);
-PRIVATE long Write_CMAP(int lbmhandle, unsigned char * palette, int bitplanes);
-PRIVATE long Write_BODY(int lbmhandle, BufferClass& buff, int bitplanes);
-PRIVATE long Write_Row(int lbmhandle, unsigned char *buffer);
+PRIVATE int Write_BMHD(int lbmhandle, int bitplanes);
+PRIVATE int Write_CMAP(int lbmhandle, unsigned char * palette, int bitplanes);
+PRIVATE int Write_BODY(int lbmhandle, BufferClass& buff, int bitplanes);
+PRIVATE int Write_Row(int lbmhandle, unsigned char *buffer);
 
 
 /*= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =*/
@@ -108,14 +108,14 @@ PRIVATE long Write_Row(int lbmhandle, unsigned char *buffer);
 
 PUBLIC BOOL Write_LBM_File(int lbmhandle, BufferClass& buff, int bitplanes, unsigned char *palette)
 {
-	long filesize;
+	int filesize;
 
 
-	Seek_File(lbmhandle, 0L, SEEK_SET);						// goto beginning of file 
+	Seek_File(lbmhandle, 0, SEEK_SET);						// goto beginning of file 
 																
-	Write_File(lbmhandle, "FORM????ILBM", 12L);			// First 12 bytes of all .lbm files 
+	Write_File(lbmhandle, "FORM????ILBM", 12);			// First 12 bytes of all .lbm files 
 																		// size is unkown so write ????
-	filesize = 12L; 												// 4 bytes for "ILBM" 
+	filesize = 12; 												// 4 bytes for "ILBM" 
 
 	filesize += Write_BMHD(lbmhandle, bitplanes);		// write out BMHD (fixed size)
 	filesize += Write_CMAP(lbmhandle, palette, bitplanes);	// write out CMAP 
@@ -127,13 +127,13 @@ PUBLIC BOOL Write_LBM_File(int lbmhandle, BufferClass& buff, int bitplanes, unsi
 	filesize += Write_BODY(lbmhandle, buff, bitplanes);
 
 		// Verify that we were able to write out the file without running out of space
-	if (Seek_File(lbmhandle, 0L, SEEK_END) != filesize) {
+	if (Seek_File(lbmhandle, 0, SEEK_END) != filesize) {
 		return(FALSE);
 	}
 
-	Seek_File(lbmhandle, 4L, SEEK_SET);						// goto beginning of file 
-	filesize = Reverse_Long(filesize - 8L);				// - 8 because of "FORM" + WORD (size)
-	Write_File(lbmhandle, (char *) &filesize, 4L);		// patch in filesize 
+	Seek_File(lbmhandle, 4, SEEK_SET);						// goto beginning of file 
+	filesize = Reverse_Long(filesize - 8);				// - 8 because of "FORM" + WORD (size)
+	Write_File(lbmhandle, (char *) &filesize, 4);		// patch in filesize 
 
 	return(TRUE);
 }
@@ -152,20 +152,20 @@ PUBLIC BOOL Write_LBM_File(int lbmhandle, BufferClass& buff, int bitplanes, unsi
  * HISTORY:                                                                *
  *   11/19/1991  SB : Created.                                             *
  *=========================================================================*/
-PRIVATE long Write_BMHD(int lbmhandle, int bitplanes)
+PRIVATE int Write_BMHD(int lbmhandle, int bitplanes)
 {
-	long size;
+	int size;
 	
-	Write_File(lbmhandle, "BMHD", 4L);					// write out chunk title 
+	Write_File(lbmhandle, "BMHD", 4);					// write out chunk title 
 	size = Reverse_Long(sizeof(LocalHeader));			// write out size of LocalHeader chunk
-	Write_File(lbmhandle, (char *) &size, 4L);
+	Write_File(lbmhandle, (char *) &size, 4);
 
 	LocalHeader.planes	= bitplanes;					// only nonconstant value in LocalHeader
 
 		// Make sure size is even. Return 8 = "BMHD" + size of the bitmap header structure
 
 	return(Write_File(lbmhandle, (char *) &LocalHeader,
-	                 (sizeof(LocalHeader) + 1) & 0xFFFE) + 8L);
+	                 (sizeof(LocalHeader) + 1) & 0xFFFE) + 8);
 }
 
 
@@ -185,19 +185,19 @@ PRIVATE long Write_BMHD(int lbmhandle, int bitplanes)
  *   11/19/1991  SB : Created.                                             *
  *=========================================================================*/
 
-PRIVATE long Write_CMAP(int lbmhandle, unsigned char * palette, int bitplanes)
+PRIVATE int Write_CMAP(int lbmhandle, unsigned char * palette, int bitplanes)
 {
 	int color, r, g, b, colors;
-	long size;
+	int size;
 	unsigned char *pal_ptr;
 	char rgb[3];
 
 
-	Write_File(lbmhandle, "CMAP", 4L);						// write out palette info
+	Write_File(lbmhandle, "CMAP", 4);						// write out palette info
 	colors = 1 << bitplanes;									// colors = 2 to the bitplanes
-	size = Reverse_Long(colors * 3L);						// size = colors * 3 guns
+	size = Reverse_Long(colors * 3);						// size = colors * 3 guns
 
- 	Write_File(lbmhandle, (char *) &size, 4L);
+ 	Write_File(lbmhandle, (char *) &size, 4);
 
 	for (pal_ptr = palette, color = 0; color < colors; color++) { // for each color
 
@@ -214,10 +214,10 @@ PRIVATE long Write_CMAP(int lbmhandle, unsigned char * palette, int bitplanes)
 		rgb[1] = g;
 		rgb[2] = b;
 		
-		Write_File(lbmhandle, rgb, 3L);
+		Write_File(lbmhandle, rgb, 3);
 	}
 														// size = colors * 3
-	return(((colors << 1) + colors) + 8L);	// total size of CMAP 8 = "CMAP" + WORD (size)
+	return(((colors << 1) + colors) + 8);	// total size of CMAP 8 = "CMAP" + WORD (size)
 }
 
 
@@ -234,17 +234,17 @@ PRIVATE long Write_CMAP(int lbmhandle, unsigned char * palette, int bitplanes)
  *   11/19/1991  SB : Created.                                             *
  *=========================================================================*/
 
-PRIVATE long Write_BODY(int lbmhandle, BufferClass& buff, int bitplanes)
+PRIVATE int Write_BODY(int lbmhandle, BufferClass& buff, int bitplanes)
 {
-	long bodysize = 0;
-	long actualsize;
-	long size;
+	int bodysize = 0;
+	int actualsize;
+	int size;
 	int planebit;
 	int line, plane;
 	unsigned char buffer[40];
 	unsigned char *buffptr;
 
-	Write_File(lbmhandle, "BODY????", 8L);		// BODY chunk ID, ???? reserved for chuncksize 
+	Write_File(lbmhandle, "BODY????", 8);		// BODY chunk ID, ???? reserved for chuncksize 
 
 	buffptr = (unsigned char *) buff.Get_Buffer();						// point to beginning of buff
 
@@ -267,11 +267,11 @@ PRIVATE long Write_BODY(int lbmhandle, BufferClass& buff, int bitplanes)
 		Write_File(lbmhandle, buffer, 1);		// Padd the block.
 	}
 
-	Seek_File(lbmhandle, -(actualsize + 4L), SEEK_CUR);		// Patch in chunksize
+	Seek_File(lbmhandle, -(actualsize + 4), SEEK_CUR);		// Patch in chunksize
 	size = Reverse_Long(bodysize);
-	Write_File(lbmhandle, (char *) &size ,4L);			
+	Write_File(lbmhandle, (char *) &size ,4);			
 
-	return(actualsize + 8L);		// total size of BODY,  "BODY????" = 8 bytes
+	return(actualsize + 8);		// total size of BODY,  "BODY????" = 8 bytes
 }
 
 /***************************************************************************
@@ -291,7 +291,7 @@ PRIVATE long Write_BODY(int lbmhandle, BufferClass& buff, int bitplanes)
 // 1985 yearbook.  This is the compression method that DP.EXE uses.
 // Change only if DP.EXE changes.
 
-PRIVATE long Write_Row(int lbmhandle, unsigned char *buffer)
+PRIVATE int Write_Row(int lbmhandle, unsigned char *buffer)
 {
 	int i;
 	int chunksize = 0;
@@ -313,8 +313,8 @@ PRIVATE long Write_Row(int lbmhandle, unsigned char *buffer)
 			}
 			i++;
 			repCode = -i + 1;
-			Write_File(lbmhandle, &repCode, 1L);			// Write count as -count+1
-			Write_File(lbmhandle, buffer,   1L);			// Write byte to replicate
+			Write_File(lbmhandle, &repCode, 1);			// Write count as -count+1
+			Write_File(lbmhandle, buffer,   1);			// Write byte to replicate
 			buffer += i;
 			dataLength -= i;
 			chunksize  += 2;
@@ -340,8 +340,8 @@ PRIVATE long Write_Row(int lbmhandle, unsigned char *buffer)
 					 break;
 			}
 			repCode = i - 1;
-			Write_File(lbmhandle, &repCode, 1L);			// Write count as count-1 
-			Write_File(lbmhandle, buffer, (long) i);		// Write 'count' bytes
+			Write_File(lbmhandle, &repCode, 1);			// Write count as count-1 
+			Write_File(lbmhandle, buffer, (int) i);		// Write 'count' bytes
 			buffer += i;
 			dataLength -= i;
 			chunksize += i + 1;
@@ -369,7 +369,7 @@ BMHD 			-> "BMHD" + CHUNKSIZE + CONTEXT
 BODY			->
 
 CHUNKS		-> BMHD | BODY | CMAP | DPPV | CRNG | ????
-CHUNKSIZE	-> (long) // size of chunk not including header or size.
+CHUNKSIZE	-> (int) // size of chunk not including header or size.
 CMAP			-> "CMAP" + CHUNKSIZE + PALETTE_INFO
 COMPRESS_METHOD -> (byte) // compression method used
 CONTEXT		-> WIDTH + HEIGHT + POSX + POSY + #_BITPLANES + MASKING +
@@ -379,7 +379,7 @@ CRNG			-> // we do not use
 
 DPPV			-> // we do not use
 
-FILESIZE		-> (long)   //size of file minus (sizeof(FORM) + sizeof(FILESIZE)
+FILESIZE		-> (int)   //size of file minus (sizeof(FORM) + sizeof(FILESIZE)
 
 GREEN			-> (byte) // green color gun value
 
@@ -419,5 +419,3 @@ CHUNKS		-> + TINY	// add these to old definition
 
 
 #endif
-
-

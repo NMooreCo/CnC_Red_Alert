@@ -78,10 +78,10 @@ GameTimeClass::GameTimeClass( void )
  * HISTORY:                                                                *
  *   11/22/1995  MG : Created.                                             *
  *=========================================================================*/
-unsigned long GameTimeClass::Get_Time( void )
+unsigned int GameTimeClass::Get_Time( void )
 {
-	unsigned long curr_windows_time;
-	unsigned long game_time;
+	unsigned int curr_windows_time;
+	unsigned int game_time;
 
 	curr_windows_time = timeGetTime();
 	if ( curr_windows_time <= game_start_time ) {
@@ -108,7 +108,7 @@ unsigned long GameTimeClass::Get_Time( void )
  * HISTORY:                                                                *
  *   11/22/1995  MG : Created.                                             *
  *=========================================================================*/
-unsigned long Get_Game_Time( void )
+unsigned int Get_Game_Time( void )
 {
 	return( Game_Time.Get_Time() );
 }

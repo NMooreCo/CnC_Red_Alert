@@ -79,17 +79,14 @@
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 #define WIN32
-#ifndef _WIN32 // Denzil 6/2/98 Watcom 11.0 complains without this check
-#define _WIN32
-#endif // _WIN32
 #include <windows.h>
 #include <windowsx.h>
-#include <wwstd.h>
-#include <rawfile.h>
-#include <file.h>
-#include "profile.h"
+#include <WWSTD.H>
+#include <RAWFILE.H>
+#include <FILE.H>
+#include "PROFILE.H"
 #include <vdmdbg.h>
-#include <timer.h>
+#include <TIMER.H>
 
 #define PROFILE
 
@@ -108,8 +105,8 @@ extern "C" {
 	extern unsigned ProfileFunctionAddress;
 }
 
-unsigned long	ProfilerEvent;		//Handle for profiler callback
-unsigned long	ProfilerThread;	//Handle for profiler thread
+unsigned int	ProfilerEvent;		//Handle for profiler callback
+unsigned int	ProfilerThread;	//Handle for profiler thread
 
 
 HANDLE		CCThreadHandle;

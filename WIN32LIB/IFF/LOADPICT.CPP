@@ -39,9 +39,9 @@
  *   Load_Picture -- Loads a picture file (CPS or LBM format).             *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include "iff.h"
-#include "file.h"
-#include <wwmem.h>	// For Alloc.
+#include "IFF.H"
+#include "FILE.H"
+#include <WWMEM.H>	// For Alloc.
 
 #if(IBM)
 #include <mem.h>
@@ -280,7 +280,7 @@ PRIVATE void __cdecl PBM_To_Amiga(BufferClass& src, BufferClass& dest, int plane
 
 			for (bit = 0; bit < planes; bit++) {
 				if (value & (0x01 << bit)) {
-					destptr[(short)((8000L * (long)bit) + (col>>3))] |= 0x80 >> (col & 0x07);
+					destptr[(short)((8000 * (int)bit) + (col>>3))] |= 0x80 >> (col & 0x07);
 				}
 			}
 		}
@@ -330,7 +330,7 @@ PRIVATE void __cdecl PBM_To_Amiga(BufferClass& src, BufferClass& dest, int plane
 int __cdecl Load_Picture(char const *filename, BufferClass& scratchbuf, BufferClass& destbuf, unsigned char *palette, PicturePlaneType format)
 {
 	int	fh;						// Input file handle.
-	long	ifftype;					// Iff form type.
+	int	ifftype;					// Iff form type.
 	int	counter;					// Count of the bytes decompressed.
 	int	value;					// Working compression code value.
 	int	len;						// int sized length value.
@@ -346,7 +346,7 @@ int __cdecl Load_Picture(char const *filename, BufferClass& scratchbuf, BufferCl
 
 	fh = Open_File(filename,READ);
 	if (fh == WW_ERROR) return(FALSE);
-	Read_File(fh,&ifftype,4L);
+	Read_File(fh,&ifftype,4);
 	Close_File(fh);
 
 	if (ifftype != ID_FORM) {
@@ -356,7 +356,7 @@ int __cdecl Load_Picture(char const *filename, BufferClass& scratchbuf, BufferCl
 		fh = Open_Iff_File(filename);	// Opens and checks for IFF form.
 		if (fh == WW_ERROR) return(FALSE);
 
-		Read_File(fh, &ifftype, 4L);
+		Read_File(fh, &ifftype, 4);
 		if (ifftype == ID_ILBM) {
 			formtype = FORM_ILBM;				// Inter-Leaved Bit Map.
 		} else {
@@ -529,7 +529,7 @@ int __cdecl Load_Picture(char const *filename, BufferClass& scratchbuf, BufferCl
 					if (formtype == FORM_ILBM) {
 						ILBM_To_MCGA(scratchbuf, destbuf, bmhd.BPlanes);
 					} else {
-						Mem_Copy(scratchbuf.Get_Buffer(), destbuf.Get_Buffer(), 64000L);
+						Mem_Copy(scratchbuf.Get_Buffer(), destbuf.Get_Buffer(), 64000);
 					}
 					break;
 

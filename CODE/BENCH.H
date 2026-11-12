@@ -39,8 +39,8 @@
 #ifndef BENCH_H
 #define BENCH_H
 
-#include	"mpu.h"
-#include	"ftimer.h"
+#include	"MPU.H"
+#include	"FTIMER.H"
 
 /*
 **	The "bool" integral type was defined by the C++ committee in
@@ -62,8 +62,8 @@ typedef int bool;
 class PentiumTimerClass
 {
 	public:
-		unsigned long operator () (void) const {unsigned long h;unsigned long l = Get_CPU_Clock(h);return((l >> 4) | (h << 28));}
-		operator unsigned long (void) const {unsigned long h;unsigned long l = Get_CPU_Clock(h);return((l >> 4) | (h << 28));}
+		unsigned int operator () (void) const {unsigned int h;unsigned int l = Get_CPU_Clock(h);return((l >> 4) | (h << 28));}
+		operator unsigned int (void) const {unsigned int h;unsigned int l = Get_CPU_Clock(h);return((l >> 4) | (h << 28));}
 };
 
 
@@ -82,8 +82,8 @@ class Benchmark
 		void End(void);
 
 		void Reset(void);
-		unsigned long Value(void) const;
-		unsigned long Count(void) const {return(TotalCount);}
+		unsigned int Value(void) const;
+		unsigned int Count(void) const {return(TotalCount);}
 
 	private:
 		/*
@@ -104,18 +104,18 @@ class Benchmark
 		/*
 		**	The total time off all events tracked so far.
 		*/
-		unsigned long Average;
+		unsigned int Average;
 
 		/*
 		**	The total number of events tracked so far.
 		*/
-		unsigned long Counter;
+		unsigned int Counter;
 
 		/*
 		**	Absolute total number of events (possibly greater than the
 		**	number of events tracked in the average).
 		*/
-		unsigned long TotalCount;
+		unsigned int TotalCount;
 };
 
 

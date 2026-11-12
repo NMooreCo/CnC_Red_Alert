@@ -91,7 +91,7 @@ class	Instance_Class {
 		- sets up DNS for the server and registers a user callback to handle
 		  incoming data
 		.....................................................................*/
-		BOOL	Register_Server( BOOL CALLBACK (*)(LPBYTE, long));
+		BOOL	Register_Server( BOOL CALLBACK (*)(LPBYTE, int));
 
 		/*.....................................................................
 		Does a trial connect to the remote server.
@@ -124,7 +124,7 @@ class	Instance_Class {
 		static BOOL CALLBACK	(*callback) (
 
 			LPBYTE pointer,		// pointer to received data
-			long length				// if >0 length of received data
+			int length				// if >0 length of received data
 										// if <0
 										//	-1 == client connect detected
 										// -2 == client disconnect detected
@@ -171,5 +171,3 @@ class	Instance_Class {
 };
 
 #endif
-
-

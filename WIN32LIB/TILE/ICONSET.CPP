@@ -38,25 +38,24 @@
 
 //#include	"function.h"
 
-#define		_WIN32
 #define		WIN32_LEAN_AND_MEAN
 
 #include	<dos.h>
 #include	<stdlib.h>
 #include	<stdio.h>
 #include	<mem.h>
-#include	<wwstd.h>
-#include	<file.h>
-#include	"tile.h"
-#include	<iff.h>
+#include	<WWSTD.H>
+#include	<FILE.H>
+#include	"TILE.H"
+#include	<IFF.H>
 
 
 
 extern int Misc;
 
-void *  Load_Icon_Set(char const *filename, void *iconsetptr, long buffsize);
+void *  Load_Icon_Set(char const *filename, void *iconsetptr, int buffsize);
 void  Free_Icon_Set(void const *iconset);
-long  Get_Icon_Set_Size(void const *iconset);
+int  Get_Icon_Set_Size(void const *iconset);
 int  Get_Icon_Set_Width(void const *iconset);
 int  Get_Icon_Set_Height(void const *iconset);
 void *  Get_Icon_Set_Icondata(void const *iconset);
@@ -110,22 +109,22 @@ void *  Get_Icon_Set_Map(void const *iconset);
  *   07/15/1991 JLB : Load and uncompress onto the same buffer.            *
  *   09/15/1993 JLB : Added EMS support.                                   *
  *=========================================================================*/
-void *  Load_Icon_Set(char const *filename, void *iconsetptr, long buffsize)
+void *  Load_Icon_Set(char const *filename, void *iconsetptr, int buffsize)
 {
 	int	fh;				// File handle of iconset.
 	int	bytespericon;	// The number of bytes per icon.
-	unsigned long	icons=0;			// Number of icons loaded.
-	unsigned long	size;				// Size of the icon chunk (raw).
+	unsigned int	icons=0;			// Number of icons loaded.
+	unsigned int	size;				// Size of the icon chunk (raw).
 
-	unsigned long	transsize;
+	unsigned int	transsize;
 	void	*transptr=NULL;
 
-	unsigned long	mapsize;				// Icon map chunk size.
+	unsigned int	mapsize;				// Icon map chunk size.
 	void	*mapptr=NULL;		// Icon map pointer.
 	void	*returnptr=NULL;	// Iconset pointer returned by routine.
 	BOOL	allocated=FALSE;	// Was the iconset block allocated?
 	IControl_Type	*idata=NULL;	// Icon data loaded.
-	long	id;				// ID of file openned.
+	int	id;				// ID of file openned.
 	struct {
 		char	Width;		// Width of icon in bytes.
 		char	Height;		// Height of icon in bytes.
@@ -140,7 +139,7 @@ void *  Load_Icon_Set(char const *filename, void *iconsetptr, long buffsize)
 	*/
 	fh = Open_Iff_File(filename);
 	if (fh != WW_ERROR) {
-		Read_File(fh, &id, sizeof(long));
+		Read_File(fh, &id, sizeof(int));
 		if (id == FORM_ICON) {
 
 			/*
@@ -180,16 +179,16 @@ void *  Load_Icon_Set(char const *filename, void *iconsetptr, long buffsize)
 				idata->Width = (short)(((short)sinf.Width)<<3);
 				idata->Height = (short)(((short)sinf.Height)<<3);
 				idata->Allocated = (short)allocated;
-				idata->Icons = (long)iconsetptr + sizeof(IControl_Type);
+				idata->Icons = (int)iconsetptr + sizeof(IControl_Type);
 				idata->Map = idata->Icons + size;
 					idata->TransFlag = sizeof(IControl_Type) + size + mapsize;
 				idata->Size = buffsize;
 
 					{
-						long	val;
+						int	val;
 
 						val = Read_Iff_Chunk(fh, FORM_SSET, Add_Long_To_Pointer(iconsetptr, sizeof(IControl_Type)), size);
-						icons = (int)(val/(long)bytespericon);
+						icons = (int)(val/(int)bytespericon);
 						idata = (IControl_Type *)iconsetptr;
 					}
 
@@ -258,10 +257,10 @@ void  Free_Icon_Set(void const *iconset)
 }
 
 
-long  Get_Icon_Set_Size(void const *iconset)
+int  Get_Icon_Set_Size(void const *iconset)
 {
 	IControl_Type	*icontrol;
-	long				size=0;
+	int				size=0;
 
 	icontrol = (IControl_Type *)iconset;
 	if (icontrol) {

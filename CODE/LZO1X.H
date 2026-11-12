@@ -45,7 +45,7 @@
 #ifndef __LZO1X_H
 #define __LZO1X_H
 
-#include "lzoconf.h"
+#include "LZOCONF.H"
 
 //#ifdef __cplusplus
 //extern "C" {
@@ -60,7 +60,7 @@
  * When the required size is 0, you can also pass a NULL pointer.
  */
 
-#define LZO1X_MEM_COMPRESS      ((lzo_uint) (16384L * sizeof(lzo_byte *)))
+#define LZO1X_MEM_COMPRESS      ((lzo_uint) (16384 * sizeof(lzo_byte *)))
 #define LZO1X_MEM_DECOMPRESS    (0)
 
 
@@ -91,7 +91,7 @@ lzo1x_1_compress        ( const lzo_byte *src, lzo_uint  src_len,
 // better compression ratio at the cost of more memory and time
 ************************************************************************/
 
-#define LZO1X_999_MEM_COMPRESS  ((lzo_uint) (14 * 16384L * sizeof(short)))
+#define LZO1X_999_MEM_COMPRESS  ((lzo_uint) (14 * 16384 * sizeof(short)))
 
 LZO_EXTERN(int)
 lzo1x_999_compress      ( const lzo_byte *src, lzo_uint  src_len,

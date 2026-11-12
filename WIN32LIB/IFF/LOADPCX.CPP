@@ -36,8 +36,8 @@
  * int Get_PCX_Palette (char * name, void& palette )								*
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include  <wwlib32.h>
-#include "filepcx.h"
+#include  <WWLIB32.H>
+#include "FILEPCX.H"
 
 /***************************************************************************
  * READ_PCX_FILE -- read a pcx file into a Graphic Buffer                  *
@@ -72,7 +72,7 @@
 							 }
 
 
-GraphicBufferClass* Read_PCX_File(char* name, char* Palette, void *Buff, long Size)
+GraphicBufferClass* Read_PCX_File(char* name, char* Palette, void *Buff, int Size)
 {
   unsigned     i , j ;
   unsigned     rle ;
@@ -145,7 +145,7 @@ GraphicBufferClass* Read_PCX_File(char* name, char* Palette, void *Buff, long Si
  if ( Palette ) {
 	  //Seek_File ( file_handle , - 256 * sizeof ( RGB ) , SEEK_END ) ;
 	  Seek_File ( file_handle , 256 * sizeof ( RGB ) , SEEK_END ) ;
-	  Read_File ( file_handle,	Palette , 256L * sizeof ( RGB )) ;
+	  Read_File ( file_handle,	Palette , 256 * sizeof ( RGB )) ;
 
 	  pal = ( RGB * ) Palette ;
 	  for ( i = 0 ; i < 256 ; i ++ ) {

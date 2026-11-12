@@ -47,7 +47,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "profile.h"
+#include "PROFILE.H"
 
 /*---------------------------------------------------------------------------
  * PRIVATE DECLARATIONS
@@ -63,7 +63,7 @@
 #define isspace(c) ((c==' ')||(c=='\t')||(c=='\n')||(c=='\r')?1:0)
 
 static char *strtrim(char *string);
-static long FileGets(FILE *fp, char *buf, long buflen);
+static int FileGets(FILE *fp, char *buf, int buflen);
 
 
 /****************************************************************************
@@ -89,7 +89,7 @@ static long FileGets(FILE *fp, char *buf, long buflen);
 *
 ***************************************************************************/
 
-long Get_Frame_Pathname(char *inifile, long anim_frame, char *ext,
+int Get_Frame_Pathname(char *inifile, int anim_frame, char *ext,
 		char *outbuf)
 {
 	char rootdir[_MAX_PATH];	// Root directory from INI file
@@ -100,13 +100,13 @@ long Get_Frame_Pathname(char *inifile, long anim_frame, char *ext,
 	char *startstr;						// starting frame #, string
 	char *endstr;							// ending frame #, string
 	char *palstr;							// palette filename string
-	long startnum;						// scene's starting frame #
-	long endnum;							// scene's ending frame #
-	long total_frames;				// accumulated frame total
-	long scene_frames;				// # frames in a given scene
-	long scene_num;						// scene #
-	long file_frame;					// file's frame #
-	long rc;
+	int startnum;						// scene's starting frame #
+	int endnum;							// scene's ending frame #
+	int total_frames;				// accumulated frame total
+	int scene_frames;				// # frames in a given scene
+	int scene_num;						// scene #
+	int file_frame;					// file's frame #
+	int rc;
 	
 	/* Get directory for this file type */
 	GetINIString("Path", "Root", "", rootdir, 80, inifile);
@@ -219,7 +219,7 @@ long Get_Frame_Pathname(char *inifile, long anim_frame, char *ext,
 *
 ****************************************************************************/
 
-long GetINIInt(char const *section, char const *entry, long deflt, 
+int GetINIInt(char const *section, char const *entry, int deflt, 
 		char *fname)
 {
 	char buffer[20];
@@ -259,14 +259,14 @@ long GetINIInt(char const *section, char const *entry, long deflt,
 *
 ****************************************************************************/
 
-long GetINIString(char const *section, char const *entry, 
-		char const *def, char *retbuffer, long retlen, char *fname)
+int GetINIString(char const *section, char const *entry, 
+		char const *def, char *retbuffer, int retlen, char *fname)
 {
 	FILE *fp;
-	long retval;
+	int retval;
 	char txt[80];
 	char secname[40];
-	long len;
+	int len;
 	char *workptr;
 
 	/* Copy default value in case entry isn't found */
@@ -375,7 +375,7 @@ long GetINIString(char const *section, char const *entry,
 
 static char *strtrim(char *string)
 {
-	long i;
+	int i;
 
 	/* Return if NULL ptr or zero-length string */
 	if ((string == NULL) || (strlen(string) == 0)) {
@@ -419,7 +419,7 @@ static char *strtrim(char *string)
 *
 ****************************************************************************/
 
-static long FileGets(FILE *fp, char *buf, long buflen)
+static int FileGets(FILE *fp, char *buf, int buflen)
 {
 	if (fgets(buf, buflen, fp)) {
 		buf[(strlen(buf) - 1)] = 0;

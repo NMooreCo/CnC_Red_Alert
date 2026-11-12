@@ -49,11 +49,11 @@
 
 
 #ifndef WWMEM_H
-#include "wwmem.h"
+#include "WWMEM.H"
 #endif
 
 
-extern "C" unsigned long Largest_Mem_Block ( void ) ;
+extern "C" unsigned int Largest_Mem_Block ( void ) ;
 
 //
 // use double-word alignment for allocs
@@ -74,12 +74,12 @@ extern "C" unsigned long Largest_Mem_Block ( void ) ;
 
 /*= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =*/
 
-unsigned long MinRam=0L;		// Record of least memory at worst case.
-unsigned long MaxRam=0L;		// Record of total allocated at worst case.
-static unsigned long TotalRam = 0L;
-static unsigned long Memory_Calls = 0L;
-static unsigned long RequestedSystemRam = 8*1024*1024;
-static unsigned long LargestRamBlock = 0L;
+unsigned int MinRam=0;		// Record of least memory at worst case.
+unsigned int MaxRam=0;		// Record of total allocated at worst case.
+static unsigned int TotalRam = 0;
+static unsigned int Memory_Calls = 0;
+static unsigned int RequestedSystemRam = 8*1024*1024;
+static unsigned int LargestRamBlock = 0;
 
 void (*Memory_Error)(void) = NULL;
 void (*Memory_Error_Exit)(char *string) = NULL;
@@ -96,8 +96,8 @@ void (*Memory_Error_Exit)(char *string) = NULL;
  * HISTORY:                                                                *
  *   06/23/1995 PWG : Created.                                             *
  *=========================================================================*/
-#include"mono.h"
-void DPMI_Lock(VOID const *ptr, long const size)
+#include"MONO.H"
+void DPMI_Lock(VOID const *ptr, int const size)
 {
 	union REGS regs;
 	struct SREGS sregs;
@@ -112,10 +112,10 @@ void DPMI_Lock(VOID const *ptr, long const size)
 	memset (&regs, 0 ,sizeof(regs));
 	segread (&sregs);
 	regs.x.eax = DPMI_LOCK_MEM;
-	regs.x.ebx = ((long)ptr & 0xffff0000) >> 16;
-	regs.x.ecx = ((long)ptr & 0x0000ffff);
-	regs.x.esi = ((long)size & 0xffff0000) >> 16;
-	regs.x.edi = ((long)size & 0x0000ffff);
+	regs.x.ebx = ((int)ptr & 0xffff0000) >> 16;
+	regs.x.ecx = ((int)ptr & 0x0000ffff);
+	regs.x.esi = ((int)size & 0xffff0000) >> 16;
+	regs.x.edi = ((int)size & 0x0000ffff);
 	int386x (DPMI_INT, &regs, &regs, &sregs);			// call DPMI
 //	if (regs.x.cflag) {
 //	}
@@ -142,7 +142,7 @@ void DPMI_Lock(VOID const *ptr, long const size)
  * HISTORY:                                                                *
  *   06/23/1995 PWG : Created.                                             *
  *=========================================================================*/
-void DPMI_Unlock(void const *ptr, long const size)
+void DPMI_Unlock(void const *ptr, int const size)
 {
 	union REGS regs;
 	struct SREGS sregs;
@@ -153,10 +153,10 @@ void DPMI_Unlock(void const *ptr, long const size)
 	memset (&regs, 0 ,sizeof(regs));
 	segread (&sregs);
 	regs.x.eax = DPMI_UNLOCK_MEM;							// DPMI function to call
-	regs.x.ebx = ((long)ptr & 0xffff0000) >> 16;
-	regs.x.ecx = ((long)ptr & 0x0000ffff);
-	regs.x.esi = ((long)size & 0xffff0000) >> 16;
-	regs.x.edi = ((long)size & 0x0000ffff);
+	regs.x.ebx = ((int)ptr & 0xffff0000) >> 16;
+	regs.x.ecx = ((int)ptr & 0x0000ffff);
+	regs.x.esi = ((int)size & 0xffff0000) >> 16;
+	regs.x.edi = ((int)size & 0x0000ffff);
 	int386x (DPMI_INT, &regs, &regs, &sregs);			// call DPMI
 //	if (regs.x.cflag) {
 //	}
@@ -191,14 +191,14 @@ void DPMI_Unlock(void const *ptr, long const size)
  *   04/28/1994 JAW : Updated to 32bit Protected mode.                     *
  *   03/09/1995 JLB : Fixed                                                *
  *=========================================================================*/
-void *Alloc(unsigned long bytes_to_alloc, MemoryFlagType flags)
+void *Alloc(unsigned int bytes_to_alloc, MemoryFlagType flags)
 {
 	union REGS		regs ;
 	struct SREGS 	sregs ;
 	unsigned char *retval=NULL;	// Pointer to allocated block.
-	unsigned long	original_size;	// Original allocation size.
-	unsigned long	bytesfree;		// Number of free bytes.
-	long 				*longptr=NULL;	// Pointer used to store selector
+	unsigned int	original_size;	// Original allocation size.
+	unsigned int	bytesfree;		// Number of free bytes.
+	int 				*longptr=NULL;	// Pointer used to store selector
 	static unsigned char _allocinit=0;
 
 
@@ -209,7 +209,7 @@ void *Alloc(unsigned long bytes_to_alloc, MemoryFlagType flags)
 	// for now allocating and freeing the first largest block.
 	//
 	if ( !_allocinit ) {
-		unsigned long largestblock = Largest_Mem_Block();
+		unsigned int largestblock = Largest_Mem_Block();
 		largestblock -= 1024;				// subtract for heap header and misc
 		largestblock &= 0xffff0000;		// forcing to 64K boundary
 
@@ -274,9 +274,9 @@ void *Alloc(unsigned long bytes_to_alloc, MemoryFlagType flags)
 				retval = NULL;
 			else {
 #if (LONG_ALIGNMENT)
-				longptr		= (long *)(((regs.x.eax & 0xFFFF) << 4)+ 4);
+				longptr		= (int *)(((regs.x.eax & 0xFFFF) << 4)+ 4);
 #else
-				longptr		= (long *)(((regs.x.eax & 0xFFFF) << 4)+ 1);
+				longptr		= (int *)(((regs.x.eax & 0xFFFF) << 4)+ 1);
 #endif
 				*longptr++	= regs.x.edx & 0xFFFF;
 				retval		= (unsigned char *)longptr;
@@ -294,7 +294,7 @@ void *Alloc(unsigned long bytes_to_alloc, MemoryFlagType flags)
 	// If the memory needs to be DPMI locked then we should store the
 	// original size in the header before we store the flags.
 	if (flags & MEM_LOCK) {
-		longptr		= (long *)retval;
+		longptr		= (int *)retval;
 		*longptr++	= original_size;
 		retval		= (unsigned char *)longptr;
 	}
@@ -310,7 +310,7 @@ void *Alloc(unsigned long bytes_to_alloc, MemoryFlagType flags)
 		// it reads the actual block size before the ptr returned.
 		// then eors and uses the upper word for a validation later on free.
 		//
-		longptr = (long *)retval;
+		longptr = (int *)retval;
 		*longptr = ((*(longptr - 1)) ^ 0xffffffff) & 0xffff0000;
 		*retval++ 		= flags;
 		*retval++ 		= (unsigned char)(flags ^ 0xff);
@@ -452,7 +452,7 @@ void Free(void const *pointer)
 		** Check to see if this was locked me and if it was unlock it.
 		*/
 		if (*byteptr & MEM_LOCK) {
-			long *longptr = ((long *)byteptr) - 1;
+			int *longptr = ((int *)byteptr) - 1;
 			DPMI_Unlock(pointer, *longptr);
 			pointer = (void *)longptr;
 		} else
@@ -473,7 +473,7 @@ void Free(void const *pointer)
 		// use DPMI to free it.
 		if (*byteptr & MEM_REAL) {
 			regs.x.eax	= 0x101;
-			regs.x.edx	= *(((long *)pointer) - 1);
+			regs.x.edx	= *(((int *)pointer) - 1);
 			segread ( & sregs ) ;
 			int386x(0x31, &regs, &regs, &sregs);
 		} else {
@@ -501,16 +501,16 @@ void Free(void const *pointer)
  * HISTORY:                                                                *
  *   02/01/1992 JLB : Commented.                                           *
  *=========================================================================*/
-void *Resize_Alloc(void *original_ptr, unsigned long new_size_in_bytes)
+void *Resize_Alloc(void *original_ptr, unsigned int new_size_in_bytes)
 {
 
-	unsigned long *temp;
+	unsigned int *temp;
 //	unsigned long diff, flags;
 
-	temp = (unsigned long*)original_ptr;
+	temp = (unsigned int*)original_ptr;
 
 	/* ReAlloc the space */
-	temp = (unsigned long *)realloc(temp, new_size_in_bytes);
+	temp = (unsigned int *)realloc(temp, new_size_in_bytes);
 	if (temp == NULL) {
 		if (Memory_Error != NULL)
 			Memory_Error();
@@ -537,7 +537,7 @@ void *Resize_Alloc(void *original_ptr, unsigned long new_size_in_bytes)
  * HISTORY:                                                                *
  *   09/03/1991 JLB : Commented.                                           *
  *=========================================================================*/
-long Ram_Free(MemoryFlagType)
+int Ram_Free(MemoryFlagType)
 {
 	return(_memmax());
 //	return Largest_Mem_Block();
@@ -558,7 +558,7 @@ long Ram_Free(MemoryFlagType)
  * HISTORY:                                                                *
  *   06/21/1994 SKB : Created.                                             *
  *=========================================================================*/
-long Heap_Size(MemoryFlagType )
+int Heap_Size(MemoryFlagType )
 {
 	if (!TotalRam) {
 		TotalRam = Total_Ram_Free(MEM_NORMAL);
@@ -582,7 +582,7 @@ long Heap_Size(MemoryFlagType )
  *   06/21/1994 SKB : Created.                                             *
  *   03/09/1995 JLB : Uses prerecorded heap size maximum.                  *
  *=========================================================================*/
-long Total_Ram_Free(MemoryFlagType )
+int Total_Ram_Free(MemoryFlagType )
 {
 	return(_memavl());
 //	return Largest_Mem_Block () ;

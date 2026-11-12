@@ -21,14 +21,14 @@
 //	WolapiOb.cpp - Implementation of class WolapiObject.
 //	ajw 07/10/98
 
-#include "WolapiOb.h"
-#include "RAWolapi.h"
-#include "WolStrng.h"
-#include "SEditDlg.h"
-#include "ToolTip.h"
-#include "Wol_GSup.h"
+#include "WOLAPIOB.H"
+#include "RAWOLAPI.H"
+#include "WOLSTRNG.H"
+#include "SEDITDLG.H"
+#include "TOOLTIP.H"
+#include "WOL_GSUP.H"
 
-#include "WolDebug.h"
+#include "WOLDEBUG.H"
 
 extern void WOL_PrintMessage( IconListClass& ILTarget, const char* szText, PlayerColorType iColorRemap = PCOLOR_NONE );
 extern void WOL_PrintMessage( IconListClass& ILTarget, const char* szText, RemapControlType* pColorRemap );
@@ -1242,7 +1242,7 @@ bool WolapiObject::ListChannelUsers()
 				int iLatency;
 				if( CurrentLevel == WOL_LEVEL_INGAMECHANNEL )
 				{
-					unsigned long UserIP = pChatSink->GetUserIP( (char*)pUser->name );
+					unsigned int UserIP = pChatSink->GetUserIP( (char*)pUser->name );
 //					debugprint( "player %s ip address %i\n", szNameToShow, UserIP );
 					if( UserIP && pNetUtil->GetAvgPing( UserIP, &iLatency ) == S_OK )
 					{
@@ -1446,7 +1446,7 @@ void WolapiObject::RequestPlayerPings()
 		User* pUser = (User*)pILPlayers->Get_Item_ExtraDataPtr( i );
 		if( pUser && !( pUser->flags & CHAT_USER_MYSELF ) )
 		{
-			unsigned long UserIP = pChatSink->GetUserIP( (char*)pUser->name );
+			unsigned int UserIP = pChatSink->GetUserIP( (char*)pUser->name );
 			if( UserIP )
 			{
 				int iUnused;
@@ -1703,7 +1703,7 @@ void WolapiObject::DoFindPage()
 	SimpleEditDlgClass* pFindPageDlg;
 
 	//	Ask user for user desired.
-	Fancy_Text_Print( TXT_NONE, 0, 0, TBLACK, TBLACK, TPF_TEXT );	//	Required before String_Pixel_Width() call, for god's sake.
+	Fancy_Text_Print( TXT_NONE, 0, 0, (RemapControlType *)NULL, TBLACK, TPF_TEXT );	//	Required before String_Pixel_Width() call, for god's sake.
 	pFindPageDlg = new SimpleEditDlgClass( 400, TXT_WOL_PAGELOCATE, TXT_WOL_USERNAMEPROMPT, WOL_NAME_LEN_MAX );
 	pFindPageDlg->SetButtons( TXT_WOL_LOCATE, Text_String( TXT_CANCEL ), TXT_WOL_PAGE );
 	bPump_In_Call_Back = true;

@@ -79,8 +79,8 @@
  *   CellClass::Wall_Update -- Updates the imagery for wall objects in cell.                   *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
-#include	"vortex.h"
+#include	"FUNCTION.H"
+#include	"VORTEX.H"
 
 /***********************************************************************************************
  * CellClass::CellClass -- Constructor for cell objects.                                       *
@@ -196,7 +196,7 @@ TechnoClass * CellClass::Cell_Techno(int x, int y) const
 	ObjectClass * object;
 	COORDINATE		click;			// Coordinate of click relative to cell corner.
 	TechnoClass * close = NULL;
-	long		distance = 0;	// Recorded closest distance.
+	int		distance = 0;	// Recorded closest distance.
 
 	/*
 	**	Create a coordinate value that represent the pixel location within the cell. This is
@@ -209,7 +209,7 @@ TechnoClass * CellClass::Cell_Techno(int x, int y) const
 		while (object) {
 			if (object->Is_Techno()) {
 				COORDINATE coord = Coord_Fraction(object->Center_Coord());
-				long dist = Distance(coord, click);
+				int dist = Distance(coord, click);
 				if (!close || dist < distance) {
 					close = (TechnoClass *)object;
 					distance = dist;
@@ -741,7 +741,8 @@ void CellClass::Overlap_Down(ObjectClass * object)
 
 	if (!object) return;
 
-	for (int index = 0; index < ARRAY_SIZE(Overlapper); index++) {
+	int index;
+	for (index = 0; index < ARRAY_SIZE(Overlapper); index++) {
 		if (Overlapper[index] == object) return;
 		if (!Overlapper[index]) ptr = &Overlapper[index];
 	}
@@ -1748,7 +1749,7 @@ int CellClass::Spot_Index(COORDINATE coord)
 	**	If the coordinate is close enough to the center of the cell, then return
 	**	the center position index.
 	*/
-	if (Distance(rel, (COORDINATE)0x00800080L) < 60) {
+	if (Distance(rel, (COORDINATE)0x00800080) < 60) {
 		return(0);
 	}
 
@@ -1860,7 +1861,7 @@ COORDINATE CellClass::Closest_Free_Spot(COORDINATE coord, bool any) const
 	/*
 	**	No free spot could be found so return a NULL coordinate.
 	*/
-	return(0x00000000L);
+	return(0x00000000);
 }
 
 
@@ -2015,7 +2016,7 @@ void CellClass::Adjust_Threat(HousesType house, int threat_value)
  *   05/16/1995 JLB : Created.                                                                 *
  *   02/20/1996 JLB : Takes into account the ore type.                                         *
  *=============================================================================================*/
-long CellClass::Tiberium_Adjust(bool pregame)
+int CellClass::Tiberium_Adjust(bool pregame)
 {
 	assert((unsigned)Cell_Number() <= MAP_CELL_TOTAL);
 	if (Overlay != OVERLAY_NONE) {
@@ -2114,7 +2115,8 @@ bool CellClass::Goodie_Check(FootClass * object)
 		**	the base pool to determine the odds from.
 		*/
 		int total_shares = 0;
-		for (int index = CRATE_FIRST; index < CRATE_COUNT; index++) {
+		int index;
+		for (index = CRATE_FIRST; index < CRATE_COUNT; index++) {
 			total_shares += CrateShares[index];
 		}
 
@@ -2217,7 +2219,7 @@ bool CellClass::Goodie_Check(FootClass * object)
 						int i,ucount;
 						int minunits = 1000;
 						bool found = false;
-						unsigned long minutes = (Score.ElapsedTime / TIMER_MINUTE);
+						unsigned int minutes = (Score.ElapsedTime / TIMER_MINUTE);
 						if (minutes > 100) minutes = 100;
 						if (Random_Pick(0,100-(int)minutes) == 0) {
 							for (i=0; i < (Session.Players.Count() + Session.Options.AIPlayers); i++) {

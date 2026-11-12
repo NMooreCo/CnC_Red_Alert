@@ -47,11 +47,11 @@
  *   Save_Misc_Values -- saves miscellaneous variables                                         *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
-#include	"vortex.h"
+#include	"FUNCTION.H"
+#include	"VORTEX.H"
 #ifdef WIN32
-#include "tcpip.h"
-#include "ccdde.h"
+#include "TCPIP.H"
+#include "CCDDE.H"
 
 //#include "WolDebug.h"
 
@@ -189,7 +189,8 @@ static void Put_All(Pipe & pipe, int save_net)
 
 	int count = MapTriggers.Count();
 	pipe.Put(&count, sizeof(count));
-	for (int index = 0; index < MapTriggers.Count(); index++) {
+	int index;
+	for (index = 0; index < MapTriggers.Count(); index++) {
 		TARGET target = MapTriggers[index]->As_Target();
 		pipe.Put(&target, sizeof(target));
 	}
@@ -370,7 +371,7 @@ bool Save_Game(int id, char const * descr, bool )
 	/*
 	**	Save the save-game version, for loading verification
 	*/
-	unsigned long version = SAVEGAME_VERSION;
+	unsigned int version = SAVEGAME_VERSION;
 #ifdef FIXIT_CSII	//	checked - ajw 9/28/98
 	version++;
 #endif
@@ -510,7 +511,7 @@ bool Load_Game(int id)
 	/*
 	**	Read in & verify the save-game ID code
 	*/
-	unsigned long version;
+	unsigned int version;
 	if (fstraw.Get(&version, sizeof(version)) != sizeof(version)) {
 		return(false);
 	}
@@ -534,7 +535,7 @@ bool Load_Game(int id)
 	**	Remember the file position since we must seek back here to
 	**	perform the real saved game read.
 	*/
-	long pos = file.Seek(0, SEEK_CUR);
+	int pos = file.Seek(0, SEEK_CUR);
 
 	/*
 	**	Pass the rest of the file through the hash straw so that
@@ -680,7 +681,8 @@ bool Load_Game(int id)
 	int count;
 	straw.Get(&count, sizeof(count));
 	MapTriggers.Clear();
-	for (int index = 0; index < count; index++) {
+	int index;
+	for (index = 0; index < count; index++) {
 		TARGET target;
 		straw.Get(&target, sizeof(target));
 		MapTriggers.Add(As_Trigger(target));
@@ -1366,7 +1368,7 @@ void Decode_All_Pointers(void)
 bool Get_Savefile_Info(int id, char * buf, unsigned * scenp, HousesType * housep)
 {
 	char name[_MAX_FNAME+_MAX_EXT];
-	unsigned long version;
+	unsigned int version;
 	char descr_buf[DESCRIP_MAX];
 
 	/*

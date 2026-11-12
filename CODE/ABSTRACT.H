@@ -82,7 +82,7 @@ class AbstractClass
 		/*-----------------------------------------------------------------------------------
 		**	Constructor & destructors.
 		*/
-		AbstractClass(RTTIType rtti, int id) : RTTI(rtti), ID(id), Coord(0xFFFFFFFFL), Height(0) {};
+		AbstractClass(RTTIType rtti, int id) : RTTI(rtti), ID(id), Coord(0xFFFFFFFF), Height(0) {};
 		AbstractClass(NoInitClass const & x) {x();};
 		virtual ~AbstractClass(void) {};
 

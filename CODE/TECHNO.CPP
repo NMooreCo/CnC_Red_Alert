@@ -133,7 +133,7 @@
  *   TechnoTypeClass::Time_To_Build -- Fetches the time to build this object.                  *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
+#include	"FUNCTION.H"
 
 
 /***************************************************************************
@@ -540,7 +540,7 @@ void TechnoClass::Debug_Dump(MonoClass * mono) const
 	mono->Set_Cursor(14, 7);mono->Printf("%2d", Fetch_Stage());
 	mono->Set_Cursor(49, 1);mono->Printf("%3d", Ammo);
 	mono->Set_Cursor(71, 1);mono->Printf("$%4d", PurchasePrice);
-	mono->Set_Cursor(54, 1);mono->Printf("%3d", (long)Arm);
+	mono->Set_Cursor(54, 1);mono->Printf("%3d", (int)Arm);
 	if (Is_Something_Attached()) {
 		mono->Set_Cursor(1, 5);mono->Printf("%08X", Attached_Object());
 	}
@@ -568,7 +568,7 @@ void TechnoClass::Debug_Dump(MonoClass * mono) const
 	mono->Fill_Attrib(40, 14, 12, 1, IsDiscoveredByPlayer ? MonoClass::INVERSE : MonoClass::NORMAL);
 	mono->Fill_Attrib(40, 15, 12, 1, IsDiscoveredByComputer ? MonoClass::INVERSE : MonoClass::NORMAL);
 	mono->Fill_Attrib(40, 16, 12, 1, IsALemon ? MonoClass::INVERSE : MonoClass::NORMAL);
-	mono->Set_Cursor(47, 17);mono->Printf("%3d", (long)IronCurtainCountDown);
+	mono->Set_Cursor(47, 17);mono->Printf("%3d", (int)IronCurtainCountDown);
 	mono->Fill_Attrib(40, 17, 12, 1, IronCurtainCountDown > 0 ? MonoClass::INVERSE : MonoClass::NORMAL);
 
 	RadioClass::Debug_Dump(mono);
@@ -890,7 +890,7 @@ bool TechnoClass::Mark(MarkType mark)
  *   10/17/1994 JLB : Created.                                                                 *
  *   06/17/1995 JLB : Handles tether contact messages.                                         *
  *=============================================================================================*/
-RadioMessageType TechnoClass::Receive_Message(RadioClass * from, RadioMessageType message, long & param)
+RadioMessageType TechnoClass::Receive_Message(RadioClass * from, RadioMessageType message, int & param)
 {
 	assert(IsActive);
 
@@ -2214,7 +2214,7 @@ TARGET TechnoClass::Greatest_Threat(ThreatType method) const
 		**	is NOT scanned since that layer will probably contain more bullets and animations
 		**	than aircraft.
 		*/
-		if (mask & (1L << RTTI_AIRCRAFT)) {
+		if (mask & (1 << RTTI_AIRCRAFT)) {
 			for (int index = 0; index < Aircraft.Count(); index++) {
 				TechnoClass * object = Aircraft.Ptr(index);
 
@@ -3790,7 +3790,7 @@ bool TechnoClass::Captured(HouseClass * newowner)
  * HISTORY:                                                                                    *
  *   06/20/1995 JLB : Created.                                                                 *
  *=============================================================================================*/
-ResultType TechnoClass::Take_Damage(int & damage, int distance, WarheadType warhead, TechnoClass * source, int forced)
+ResultType TechnoClass::Take_Damage(int & damage, int distance, WarheadType warhead, TechnoClass * source, bool forced)
 {
 	assert(IsActive);
 
@@ -4685,7 +4685,8 @@ void TechnoClass::Base_Is_Attacked(TechnoClass const * enemy)
 	** Loop through the infantry looking for those who are capable of going
 	** on a rescue mission.
 	*/
-	for (int index = 0; index < Infantry.Count() && desired > 0; index++) {
+	int index;
+	for (index = 0; index < Infantry.Count() && desired > 0; index++) {
 	 	InfantryClass * infantry = Infantry.Ptr(index);
 		if (infantry != NULL && infantry->Owner() == Owner()) {
 
@@ -4856,7 +4857,8 @@ void TechnoClass::Base_Is_Attacked(TechnoClass const * enemy)
 		** Sort the defenders by value, this doesn't take very long and will
 		** help the closest defenders to respond.
 		*/
-		for (int lp = 0; lp < count - 1; lp ++) {
+		int lp;
+		for (lp = 0; lp < count - 1; lp ++) {
 			for (int lp2 = lp + 1; lp2 < count; lp2++) {
 				if (value[lp] < value[lp2]) {
 
@@ -5567,7 +5569,7 @@ void TechnoClass::Draw_Pips(int x, int y, WindowNumberType window) const
 		** If this unit is part of a formation, draw an 'F' after the group
 		** number.
 		*/
-		if ( ((FootClass *)this)->XFormOffset != 0x80000000UL) {
+		if ( ((FootClass *)this)->XFormOffset != 0x80000000U) {
 			CC_Draw_Shape(Class_Of().PipShapes, PIP_LETTERF, x+8, y+yval, window, SHAPE_CENTER|SHAPE_WIN_REL);
 		}
 	}
@@ -5607,7 +5609,7 @@ void TechnoClass::Draw_Pips(int x, int y, WindowNumberType window) const
 		if (spiedby) {
 			// If it's a refinery/silo, print the enemy's money
 			if (((BuildingClass *)this)->Class->Capacity) {
-				long money = House->Available_Money();
+				int money = House->Available_Money();
 
 				/*
 				**	Determine how many digits will be printed.

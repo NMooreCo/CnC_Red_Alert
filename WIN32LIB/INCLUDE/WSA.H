@@ -47,11 +47,11 @@
 #define WSA_H
 
 #ifndef WWSTD_H
-#include "wwstd.h"
+#include "WWSTD.H"
 #endif
 
 #ifndef GBUFFER_H
-#include "gbuffer.h"
+#include "GBUFFER.H"
 #endif
 
 //lint -strong(AJX,WSAType)
@@ -84,7 +84,7 @@ typedef enum {
 /* The following prototypes are for the file: WSA.CPP								*/
 /*=========================================================================*/
 
-void * __cdecl Open_Animation(char const *file_name, char *user_buffer, long user_buffer_size, WSAOpenType user_flags, unsigned char *palette=NULL);
+void * __cdecl Open_Animation(char const *file_name, char *user_buffer, int user_buffer_size, WSAOpenType user_flags, unsigned char *palette=NULL);
 void __cdecl Close_Animation( void *handle );
 BOOL __cdecl Animate_Frame(void *handle, GraphicViewPortClass& view,
                          int frame_number, int x_pixel=0, int y_pixel=0,
@@ -99,7 +99,7 @@ int __cdecl Get_Animation_Y(void const *handle);
 int __cdecl Get_Animation_Width(void const *handle);
 int __cdecl Get_Animation_Height(void const *handle);
 int __cdecl Get_Animation_Palette(void const *handle);
-unsigned long __cdecl Get_Animation_Size(void const *handle);
+unsigned int __cdecl Get_Animation_Size(void const *handle);
 
 
 /***************************************************************************
@@ -120,7 +120,7 @@ unsigned long __cdecl Get_Animation_Size(void const *handle);
  *=========================================================================*/
 inline void  * __cdecl Open_Animation(char *file_name, WSAOpenType user_flags, unsigned char *palette=NULL)
 {
-	return (Open_Animation(file_name, NULL, 0L, user_flags,  palette));
+	return (Open_Animation(file_name, NULL, 0, user_flags,  palette));
 }
 
 

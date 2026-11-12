@@ -38,9 +38,12 @@
 #ifndef LIST_H
 #define LIST_H
 
-#include "control.h"
-#include "shapebtn.h"
-#include "slider.h"
+#include "CONTROL.H"
+#include "SHAPEBTN.H"
+#include "SLIDER.H"
+
+// Needed by the TListClass template (two phase name lookup).
+extern GraphicViewPortClass	SeenBuff;
 
 
 /***************************************************************************
@@ -271,7 +274,7 @@ TListClass<T>::TListClass(int id, int x, int y, int w, int h, TextPrintType flag
 	/*
 	**	Set the list box to a default state.
 	*/
-	Fancy_Text_Print(TXT_NONE, 0, 0, TBLACK, TBLACK, TextFlags);
+	Fancy_Text_Print(TXT_NONE, 0, 0, (RemapControlType *)NULL, TBLACK, TextFlags);
 	LineHeight = FontHeight+FontYSpacing-1;
 	LineCount = (h-1) / LineHeight;
 }

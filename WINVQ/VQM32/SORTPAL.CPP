@@ -47,7 +47,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "palette.h"
+#include "PALETTE.H"
 
 /*---------------------------------------------------------------------------
  * PRIVATE DECLARATIONS
@@ -58,9 +58,9 @@
 		(unsigned short)(((n)%(d)) >= (((d)+1)>>1)))
 
 #define HSV_BASE          255
-#define HUE_WEIGHT        10L
-#define SATURATION_WEIGHT 100L
-#define VALUE_WEIGHT      1000L
+#define HUE_WEIGHT        10
+#define SATURATION_WEIGHT 100
+#define VALUE_WEIGHT      1000
 
 /* Prototypes */
 static int Comp_Luminance(const void *elem1, const void *elem2);
@@ -91,7 +91,7 @@ static void RGB_To_HSV(unsigned short r, unsigned short g, unsigned short b,
 *
 ****************************************************************************/
 
-void SortPalette(unsigned char *pal, long numcolors)
+void SortPalette(unsigned char *pal, int numcolors)
 {
 	qsort(pal, numcolors, 3, Comp_Luminance);
 
@@ -130,22 +130,22 @@ void SortPalette(unsigned char *pal, long numcolors)
 static int Comp_Luminance(const void *elem1, const void *elem2)
 {
 	unsigned char *pal;
-	long          r,g,b;
-	long          total1,total2;
+	int          r,g,b;
+	int          total1,total2;
 
 	/* Compute luminance for color1 */
 	pal = (unsigned char *)elem1;
-	r = ((long)pal[0]);
-	g = ((long)pal[1]);
-	b = ((long)pal[2]);
-	total1 = ((r * 19595L) + (g * 38470L) + (b * 7471L));
+	r = ((int)pal[0]);
+	g = ((int)pal[1]);
+	b = ((int)pal[2]);
+	total1 = ((r * 19595) + (g * 38470) + (b * 7471));
 
 	/* Compute luminance for color2 */
 	pal = (unsigned char *)elem2;
-	r = ((long)pal[0]);
-	g = ((long)pal[1]);
-	b = ((long)pal[2]);
-	total2 = ((r * 19595L) + (g * 38470L) + (b * 7471L));
+	r = ((int)pal[0]);
+	g = ((int)pal[1]);
+	b = ((int)pal[2]);
+	total2 = ((r * 19595) + (g * 38470) + (b * 7471));
 
 	if (total1 < total2) {
 		return (-1);
@@ -185,8 +185,8 @@ static int Comp_HSV(const void *elem1, const void *elem2)
 	unsigned char  *pal;
 	unsigned char  r,g,b;
 	unsigned short h,s,v;
-	unsigned long  key1,key2;
-	long           retval;
+	unsigned int  key1,key2;
+	int           retval;
 
 	/* Convert 1st element to HSV */
 	pal = (unsigned char *)elem1;

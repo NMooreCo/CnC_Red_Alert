@@ -51,7 +51,7 @@
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 
-#include "function.h"
+#include "FUNCTION.H"
 
 
 // Submarine
@@ -392,7 +392,7 @@ BuildingClass * VesselTypeClass::Who_Can_Build_Me(bool intheory, bool legal, Hou
 				building->House->Class->House == house &&
 				building->Class->ToBuild == RTTI_VESSELTYPE &&
 				building->Mission != MISSION_DECONSTRUCTION &&
-				((1L << building->ActLike) & Ownable) &&
+				((1 << building->ActLike) & Ownable) &&
 				(!legal || building->House->Can_Build(Type, building->ActLike)) &&
 				(intheory || !building->In_Radio_Contact())) {
 

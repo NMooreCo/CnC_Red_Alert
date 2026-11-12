@@ -40,7 +40,7 @@
  * Functions:                                                                        *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include 	"function.h"
+#include 	"FUNCTION.H"
 
 /*
 ** List of Ego Class instances
@@ -665,7 +665,8 @@ void Show_Who_Was_Responsible (void)
 	memset (PaletteLUT, 1, sizeof (PaletteLUT));
 	int pcolor = PCOLOR_GREEN;
 
-	for (int index = 0; index < 6; index++) {
+	int index;
+	for (index = 0; index < 6; index++) {
 		PaletteLUT[ColorRemaps[pcolor].FontRemap[10+index]] =0;
 	}
 	//PaletteLUT[ColorRemaps[pcolor].BrightColor] = 0;

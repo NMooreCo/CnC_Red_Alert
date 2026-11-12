@@ -48,7 +48,7 @@
  *   MissionClass::Is_Recruitable_Mission -- Determines if this mission is recruitable for a te*
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
+#include	"FUNCTION.H"
 
 
 /***********************************************************************************************
@@ -185,7 +185,7 @@ void MissionClass::Debug_Dump(MonoClass * mono) const
 
 	mono->Set_Cursor(1, 9);mono->Printf("%-14s", MissionClass::Mission_Name(Mission));
 	mono->Set_Cursor(16, 9);mono->Printf("%-12s", MissionClass::Mission_Name(MissionQueue));
-	mono->Set_Cursor(1, 7);mono->Printf("%3d", (long)Timer);
+	mono->Set_Cursor(1, 7);mono->Printf("%3d", (int)Timer);
 	mono->Set_Cursor(6, 7);mono->Printf("%2d", Status);
 
 	ObjectClass::Debug_Dump(mono);
@@ -519,7 +519,7 @@ bool MissionClass::Restore_Mission(void)
  * HISTORY:                                                                                    *
  *   09/14/1996 JLB : Created.                                                                 *
  *=============================================================================================*/
-bool MissionClass::Is_Recruitable_Mission(MissionType mission) const
+bool MissionClass::Is_Recruitable_Mission(MissionType mission)
 {
 	if (mission == MISSION_NONE) {
 		return(true);

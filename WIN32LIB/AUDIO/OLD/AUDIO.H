@@ -34,7 +34,7 @@
  * Functions:                                                              *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include "wwstd.h"
+#include "WWSTD.H"
 
 /*=========================================================================*/
 /* AUD file header type																		*/
@@ -48,8 +48,8 @@
 #pragma pack(1);
 typedef struct {
 	unsigned short int	Rate;				// Playback rate (hertz).
-	long	Size;				// Size of data (bytes).
-	long	UncompSize;				// Size of data (bytes).
+	int	Size;				// Size of data (bytes).
+	int	UncompSize;				// Size of data (bytes).
 	unsigned char Flags;	// Holds flags for info
 								//  1: Is the sample stereo?
 								//  2: Is the sample 16 bits?
@@ -123,8 +123,8 @@ int File_Stream_Sample_Vol(char const *filename, int volume, BOOL real_time_star
 void __cdecl Sound_Callback(void);
 void __cdecl far maintenance_callback(void);
 void *Load_Sample(char const *filename);
-long Load_Sample_Into_Buffer(char const *filename, void *buffer, long size);
-long Sample_Read(int fh, void *buffer, long size);
+int Load_Sample_Into_Buffer(char const *filename, void *buffer, int size);
+int Sample_Read(int fh, void *buffer, int size);
 void Free_Sample(void const *sample);
 BOOL Audio_Init( HWND window , int bits_per_sample, BOOL stereo , int rate , int reverse_channels);
 void Sound_End(void);
@@ -139,7 +139,7 @@ int Set_Score_Vol(int volume);
 void Fade_Sample(int handle, int ticks);
 int Get_Free_Sample_Handle(int priority);
 int Get_Digi_Handle(void);
-long Sample_Length(void const *sample);
+int Sample_Length(void const *sample);
 void Restore_Sound_Buffers (void);
 BOOL Set_Primary_Buffer_Format(void);
 BOOL Start_Primary_Sound_Buffer (BOOL forced);

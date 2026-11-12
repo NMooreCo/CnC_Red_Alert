@@ -60,21 +60,21 @@
 #include <windows.h>
 #include <windowsx.h>
 #include <westwood.h>
-#include <file.h>
+#include <FILE.H>
 #include <stdio.h>
-#include <memflag.h>
-#include <vq.h>
+#include <MEMFLAG.H>
+#include <VQ.H>
 #include <mainwind.h>
 #include <pal.h>
-#include <wwstd.h>
-#include <gbuffer.h>
+#include <WWSTD.H>
+#include <GBUFFER.H>
 #include <main.h>
 #include <monochrm.h>
 #include <vidmode.h>
 #include <movies.h>
 #include <gametime.h>
 #include <dialogs.rh>
-#include <vqm32\compress.h>
+#include <VQM32/COMPRESS.H>
 
 //==========================================================================
 // PRIVATE DEFINES
@@ -88,8 +88,8 @@
 // PRIVATE FUNCTIONS
 //==========================================================================
 
-long Disk_VQA_Stream_Handler(
-		VQAHandle *vqa_handle, long action, void *buffer, long nbytes );
+int Disk_VQA_Stream_Handler(
+		VQAHandle *vqa_handle, int action, void *buffer, int nbytes );
 
 #if( DEBUG_CODE )
 BOOL Set_Frame_Rate_Dialog_Procedure(
@@ -124,7 +124,7 @@ BOOL Set_Frame_Rate_Dialog_Procedure(
  *                                                                         *
  * HISTORY: See PVCS log                                                   *
  *=========================================================================*/
-VQAClass::VQAClass( char *filename, char *buffer, short media_src, long (*callback) (unsigned char *, long) )
+VQAClass::VQAClass( char *filename, char *buffer, short media_src, int (*callback) (unsigned char *, int) )
 {
 	// Initialize config options.
 	VQA_DefaultConfig( &vqa_config );
@@ -247,12 +247,12 @@ VQAClass::~VQAClass(void)
  *                                                                         *
  * HISTORY: See PVCS log                                                   *
  *=========================================================================*/
-long Disk_VQA_Stream_Handler(
-	VQAHandle *vqa_handle, long action, void *buffer, long nbytes)
+int Disk_VQA_Stream_Handler(
+	VQAHandle *vqa_handle, int action, void *buffer, int nbytes)
 {
 	unsigned char	temp_char;
 	int				fh;
-	long				error;
+	int				error;
 
 	fh = vqa_handle->VQAio;
 
@@ -298,11 +298,11 @@ long Disk_VQA_Stream_Handler(
 			//
 			if ( nbytes > 0 ) {
 				nbytes -= 1;
-				error = ( Seek_File( fh, nbytes, (long) buffer ) == 0 );
+				error = ( Seek_File( fh, nbytes, (int) buffer ) == 0 );
 				Read_File( fh, &temp_char, 1 );
 			}
 			else {
-				error = ( Seek_File( fh, nbytes, (long) buffer ) == 0 );
+				error = ( Seek_File( fh, nbytes, (int) buffer ) == 0 );
 			}
 			break;
 
@@ -716,7 +716,7 @@ BOOL VQAClass::Open_And_Load_Buffers( void )
  * HISTORY:                                                                *
  *   See PVCS log																			  *
  *=========================================================================*/
-void VQAClass::Seek_To_Frame( unsigned long frame )
+void VQAClass::Seek_To_Frame( unsigned int frame )
 {
 	//
 	// Don't bother seeking if already there.
@@ -750,8 +750,8 @@ int VQAClass::Play_VQA( int last_frame_to_play )
 	#if( DEBUG_CODE )
 		VQAStatistics	vqa_stats;
 		float				frames_per_sec;
-		unsigned long	start_time;
-		unsigned long	end_time;
+		unsigned int	start_time;
+		unsigned int	end_time;
 	#endif
 
 	//
@@ -819,7 +819,7 @@ int VQAClass::Play_VQA( int last_frame_to_play )
  *=========================================================================*/
 int VQAClass::Play_Generic_VQA( int last_frame_to_play )
 {
-	long				errval;
+	int				errval;
 
 	switch( last_frame_to_play ) {
 		case PLAY_ALL_FRAMES:

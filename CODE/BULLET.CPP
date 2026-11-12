@@ -52,7 +52,7 @@
  *   BulletClass::~BulletClass -- Destructor for bullet objects.                               *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
+#include	"FUNCTION.H"
 
 
 /***********************************************************************************************
@@ -515,7 +515,7 @@ int BulletClass::Shape_Number(void) const
 	**	For tumbling projectiles, fetch offset stage.
 	*/
 	if (Class->Tumble > 0) {
-		shapenum += (long)Frame % Class->Tumble;
+		shapenum += (int)Frame % Class->Tumble;
 	}
 
 	return(shapenum);

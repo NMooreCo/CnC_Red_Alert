@@ -49,7 +49,7 @@
 // MEG - 11.28.95 - added for debug
 extern void Debug_Printf( char *format_string, ... );
 
-#ifdef __WATCOMC__
+#if defined(__WATCOMC__) || defined(RA_PORT)	// RA_PORT: the configuration the game was built with.
 #define VQASTANDALONE 0  /* Stand alone player */
 #define VQAVOC_ON     0  /* Enable VOC file override */
 #define	VQAMONO_ON    0  /* Mono display output enable/disable */
@@ -86,9 +86,6 @@ extern void Debug_Printf( char *format_string, ... );
 #if (VQAAUDIO_ON && VQADIRECT_SOUND)
 #ifndef WIN32
 #define WIN32 1
-#ifndef _WIN32 // Denzil 6/2/98 Watcom 11.0 complains without this check
-#define _WIN32
-#endif // _WIN32
 #endif
 #undef WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -182,38 +179,38 @@ extern void Debug_Printf( char *format_string, ... );
  * EVAFont        - Pointer to font to use for E.V.A text cations. (For C&C)
  */
 typedef struct _VQAConfig {
-	long          			(*DrawerCallback)(unsigned char *screen, long framenum);
-	long          			(*EventHandler)(unsigned long event,void *buffer,long nbytes);
-	unsigned long 			NotifyFlags;
-	long          			Vmode;
-	long          			VBIBit;
+	int          			(*DrawerCallback)(unsigned char *screen, int framenum);
+	int          			(*EventHandler)(unsigned int event,void *buffer,int nbytes);
+	unsigned int 			NotifyFlags;
+	int          			Vmode;
+	int          			VBIBit;
 	unsigned char 			*ImageBuf;
-	long          			ImageWidth;
-	long          			ImageHeight;
-	long          			X1,Y1;
-	long          			FrameRate;
-	long          			DrawRate;
-	long          			TimerMethod;
-	long          			DrawFlags;
-	long          			OptionFlags;
-	long          			NumFrameBufs;
-	long          			NumCBBufs;
+	int          			ImageWidth;
+	int          			ImageHeight;
+	int          			X1,Y1;
+	int          			FrameRate;
+	int          			DrawRate;
+	int          			TimerMethod;
+	int          			DrawFlags;
+	int          			OptionFlags;
+	int          			NumFrameBufs;
+	int          			NumCBBufs;
 #if (VQADIRECT_SOUND)
 	LPDIRECTSOUND			SoundObject;
 	LPDIRECTSOUNDBUFFER	PrimaryBufferPtr;
 #endif	//(VQADIRECT_SOUND)
 	char          			*VocFile;
 	unsigned char 			*AudioBuf;
-	long          			AudioBufSize;
-	long          			AudioRate;
-	long          			Volume;
-	long          			HMIBufSize;
-	long          			DigiHandle;
-	long          			DigiCard;
-	long          			DigiPort;
-	long          			DigiIRQ;
-	long          			DigiDMA;
-	long          			Language;
+	int          			AudioBufSize;
+	int          			AudioRate;
+	int          			Volume;
+	int          			HMIBufSize;
+	int          			DigiHandle;
+	int          			DigiCard;
+	int          			DigiPort;
+	int          			DigiIRQ;
+	int          			DigiDMA;
+	int          			Language;
 	char          			*CapFont;
 	char          			*EVAFont; /* For C&C Only */
 } VQAConfig;
@@ -267,9 +264,9 @@ typedef struct _VQAConfig {
  * ImageBuf    - Pointer to the image buffer VQA draw into.
  */
 typedef struct _VQAInfo {
-	long NumFrames;
-	long ImageWidth;
-	long ImageHeight;
+	int NumFrames;
+	int ImageWidth;
+	int ImageHeight;
 	unsigned char *ImageBuf;
 } VQAInfo;
 
@@ -286,14 +283,14 @@ typedef struct _VQAInfo {
  * MemUsed       - Total bytes used. (Low memory)
  */
 typedef struct _VQAStatistics {
-	long          StartTime;
-	long          EndTime;
-	long          FramesLoaded;
-	long          FramesDrawn;
-	long          FramesSkipped;
-	long          MaxFrameSize;
-	unsigned long SamplesPlayed;
-	unsigned long MemUsed;
+	int          StartTime;
+	int          EndTime;
+	int          FramesLoaded;
+	int          FramesDrawn;
+	int          FramesSkipped;
+	int          MaxFrameSize;
+	unsigned int SamplesPlayed;
+	unsigned int MemUsed;
 } VQAStatistics;
 
 
@@ -304,7 +301,7 @@ typedef struct _VQAStatistics {
  * VQAio - Something meaningful to the IO manager. (See DOCS)
  */
 typedef struct _VQAHandle {
-	unsigned long VQAio;
+	unsigned int VQAio;
 } VQAHandle;
 
 /* Possible IO command values */
@@ -330,20 +327,20 @@ VQAHandle *VQA_Alloc(void);
 void VQA_Free(VQAHandle *vqa);
 void VQA_Reset(VQAHandle *vqa);
 void VQA_InitAsDOS(VQAHandle *vqa);
-void VQA_Init(VQAHandle *vqa, long(*iohandler)(VQAHandle *vqa, long action,
-		void *buffer, long nbytes));
+void VQA_Init(VQAHandle *vqa, int(*iohandler)(VQAHandle *vqa, int action,
+		void *buffer, int nbytes));
 unsigned char *VQA_GetPalette(VQAHandle *vqa);
-long VQA_GetPaletteSize(VQAHandle *vqa);
+int VQA_GetPaletteSize(VQAHandle *vqa);
 void VQA_Set_DrawBuffer(VQAHandle *vqa, unsigned char *buffer,
-		unsigned long width, unsigned long height,
-		long xpos, long ypos);
+		unsigned int width, unsigned int height,
+		int xpos, int ypos);
 
 /* File routines. */
-long VQA_Open(VQAHandle *vqa, char const *filename, VQAConfig *config);
+int VQA_Open(VQAHandle *vqa, char const *filename, VQAConfig *config);
 void VQA_Close(VQAHandle *vqa);
-long VQA_Play(VQAHandle *vqa, long mode);
-long VQA_SeekFrame(VQAHandle *vqa, long frame, long fromwhere);
-long VQA_SetStop(VQAHandle *vqa, long stop);
+int VQA_Play(VQAHandle *vqa, int mode);
+int VQA_SeekFrame(VQAHandle *vqa, int frame, int fromwhere);
+int VQA_SetStop(VQAHandle *vqa, int stop);
 
 /* Information/statistics access routines. */
 void VQA_GetInfo(VQAHandle *vqa, VQAInfo *info);

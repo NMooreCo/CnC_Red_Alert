@@ -34,7 +34,7 @@
 
 #ifndef  _SOS_DEFINED
 #define  _SOS_DEFINED
-#include "sosdefs.h"
+#include "SOSDEFS.H"
 
 #pragma pack(4)
 
@@ -531,8 +531,7 @@ enum
 // define for special 18.2 callback rate to dos
 #define  _TIMER_DOS_RATE   0xff00
 
-#pragma pack()
-
+#pragma pack(1)		/* RA_PORT: Watcom "pack()" restored the /zp1 default. */
 #pragma aux int_3 = "int 3"
 
 #pragma pack( 1 )
@@ -557,9 +556,8 @@ typedef struct
 
 } VDS_STRUCT;
 
-#pragma pack()
-
-#include "sosdata.h"
-#include "sosfnct.h"
+#pragma pack(1)		/* RA_PORT: Watcom "pack()" restored the /zp1 default. */
+#include "SOSDATA.H"
+#include "SOSFNCT.H"
 
 #endif

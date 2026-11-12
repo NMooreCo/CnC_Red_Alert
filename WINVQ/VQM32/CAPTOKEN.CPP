@@ -41,7 +41,7 @@
 #include <errno.h>
 #include <string.h>
 #include <ctype.h>
-#include "captoken.h"
+#include "CAPTOKEN.H"
 
 /*---------------------------------------------------------------------------
  * PRIVATE DECLARATIONS
@@ -67,7 +67,7 @@ typedef enum {
 
 typedef struct _Token {
 	char *name;
-	long tag;
+	int tag;
 } Token;
 
 /* Script tokens:
@@ -114,8 +114,8 @@ Token colors[] = {
 };
 
 /* Prototypes. */
-static long GetColorNum(char *name);
-static long IsNumeric(char *string);
+static int GetColorNum(char *name);
+static int IsNumeric(char *string);
 static void FormatString(char *string);
 
 
@@ -141,15 +141,15 @@ static void FormatString(char *string);
 *
 ****************************************************************************/
 
-long BuildCaptions(char *name, char *buffer)
+int BuildCaptions(char *name, char *buffer)
 {
 	FILE        *fp;
 	char        *ptr;
 	char        *ptr1;
-	long        size = 0;
-	long        error;
-	long        i;
-	long        tag;
+	int        size = 0;
+	int        error;
+	int        i;
+	int        tag;
 	CaptionText caption;
 	char        string[STRING_LENGTH];
 
@@ -335,10 +335,10 @@ long BuildCaptions(char *name, char *buffer)
 *
 ****************************************************************************/
 
-static long GetColorNum(char *name)
+static int GetColorNum(char *name)
 {
-	long color = -1;
-	long i;
+	int color = -1;
+	int i;
 
 	i = 0;
 
@@ -377,9 +377,9 @@ static long GetColorNum(char *name)
 *
 ****************************************************************************/
 
-static long IsNumeric(char *string)
+static int IsNumeric(char *string)
 {
-	long flag = 1;
+	int flag = 1;
 
 	/* Ignore any proceeding sign designation. */
 	if ((*string == '-') || (*string == '+')) {

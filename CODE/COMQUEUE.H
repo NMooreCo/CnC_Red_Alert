@@ -70,9 +70,9 @@ This is one output queue entry
 typedef struct {
 	unsigned int IsActive	: 1;	// 1 = this entry is ready to be processed
 	unsigned int IsACK		: 1;	// 1 = ACK received for this packet
-	unsigned long FirstTime;		// time this packet was first sent
-	unsigned long LastTime;			// time this packet was last sent
-	unsigned long SendCount;		// # of times this packet has been sent
+	unsigned int FirstTime;		// time this packet was first sent
+	unsigned int LastTime;			// time this packet was last sent
+	unsigned int SendCount;		// # of times this packet has been sent
 	int BufLen;							// size of the packet stored in this entry
 	char *Buffer;						// the data packet
 } SendQueueType;
@@ -113,7 +113,7 @@ class CommQueueClass
 		int Num_Send(void) {return (SendCount);}		// # entries in queue
 		int Max_Send(void) { return (MaxSend);}		// max # send queue entries
 		SendQueueType * Get_Send(int index);			// random access to queue
-		unsigned long Send_Total(void) {return (SendTotal);}
+		unsigned int Send_Total(void) {return (SendTotal);}
 
 		/*
 		....................... Receive Queue routines ........................
@@ -124,14 +124,14 @@ class CommQueueClass
 		int Num_Receive(void) {return (ReceiveCount);}	// # entries in queue
 		int Max_Receive(void) { return (MaxReceive); }	// max # recv queue entries
 		ReceiveQueueType * Get_Receive(int index);	// random access to queue
-		unsigned long Receive_Total(void) {return (ReceiveTotal);}
+		unsigned int Receive_Total(void) {return (ReceiveTotal);}
 
 		/*
 		....................... Response time routines ........................
 		*/
-		void Add_Delay(unsigned long delay);	// accumulates response time
-		unsigned long Avg_Response_Time(void);	// gets mean response time
-		unsigned long Max_Response_Time(void);	// gets max response time
+		void Add_Delay(unsigned int delay);	// accumulates response time
+		unsigned int Avg_Response_Time(void);	// gets mean response time
+		unsigned int Max_Response_Time(void);	// gets max response time
 		void Reset_Response_Time(void);			// resets computations
 
 		/*
@@ -155,10 +155,10 @@ class CommQueueClass
 		/*
 		....................... Response time variables .......................
 		*/
-		unsigned long DelaySum;				// sum of last 4 delay times
-		unsigned long NumDelay;				// current # delay times summed
-		unsigned long MeanDelay;			// current average delay time
-		unsigned long MaxDelay;				// max delay ever for this queue
+		unsigned int DelaySum;				// sum of last 4 delay times
+		unsigned int NumDelay;				// current # delay times summed
+		unsigned int MeanDelay;			// current average delay time
+		unsigned int MaxDelay;				// max delay ever for this queue
 
 		/*
 		........................ Send Queue variables .........................
@@ -167,7 +167,7 @@ class CommQueueClass
 		int SendCount; 						// # packets in the queue
 		int SendNext;							// next entry read from queue
 		int SendEmpty;							// next empty spot in queue
-		unsigned long SendTotal;			// total # added to send queue
+		unsigned int SendTotal;			// total # added to send queue
 
 		/*
 		....................... Receive Queue variables .......................
@@ -176,7 +176,7 @@ class CommQueueClass
 		int ReceiveCount;							// # packets in the queue
 		int ReceiveNext;							// next entry read from queue
 		int ReceiveEmpty;							// next empty spot in queue
-		unsigned long ReceiveTotal;			// total # added to receive queue
+		unsigned int ReceiveTotal;			// total # added to receive queue
 
 		/*
 		......................... Debugging Variables .........................

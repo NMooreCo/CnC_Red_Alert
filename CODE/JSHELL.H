@@ -44,7 +44,7 @@
 #ifdef WIN32
 //#define getch	Get_Key_Num
 //#define kbhit	Check_Key_Num
-#include	"key.h"
+#include	"KEY.H"
 #else
 #include	<conio.h>
 #endif
@@ -149,8 +149,6 @@ template<class T> inline T min(T value1, T value2)
 	}
 	return(value2);
 }
-int min(int, int);
-long min(long, long);
 
 template<class T> inline T max(T value1, T value2)
 {
@@ -159,8 +157,6 @@ template<class T> inline T max(T value1, T value2)
 	}
 	return(value2);
 }
-int max(int, int);
-long max(long, long);
 #endif
 
 template<class T> inline void swap(T &value1, T &value2)
@@ -169,8 +165,6 @@ template<class T> inline void swap(T &value1, T &value2)
 	value1 = value2;
 	value2 = temp;
 }
-int swap(int, int);
-long swap(long, long);
 
 template<class T> inline
 T Bound(T original, T minval, T maxval)
@@ -179,9 +173,6 @@ T Bound(T original, T minval, T maxval)
 	if (original > maxval) return(maxval);
 	return(original);
 };
-int Bound(signed int, signed int, signed int);
-unsigned Bound(unsigned, unsigned, unsigned);
-long Bound(long, long, long);
 
 template<class T>
 T _rotl(T X, int n)
@@ -202,11 +193,67 @@ T _rotl(T X, int n)
 **	The shape flags are likely to be "or"ed together and other such bitwise
 **	manipulations. These instatiated operator templates allow this.
 */
-inline ShapeFlags_Type operator |(ShapeFlags_Type, ShapeFlags_Type);
-inline ShapeFlags_Type operator &(ShapeFlags_Type, ShapeFlags_Type);
-inline ShapeFlags_Type operator ~(ShapeFlags_Type);
+//inline ShapeFlags_Type operator |(ShapeFlags_Type, ShapeFlags_Type);	// (pre-standard guiding declaration; the JSHELL.H template is used)
+//inline ShapeFlags_Type operator &(ShapeFlags_Type, ShapeFlags_Type);	// (pre-standard guiding declaration; the JSHELL.H template is used)
+//inline ShapeFlags_Type operator ~(ShapeFlags_Type);	// (pre-standard guiding declaration; the JSHELL.H template is used)
 
 
+#ifdef RA_PORT
+/*
+**	Modern port: C++ versions of the inline assembly bit helpers. "array" is an array of
+**	32 bit little endian words, exactly as the Watcom "bt/bts/btr/bsf" code addressed it.
+*/
+inline void Set_Bit(void * array, int bit, int value)
+{
+	unsigned int * ptr = ((unsigned int *)array) + ((unsigned)bit >> 5);
+	unsigned int mask = 1U << (bit & 0x1F);
+	if (value) {
+		*ptr |= mask;
+	} else {
+		*ptr &= ~mask;
+	}
+}
+
+inline int Get_Bit(void const * array, int bit)
+{
+	unsigned int const * ptr = ((unsigned int const *)array) + ((unsigned)bit >> 5);
+	return((*ptr >> (bit & 0x1F)) & 1);
+}
+
+inline int First_True_Bit(void const * array)
+{
+	unsigned int const * ptr = (unsigned int const *)array;
+	int base = 0;
+	while (*ptr == 0) {
+		ptr++;
+		base += 32;
+	}
+	unsigned int value = *ptr;
+	int bit = 0;
+	while (!(value & 1)) {
+		value >>= 1;
+		bit++;
+	}
+	return(base + bit);
+}
+
+inline int First_False_Bit(void const * array)
+{
+	unsigned int const * ptr = (unsigned int const *)array;
+	int base = 0;
+	while (*ptr == 0xFFFFFFFFU) {
+		ptr++;
+		base += 32;
+	}
+	unsigned int value = ~*ptr;
+	int bit = 0;
+	while (!(value & 1)) {
+		value >>= 1;
+		bit++;
+	}
+	return(base + bit);
+}
+#else
 void Set_Bit(void * array, int bit, int value);
 #pragma aux Set_Bit parm [esi] [ecx] [eax] \
 	modify [esi ebx] = 			\
@@ -256,6 +303,8 @@ int First_False_Bit(void const * array);
 	"jz	again"					\
 	"add	eax,ebx"
 
+#endif	// RA_PORT
+
 #ifdef OBSOLETE
 extern int Bound(int original, int min, int max);
 #pragma aux Bound parm [eax] [ebx] [ecx] \
@@ -289,6 +338,32 @@ extern unsigned Bound(unsigned original, unsigned min, unsigned max);
 #endif
 
 
+#ifdef RA_PORT
+/*
+**	Fixed point (8.8) helpers, matching the original inline assembly exactly: the rounded
+**	product saturates at 0xFFFF (only the low 32 bits of the product are examined), and a
+**	zero base returns the cardinal value unchanged.
+*/
+inline unsigned Fixed_To_Cardinal(unsigned base, unsigned fixed)
+{
+	unsigned int value = (unsigned int)((unsigned long long)base * fixed);
+	value += 0x80;
+	if (value & 0xFF000000U) value = 0x00FFFFFFU;
+	return(value >> 8);
+}
+
+inline unsigned Cardinal_To_Fixed(unsigned base, unsigned cardinal)
+{
+	if (base == 0) return(cardinal);
+	return((unsigned)(cardinal << 8) / base);
+}
+
+#ifndef OUTPORTB
+#define OUTPORTB
+inline void outportb(int , unsigned char ) {}		// VGA register access: not used by the port.
+inline void outport(int , unsigned short ) {}
+#endif
+#else
 unsigned Fixed_To_Cardinal(unsigned base, unsigned fixed);
 #pragma aux Fixed_To_Cardinal parm [eax] [edx] \
 	modify [edx] \
@@ -327,26 +402,27 @@ extern void outport(int port, unsigned short data);
 		"mov	al,ah"		\
 		"out	dx,al"
 #endif
+#endif	// RA_PORT
 
 
 /*
 **	Timer objects that fetch the appropriate timer value according to
 **	the type of timer they are.
 */
-extern long Frame;
+extern int Frame;
 class FrameTimerClass
 {
 	public:
-		long operator () (void) const {return(Frame);};
-		operator long (void) const {return(Frame);};
+		int operator () (void) const {return(Frame);};
+		operator int (void) const {return(Frame);};
 };
 
 
 #ifndef WIN32
 extern bool TimerSystemOn;
 extern "C" {
-	long Get_System_Tick_Count(void);
-	long Get_User_Tick_Count(void);
+	int Get_System_Tick_Count(void);
+	int Get_User_Tick_Count(void);
 }
 //bool Init_Timer_System(unsigned int freq, int partial=false);
 bool Remove_Timer_System(void);
@@ -360,11 +436,11 @@ class SystemTimerClass
 {
 	public:
 		#ifdef WIN32
-			long operator () (void) const {if (!WindowsTimer) return(0);return(WindowsTimer->Get_System_Tick_Count());};
-			operator long (void) const {if (!WindowsTimer) return(0);return(WindowsTimer->Get_System_Tick_Count());};
+			int operator () (void) const {if (!WindowsTimer) return(0);return(WindowsTimer->Get_System_Tick_Count());};
+			operator int (void) const {if (!WindowsTimer) return(0);return(WindowsTimer->Get_System_Tick_Count());};
 		#else
-			long operator () (void) const {return(Get_System_Tick_Count());};
-			operator long (void) const {return(Get_System_Tick_Count());};
+			int operator () (void) const {return(Get_System_Tick_Count());};
+			operator int (void) const {return(Get_System_Tick_Count());};
 		#endif
 };
 #endif
@@ -374,11 +450,11 @@ class UserTimerClass
 {
 	public:
 		#ifdef WIN32
-			long operator () (void) const {if (!WindowsTimer) return(0);return(WindowsTimer->Get_User_Tick_Count());};
-			operator long (void) const {if (!WindowsTimer) return(0);return(WindowsTimer->Get_User_Tick_Count());};
+			int operator () (void) const {if (!WindowsTimer) return(0);return(WindowsTimer->Get_User_Tick_Count());};
+			operator int (void) const {if (!WindowsTimer) return(0);return(WindowsTimer->Get_User_Tick_Count());};
 		#else
-			long operator () (void) const {return(Get_User_Tick_Count());};
-			operator long (void) const {return(Get_User_Tick_Count());};
+			int operator () (void) const {return(Get_User_Tick_Count());};
+			operator int (void) const {return(Get_User_Tick_Count());};
 		#endif
 };
 
@@ -454,7 +530,7 @@ class SmartPtr
 
 		operator T * (void) const {return(Pointer);}
 
-		operator long (void) const {return((long)Pointer);}
+		operator int (void) const {return((int)Pointer);}
 
 		SmartPtr<T> operator ++ (int) {assert(Pointer != 0);SmartPtr<T> temp = *this;++Pointer;return(temp);}
 		SmartPtr<T> & operator ++ (void) {assert(Pointer != 0);++Pointer;return(*this);}

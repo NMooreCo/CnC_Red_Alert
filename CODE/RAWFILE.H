@@ -57,7 +57,7 @@
 #define	HANDLE_TYPE		int
 #endif
 
-#include	"wwfile.h"
+#include	"WWFILE.H"
 
 #ifdef NEVER
 	/*
@@ -157,13 +157,13 @@ class RawFileClass : public FileClass
 		virtual int Is_Open(void) const;
 		virtual int Open(char const *filename, int rights=READ);
 		virtual int Open(int rights=READ);
-		virtual long Read(void *buffer, long size);
-		virtual long Seek(long pos, int dir=SEEK_CUR);
-		virtual long Size(void);
-		virtual long Write(void const *buffer, long size);
+		virtual int Read(void *buffer, int size);
+		virtual int Seek(int pos, int dir=SEEK_CUR);
+		virtual int Size(void);
+		virtual int Write(void const *buffer, int size);
 		virtual void Close(void);
-		virtual unsigned long Get_Date_Time(void);
-		virtual bool Set_Date_Time(unsigned long datetime);
+		virtual unsigned int Get_Date_Time(void);
+		virtual bool Set_Date_Time(unsigned int datetime);
 		virtual void Error(int error, int canretry = false, char const * filename=NULL);
 
 		void Bias(int start, int length=-1);
@@ -184,9 +184,9 @@ class RawFileClass : public FileClass
 		**	This function returns the largest size a low level DOS read or write may
 		**	perform. Larger file transfers are performed in chunks of this size or less.
 		*/
-		long Transfer_Block_Size(void) {return (long)((unsigned)UINT_MAX)-16L;};
+		int Transfer_Block_Size(void) {return (int)((unsigned)UINT_MAX)-16;};
 
-		long Raw_Seek(long pos, int dir=SEEK_CUR);
+		int Raw_Seek(int pos, int dir=SEEK_CUR);
 
 	private:
 

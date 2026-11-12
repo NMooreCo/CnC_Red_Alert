@@ -35,7 +35,7 @@
  * Functions:                                                                                  *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
+#include	"FUNCTION.H"
 
 
 VQAHandle * Open_Movie(char * name);
@@ -140,7 +140,7 @@ void Choose_Side(void)		//	ajw - In RA, all this did was play a movie. Denzil is
 //	speechg = MixFileClass::Retrieve("GDI_SLCT.AUD");
 //	speechn = MixFileClass::Retrieve("NOD_SLCT.AUD");
 
-	anim = Open_Animation("CHOOSE.WSA", NULL, 0L, (WSAOpenType)(WSA_OPEN_FROM_MEM | WSA_OPEN_TO_PAGE), Palette);
+	anim = Open_Animation("CHOOSE.WSA", NULL, 0, (WSAOpenType)(WSA_OPEN_FROM_MEM | WSA_OPEN_TO_PAGE), Palette);
 	Call_Back();
 
 	nodbrief = Open_Movie("NOD1PRE.VQA");

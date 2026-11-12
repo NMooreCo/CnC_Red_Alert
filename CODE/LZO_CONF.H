@@ -52,7 +52,7 @@
 #define __LZO_CONF_H
 
 #ifndef __LZOCONF_H
-#  include <lzoconf.h>
+#  include <LZOCONF.H>
 #endif
 
 
@@ -93,10 +93,10 @@
 #endif
 
 /* ptrdiff_t */
-#if (UINT_MAX >= 0xffffffffL)
+#if (UINT_MAX >= 0xffffffff)
    typedef ptrdiff_t        lzo_ptrdiff_t;
 #else
-   typedef long             lzo_ptrdiff_t;
+   typedef int             lzo_ptrdiff_t;
 #endif
 
 
@@ -210,7 +210,7 @@
 #define LZO_SIZE(bits)		(1u << (bits))
 #define LZO_MASK(bits)		(LZO_SIZE(bits) - 1)
 
-#define LZO_LSIZE(bits)		(1ul << (bits))
+#define LZO_LSIZE(bits)		(1u << (bits))
 #define LZO_LMASK(bits)		(LZO_LSIZE(bits) - 1)
 
 #define LZO_USIZE(bits)		((lzo_uint) 1 << (bits))

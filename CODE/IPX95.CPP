@@ -44,11 +44,11 @@
  *                                                                         *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include "function.h"
+#include "FUNCTION.H"
 
 #ifdef WIN32
 
-#include "ipx95.h"
+#include "IPX95.H"
 
 /*
 ** Instance handle for the THIPX32 .DLL
@@ -116,13 +116,13 @@ bool Load_IPX_Dll (void)
 	if ( IpxDllInstance ){
 
 		const char		*function_name;
-		unsigned long 	*fptr = (unsigned long *) &IPX_Initialise;
+		unsigned int 	*fptr = (unsigned int *) &IPX_Initialise;
 		int				count = 0;
 
 		do {
 			function_name = FunctionNames[count];
 			if (function_name){
-				*fptr = (unsigned long) GetProcAddress (IpxDllInstance, function_name);
+				*fptr = (unsigned int) GetProcAddress (IpxDllInstance, function_name);
 				assert (*fptr != NULL);
 				fptr++;
 				count++;

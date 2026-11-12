@@ -58,8 +58,8 @@
  *   Target_Legal -- Determines if the specified target is legal.                              *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
-#include	"target.h"
+#include	"FUNCTION.H"
+#include	"TARGET.H"
 
 
 TargetClass::TargetClass(TARGET target)
@@ -515,7 +515,7 @@ COORDINATE As_Coord(TARGET target)
 	/*
 	**	An unrecognized target value results in a null coordinate value.
 	*/
-	return(0x00000000L);
+	return(0x00000000);
 }
 
 
@@ -560,7 +560,7 @@ COORDINATE As_Movement_Coord(TARGET target)
 	/*
 	**	An unrecognized target value results in a null coordinate value.
 	*/
-	return(0x00000000L);
+	return(0x00000000);
 }
 
 

@@ -572,6 +572,6 @@ class WWKeyboardClass
 		unsigned char	VKRemap[256];		// gives vk for any ascii char
 		unsigned short Buffer[256];		// buffer which holds actual keypresses
 		unsigned char  ToggleKeys[256];	// determines toggles which affect key
-		long				Head;					// the head position in keyboard buffer
-		long				Tail;					// the tail position in keyboard buffer
+		int				Head;					// the head position in keyboard buffer
+		int				Tail;					// the tail position in keyboard buffer
 };

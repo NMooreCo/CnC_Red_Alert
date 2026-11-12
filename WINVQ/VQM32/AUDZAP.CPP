@@ -42,8 +42,8 @@
 ****************************************************************************/
 
 #include <stdio.h>
-#include <mem.h>
-#include "compress.h"
+#include <MEM.H>
+#include "COMPRESS.H"
 
 /*---------------------------------------------------------------------------
  * PRIVATE DECLARATIONS
@@ -63,7 +63,7 @@ char _2bitencode[5] = {
 	0,1,2,3
 };
 
-long _2bitdecode[4] = {
+int _2bitdecode[4] = {
 	-2,-1,0,1
 };
 
@@ -72,7 +72,7 @@ char _4bitencode[19] = {
 	8,9,10,11,12,13,13,14,15
 };
 
-long _4bitdecode[16] = {
+int _4bitdecode[16] = {
 	-9,-8,-6,-5,-4,-3,-2,
 	-1,0,1,2,3,4,5,6,8
 };
@@ -103,20 +103,20 @@ long _4bitdecode[16] = {
 *
 ****************************************************************************/
 
-long AudioZap(void *source, void *dest, long size)
+int AudioZap(void *source, void *dest, int size)
 {
 	unsigned char *s = (unsigned char *)source;
 	unsigned char *d = (unsigned char *)dest;
-	long          delta;
-	unsigned long previous = 0x80;
-	long          outcount = 0;
+	int          delta;
+	unsigned int previous = 0x80;
+	int          outcount = 0;
 	unsigned char *s4;
-	unsigned long p4;
-	long          max4;
+	unsigned int p4;
+	int          max4;
 	unsigned char *lastraw = 0;
-	long          osize = size;
-	unsigned long i;
-	unsigned long dd;
+	int          osize = size;
+	unsigned int i;
+	unsigned int dd;
 
 	/* Reduce very small amplitudes to silence.  Usually a rather large
 	 * portion of a sample is hovering around the silence value.  This is
@@ -162,7 +162,7 @@ long AudioZap(void *source, void *dest, long size)
 			 * deltas are always present in quads.  The compressed code is
 			 * the delta quad count followed by the deltas in bit packed bytes.
 			 */
-			max4 = MIN(64L * 4L + 4L + 4L, size);
+			max4 = MIN(64 * 4 + 4 + 4, size);
 
 			for (i = 0; i < max4; i++) {
 				delta = (((int)*s4++) - p4);
@@ -265,7 +265,7 @@ long AudioZap(void *source, void *dest, long size)
 				 * the delta pair count followed by the deltas in nibble packed
 				 * bytes.
 				 */
-				max4 = MIN(64L * 2L + 4L + 4L, size);
+				max4 = MIN(64 * 2 + 4 + 4, size);
 
 				for (i = 0; i < max4; i++) {
 					delta = (((int)*s4++) - p4);

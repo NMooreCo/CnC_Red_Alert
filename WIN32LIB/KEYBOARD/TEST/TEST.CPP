@@ -41,9 +41,9 @@
 
 #define WIN32
 #define WIN32_LEAN_AND_MEAN
-#include <wwlib32.h>
+#include <WWLIB32.H>
 #include	<direct.h>
-#include "..\mouse.h"
+#include "../MOUSE.H"
 #define NAME "KEYBOARD/MOUSE test"
 #define TITLE "KEYBOARD/MOUSE library test"
 
@@ -72,7 +72,7 @@ extern LPDIRECTDRAWPALETTE	PalettePtr;			// Pointer to direct draw palette objec
 //
 // Prototypes
 //
-long FAR PASCAL _export WndProc (HWND, UINT, UINT, LONG) ;
+int FAR PASCAL _export WndProc (HWND, UINT, UINT, LONG) ;
 
 //
 // Externs
@@ -273,7 +273,7 @@ int PASCAL WinMain (HANDLE hInstance, HANDLE hPrevInstance,
  *    9/27/95 1:39PM ST : Pilfered                                                             *
  *=============================================================================================*/
 
-long FAR PASCAL _export WndProc (HWND hwnd, UINT message, UINT wParam,
+int FAR PASCAL _export WndProc (HWND hwnd, UINT message, UINT wParam,
 														  LONG lParam)
  {
 	static int condhide = 0;

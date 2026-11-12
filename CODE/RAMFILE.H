@@ -39,7 +39,7 @@
 #ifndef RAMFILE_H
 #define RAMFILE_H
 
-#include	"wwfile.h"
+#include	"WWFILE.H"
 
 
 class RAMFileClass : public FileClass
@@ -56,13 +56,13 @@ class RAMFileClass : public FileClass
 		virtual int Is_Open(void) const;
 		virtual int Open(char const * filename, int access=READ);
 		virtual int Open(int access=READ);
-		virtual long Read(void * buffer, long size);
-		virtual long Seek(long pos, int dir=SEEK_CUR);
-		virtual long Size(void);
-		virtual long Write(void const * buffer, long size);
+		virtual int Read(void * buffer, int size);
+		virtual int Seek(int pos, int dir=SEEK_CUR);
+		virtual int Size(void);
+		virtual int Write(void const * buffer, int size);
 		virtual void Close(void);
-		virtual unsigned long Get_Date_Time(void) {return(0);}
-		virtual bool Set_Date_Time(unsigned long ) {return(true);}
+		virtual unsigned int Get_Date_Time(void) {return(0);}
+		virtual bool Set_Date_Time(unsigned int ) {return(true);}
 		virtual void Error(int , int = false, char const * =NULL) {}
 
 		operator char const * () {return File_Name();}

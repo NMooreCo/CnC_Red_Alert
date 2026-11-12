@@ -38,9 +38,9 @@
 #ifndef AIRCRAFT_H
 #define AIRCRAFT_H
 
-#include	"radio.h"
-#include	"fly.h"
-#include	"target.h"
+#include	"RADIO.H"
+#include	"FLY.H"
+#include	"TARGET.H"
 
 
 /*
@@ -158,7 +158,7 @@ class AircraftClass : public FootClass, public FlyClass
 		int Paradrop_Cargo(void);
 		virtual void AI(void);
 		virtual void Enter_Idle_Mode(bool initial = false);
-		virtual RadioMessageType Receive_Message(RadioClass * from, RadioMessageType message, long & param);
+		virtual RadioMessageType Receive_Message(RadioClass * from, RadioMessageType message, int & param);
 		virtual void Scatter(COORDINATE threat, bool forced=false, bool nokidding=false);
 
 		/*

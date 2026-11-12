@@ -65,7 +65,7 @@
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 
-#include "function.h"
+#include "FUNCTION.H"
 
 
 /***********************************************************************************************
@@ -606,7 +606,7 @@ void VesselClass::AI(void)
 			MoebiusCountDown = Rule.ReloadRate * TICKS_PER_MINUTE;
 			ObjectClass *obj = Attached_Object();
 			while (obj) {
-				long bogus;
+				int bogus;
 				((AircraftClass *)obj)->Receive_Message(this,RADIO_RELOAD,bogus);
 				obj = (obj->Next);
 			}
@@ -646,7 +646,7 @@ void VesselClass::AI(void)
 		**	Double check that there is a passenger that is trying to load or unload.
 		**	If not, then close the door.
 		*/
-		if (!Is_Door_Closed() && Mission != MISSION_UNLOAD && Transmit_Message(RADIO_TRYING_TO_LOAD) != RADIO_ROGER && !(long)DoorShutCountDown) {
+		if (!Is_Door_Closed() && Mission != MISSION_UNLOAD && Transmit_Message(RADIO_TRYING_TO_LOAD) != RADIO_ROGER && !(int)DoorShutCountDown) {
 			LST_Close_Door();
 		}
 	}
@@ -916,7 +916,7 @@ void VesselClass::Active_Click_With(ActionType action, CELL cell)
  * HISTORY:                                                                                    *
  *   05/13/1996 JLB : Created.                                                                 *
  *=============================================================================================*/
-ResultType VesselClass::Take_Damage(int & damage, int distance, WarheadType warhead, TechnoClass * source, int forced)
+ResultType VesselClass::Take_Damage(int & damage, int distance, WarheadType warhead, TechnoClass * source, bool forced)
 {
 	assert(Vessels.ID(this) == ID);
 	assert(IsActive);
@@ -1344,7 +1344,7 @@ void VesselClass::Enter_Idle_Mode(bool )
  * HISTORY:                                                                                    *
  *   05/31/1996 BWG : Created.                                                                 *
  *=============================================================================================*/
-RadioMessageType VesselClass::Receive_Message(RadioClass * from, RadioMessageType message, long & param)
+RadioMessageType VesselClass::Receive_Message(RadioClass * from, RadioMessageType message, int & param)
 {
 	assert(Vessels.ID(this) == ID);
 	assert(IsActive);
@@ -1464,7 +1464,7 @@ RadioMessageType VesselClass::Receive_Message(RadioClass * from, RadioMessageTyp
 						if (cell == 0) {
 							Transmit_Message(RADIO_OVER_OUT, from);
 						} else {
-							param = (long)::As_Target(cell);
+							param = (int)::As_Target(cell);
 
 							/*
 							**	If it is now facing the correct direction, then open the
@@ -1482,7 +1482,7 @@ RadioMessageType VesselClass::Receive_Message(RadioClass * from, RadioMessageTyp
 							*/
 							if (Transmit_Message(RADIO_MOVE_HERE, param, from) == RADIO_YEA_NOW_WHAT) {
 								if (Is_Door_Open()) {
-									param = (long)As_Target();
+									param = (int)As_Target();
 									Transmit_Message(RADIO_TETHER);
 									if (Transmit_Message(RADIO_MOVE_HERE, param, from) != RADIO_ROGER) {
 										Transmit_Message(RADIO_OVER_OUT, from);
@@ -1864,7 +1864,7 @@ void VesselClass::Assign_Destination(TARGET target)
 	**	cannot proceed. This is accomplished with a radio message to this effect.
 	*/
 	if (In_Radio_Contact() && Class->Max_Passengers() > 0 && (Contact_With_Whom()->Is_Infantry() || Contact_With_Whom()->What_Am_I() == RTTI_UNIT)) {
-		long param = TARGET_NONE;
+		int param = TARGET_NONE;
 		Transmit_Message(RADIO_MOVE_HERE, param);		// should stop objects heading toward this transport.
 		Transmit_Message(RADIO_OVER_OUT);
 		if (!Is_Door_Closed()) {

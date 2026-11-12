@@ -41,11 +41,11 @@
  *   DynamicVectorClass<T>::Resize -- Changes size of a dynamic vector.    *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
-#include "vector.h"
+#include	"FUNCTION.H"
+#include "VECTOR.H"
 #ifdef WINSOCK_IPX
-#include	"WSProto.h"
-#include	"WSPUDP.h"
+#include	"WSPROTO.H"
+#include	"WSPUDP.H"
 #endif	//WINSOCK_IPX
 #include	<mem.h>
 #include	<stdio.h>
@@ -158,7 +158,7 @@ template<class T>
 int DynamicVectorClass<T>::Add(T const & object)
 {
 	if (ActiveCount >= Length()) {
-		if ((IsAllocated || !VectorMax) && GrowthStep > 0) {
+		if ((this->IsAllocated || !this->VectorMax) && GrowthStep > 0) {
 			if (!Resize(Length() + GrowthStep)) {
 
 				/*
@@ -204,7 +204,7 @@ template<class T>
 int DynamicVectorClass<T>::Add_Head(T const & object)
 {
 	if (ActiveCount >= Length()) {
-		if ((IsAllocated || !VectorMax) && GrowthStep > 0) {
+		if ((this->IsAllocated || !this->VectorMax) && GrowthStep > 0) {
 			if (!Resize(Length() + GrowthStep)) {
 
 				/*
@@ -297,3 +297,17 @@ int DynamicVectorClass<T>::Delete(int index)
 }
 
 /************************** end of dynavec.cpp *****************************/
+
+
+/*
+**	Modern port: explicit instantiations (see VECTOR.CPP).
+*/
+#define RA_DYNVECTOR_TYPES(X) \
+	X(unsigned char) X(ObjectClass *) X(char const *) X(char *) X(void *) \
+	X(unsigned char *) X(TriggerClass *) X(RemapControlType *) X(PhoneEntryClass *) \
+	X(NodeNameType *) X(MultiMission *) X(FileEntryClass *) X(EgoClass *) X(BaseNodeClass) \
+	X(TeamMissionClass *) X(EventChoiceClass *) X(ActionChoiceClass *) X(EventChoiceClass) \
+	X(ActionChoiceClass) X(CCPtr<TeamTypeClass>) X(CCPtr<TriggerTypeClass>) \
+	X(WinsockInterfaceClass::WinsockBufferType *)
+#define RA_INSTANTIATE_DYNVECTOR(T) template class DynamicVectorClass<T>;
+RA_DYNVECTOR_TYPES(RA_INSTANTIATE_DYNVECTOR)

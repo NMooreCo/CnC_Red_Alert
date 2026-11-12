@@ -39,7 +39,7 @@
 
 #ifndef FILETEMP_H
 // This should be removed once the library is all intacked.
-#include "filetemp.h"
+#include "FILETEMP.H"
 #endif
 
 /*=========================================================================*/
@@ -142,9 +142,9 @@ extern short (*Open_Error)(FileErrorType, BYTE const *);
 //lint -strong(AJX,FileDataType)
 typedef struct {
 	char	*Name;		// File name (include sub-directory but not volume).
-	long	Size;			// File size (0=indeterminate).
+	int	Size;			// File size (0=indeterminate).
 	void	*Ptr;			// Resident file pointer.
-	long	Start;		// Starting offset in DOS handle file.
+	int	Start;		// Starting offset in DOS handle file.
 	unsigned char	Disk;			// Disk number location.
 	unsigned char	OpenCount;	// Count of open locks on resident file.
 	unsigned short	Flag;			// File control flags.
@@ -177,7 +177,7 @@ extern BOOL UseCD;
 /*=========================================================================*/
 
 void __cdecl WWDOS_Shutdown(void);
-FileInitErrorType __cdecl WWDOS_Init(unsigned long cachesize, char *filedata, char *cdpath);
+FileInitErrorType __cdecl WWDOS_Init(unsigned int cachesize, char *filedata, char *cdpath);
 
 
 /*=========================================================================*/
@@ -186,12 +186,12 @@ FileInitErrorType __cdecl WWDOS_Init(unsigned long cachesize, char *filedata, ch
 
 int __cdecl Open_File(char const *file_name, int mode);
 void __cdecl Close_File(int handle);
-long __cdecl Read_File(int handle, void *buf, unsigned long bytes);
+int __cdecl Read_File(int handle, void *buf, unsigned int bytes);
 int __cdecl Load_File ( const char *file_name , void *load_addr);
-long __cdecl Write_File(int handle, void const *buf, unsigned long bytes);
-unsigned long __cdecl Seek_File(int handle, long offset, int starting);
+int __cdecl Write_File(int handle, void const *buf, unsigned int bytes);
+unsigned int __cdecl Seek_File(int handle, int offset, int starting);
 int __cdecl File_Exists(char const *file_name);
-unsigned long __cdecl File_Size(int handle);
+unsigned int __cdecl File_Size(int handle);
 BOOL __cdecl Is_Handle_Valid(int handle, FileErrorType error, char const *name);
 int __cdecl Open_File_With_Recovery( char const *file_name, unsigned int mode );
 
@@ -212,7 +212,7 @@ BOOL __cdecl Free_Resident_File(char const *file);
 
 int __cdecl Create_File(char const *file_name);
 int __cdecl Delete_File(char const *file_name);
-BOOL __cdecl Change_File_Size(int handle, unsigned long new_size);
+BOOL __cdecl Change_File_Size(int handle, unsigned int new_size);
 
 
 /*=========================================================================*/

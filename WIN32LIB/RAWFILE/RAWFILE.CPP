@@ -52,7 +52,6 @@
  #define	false	0
 
 #define	WIN32
-#define	_WIN32
 #include 	<windows.h>
 
 #include	<stdlib.h>
@@ -63,12 +62,12 @@
 #include	<io.h>
 #include	<dos.h>
 #include	<share.h>
-#include	<sys\stat.h>
-#include	<wwstd.h>
+#include	<sys/stat.h>
+#include	<WWSTD.H>
 
 //#include "wwlib32.h"
 //#include	"compat.h"
-#include	"rawfile.h"
+#include	"RAWFILE.H"
 
 
 /***********************************************************************************************
@@ -680,9 +679,9 @@ void RawFileClass::Close(void)
  * HISTORY:                                                                                    *
  *   10/18/1994 JLB : Created.                                                                 *
  *=============================================================================================*/
-long RawFileClass::Read(void *buffer, long size)
+int RawFileClass::Read(void *buffer, int size)
 {
-	long	bytesread = 0;			// Running count of the number of bytes read into the buffer.
+	int	bytesread = 0;			// Running count of the number of bytes read into the buffer.
 	int	opened = false;		// Was the file opened by this routine?
 	int	readresult;
 
@@ -746,7 +745,7 @@ long RawFileClass::Read(void *buffer, long size)
 				**	No error occurred during the read. Adjust the pointers and size counters and
 				**	loop again if more data is needed to be read.
 				*/
-				buffer = (void *) ((long)buffer + actual);
+				buffer = (void *) ((int)buffer + actual);
 				bytesread += actual;
 				size -= actual;
 				if (actual != desired) break;		// No more data?
@@ -781,9 +780,9 @@ long RawFileClass::Read(void *buffer, long size)
  * HISTORY:                                                                                    *
  *   10/18/1994 JLB : Created.                                                                 *
  *=============================================================================================*/
-long RawFileClass::Write(void const *buffer, long size)
+int RawFileClass::Write(void const *buffer, int size)
 {
-	long	bytesread = 0;
+	int	bytesread = 0;
 	int	opened = false;		// Was the file manually opened?
 	int	writeresult;
 
@@ -836,7 +835,7 @@ long RawFileClass::Write(void const *buffer, long size)
 				/*
 				**	A successful write occurred. Update pointers and byte counter as appropriate.
 				*/
-				buffer = (void *)((long)buffer + actual);
+				buffer = (void *)((int)buffer + actual);
 				bytesread += actual;
 				size -= actual;
 
@@ -887,7 +886,7 @@ long RawFileClass::Write(void const *buffer, long size)
  * HISTORY:                                                                                    *
  *   10/18/1994 JLB : Created.                                                                 *
  *=============================================================================================*/
-long RawFileClass::Seek(long pos, int dir)
+int RawFileClass::Seek(int pos, int dir)
 {
 	/*
 	**	If the file isn't opened, then this is a fatal error condition.
@@ -952,9 +951,9 @@ long RawFileClass::Seek(long pos, int dir)
  * HISTORY:                                                                                    *
  *   10/18/1994 JLB : Created.                                                                 *
  *=============================================================================================*/
-long RawFileClass::Size(void)
+int RawFileClass::Size(void)
 {
-	long	size = 0;
+	int	size = 0;
 	int	handle = 0;
 
 	/*

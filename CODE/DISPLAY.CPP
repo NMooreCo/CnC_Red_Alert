@@ -88,8 +88,8 @@
  *   DisplayClass::Write_INI -- Write the map data to the INI file specified.                  *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
-#include	"vortex.h"
+#include	"FUNCTION.H"
+#include	"VORTEX.H"
 
 /*
 **	These layer control elements are used to group the displayable objects
@@ -1242,7 +1242,8 @@ bool DisplayClass::Scroll_Map(DirType facing, int & distance, bool really)
 		/*
 		**	Scrolled map REQUIRES all top layer units to be redrawn.
 		*/
-		for (int index = 0; index < Layer[LAYER_TOP].Count(); index++) {
+		int index;
+		for (index = 0; index < Layer[LAYER_TOP].Count(); index++) {
 			Layer[LAYER_TOP][index]->Mark(MARK_CHANGE);
 		}
 		for (index = 0; index < Layer[LAYER_AIR].Count(); index++) {
@@ -1685,7 +1686,8 @@ ObjectClass * DisplayClass::Cell_Object(CELL cell, int x, int y) const
 		*/
 		int num = Session.Messages.Num_Messages();
 		if (num > 0) {
-			for (CELL cell = Coord_Cell(TacticalCoord); cell < Coord_Cell(TacticalCoord) + Lepton_To_Cell(TacLeptonWidth)+1; cell++) {
+			CELL cell;
+			for (cell = Coord_Cell(TacticalCoord); cell < Coord_Cell(TacticalCoord) + Lepton_To_Cell(TacLeptonWidth)+1; cell++) {
 				(*this)[cell].Redraw_Objects();
 			}
 			for (cell = Coord_Cell(TacticalCoord) + MAP_CELL_W;
@@ -2751,7 +2753,8 @@ void DisplayClass::Refresh_Band(void)
 		/*
 		**	Stretching the rubber band requires all objects to be redrawn.
 		*/
-		for (int index = 0; index < Layer[LAYER_TOP].Count(); index++) {
+		int index;
+		for (index = 0; index < Layer[LAYER_TOP].Count(); index++) {
 			Layer[LAYER_TOP][index]->Mark(MARK_CHANGE);
 		}
 		for (index = 0; index < Layer[LAYER_AIR].Count(); index++) {
@@ -3470,7 +3473,8 @@ void DisplayClass::Mouse_Left_Release(CELL cell, int x, int y, ObjectClass * obj
 					**	First scan through all the selected units to make sure that they
 					**	are all of the same team and have been assigned a particular formation
 					*/
-					for (int index = 0; index < CurrentObject.Count(); index++) {
+					int index;
+					for (index = 0; index < CurrentObject.Count(); index++) {
 						ObjectClass const * tobject = CurrentObject[index];
 
 						/*
@@ -3710,7 +3714,8 @@ void DisplayClass::Mouse_Left_Held(int x, int y)
 				/*
 				**	Stretching the rubber band requires all objects to be redrawn.
 				*/
-				for (int index = 0; index < Layer[LAYER_TOP].Count(); index++) {
+				int index;
+				for (index = 0; index < Layer[LAYER_TOP].Count(); index++) {
 					Layer[LAYER_TOP][index]->Mark(MARK_CHANGE);
 				}
 				for (index = 0; index < Layer[LAYER_AIR].Count(); index++) {
@@ -3782,14 +3787,15 @@ void DisplayClass::Compute_Start_Pos(void)
 	**	and buildings.  Buildings are weighted so that they count 16 times more
 	**	than units or infantry.
 	*/
-	long x = 0;
-	long y = 0;
-	long num = 0;
-	for (int i = 0; i < Infantry.Count(); i++) {
+	int x = 0;
+	int y = 0;
+	int num = 0;
+	int i;
+	for (i = 0; i < Infantry.Count(); i++) {
 		InfantryClass * infp = Infantry.Ptr(i);
 		if (!infp->IsInLimbo && infp->IsOwnedByPlayer) {
-			x += (long)Coord_XCell(infp->Coord);
-			y += (long)Coord_YCell(infp->Coord);
+			x += (int)Coord_XCell(infp->Coord);
+			y += (int)Coord_YCell(infp->Coord);
 			num++;
 		}
 	}
@@ -3797,8 +3803,8 @@ void DisplayClass::Compute_Start_Pos(void)
 	for (i = 0; i < Units.Count(); i++) {
 		UnitClass * unitp = Units.Ptr(i);
 		if (!unitp->IsInLimbo && unitp->IsOwnedByPlayer) {
-			x += (long)Coord_XCell(unitp->Coord);
-			y += (long)Coord_YCell(unitp->Coord);
+			x += (int)Coord_XCell(unitp->Coord);
+			y += (int)Coord_YCell(unitp->Coord);
 			num++;
 		}
 	}
@@ -3806,8 +3812,8 @@ void DisplayClass::Compute_Start_Pos(void)
 	for (i = 0; i < Buildings.Count(); i++) {
 		BuildingClass * bldgp = Buildings.Ptr(i);
 		if (!bldgp->IsInLimbo && bldgp->IsOwnedByPlayer) {
-			x += (((long)Coord_XCell(bldgp->Coord)) * 16);
-			y += (((long)Coord_YCell(bldgp->Coord)) * 16);
+			x += (((int)Coord_XCell(bldgp->Coord)) * 16);
+			y += (((int)Coord_YCell(bldgp->Coord)) * 16);
 			num += 16;
 		}
 	}
@@ -3815,8 +3821,8 @@ void DisplayClass::Compute_Start_Pos(void)
 	for (i = 0; i < Vessels.Count(); i++) {
 		VesselClass * bldgp = Vessels.Ptr(i);
 		if (!bldgp->IsInLimbo && bldgp->IsOwnedByPlayer) {
-			x += (((long)Coord_XCell(bldgp->Coord)));
-			y += (((long)Coord_YCell(bldgp->Coord)));
+			x += (((int)Coord_XCell(bldgp->Coord)));
+			y += (((int)Coord_YCell(bldgp->Coord)));
 			num++;
 		}
 	}
@@ -4070,7 +4076,7 @@ void DisplayClass::Center_Map(COORDINATE center)
 		centerit = true;
 	}
 
-	if (center != 0L) {
+	if (center != 0) {
 		x = Coord_X(center);
 		y = Coord_Y(center);
 		centerit = true;
@@ -4106,7 +4112,8 @@ void DisplayClass::Center_Map(COORDINATE center)
  *=============================================================================================*/
 void DisplayClass::Encroach_Shadow(void)
 {
-	for (CELL cell = 0; cell < MAP_CELL_TOTAL; cell++) {
+	CELL cell;
+	for (cell = 0; cell < MAP_CELL_TOTAL; cell++) {
 		if (!In_Radar(cell)) continue;
 
 		CellClass * cellptr = &(*this)[cell];

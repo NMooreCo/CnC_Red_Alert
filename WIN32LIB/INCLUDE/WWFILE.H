@@ -41,10 +41,10 @@
 #include	<stdio.h>
 
 #ifndef READ
-#define	READ	_READ
+#define	READ	1		// (was _READ from the Watcom headers)
 #endif
 #ifndef WRITE
-#define	WRITE	_WRITE
+#define	WRITE	2
 #endif
 
 class FileClass
@@ -59,10 +59,10 @@ class FileClass
 		virtual int Is_Open(void) const = 0;
 		virtual int Open(char const *filename, int rights=READ) = 0;
 		virtual int Open(int rights=READ) = 0;
-		virtual long Read(void *buffer, long size) = 0;
-		virtual long Seek(long pos, int dir=SEEK_CUR) = 0;
-		virtual long Size(void) = 0;
-		virtual long Write(void const *buffer, long size) = 0;
+		virtual int Read(void *buffer, int size) = 0;
+		virtual int Seek(int pos, int dir=SEEK_CUR) = 0;
+		virtual int Size(void) = 0;
+		virtual int Write(void const *buffer, int size) = 0;
 		virtual void Close(void) = 0;
 
 		operator char const * () {return File_Name();};

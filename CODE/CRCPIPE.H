@@ -39,8 +39,8 @@
 #ifndef CRCPIPE_H
 #define CRCPIPE_H
 
-#include	"pipe.h"
-#include	"crc.h"
+#include	"PIPE.H"
+#include	"CRC.H"
 
 /*
 **	This class doesn't modify the data being piped through, but it does examine it and build
@@ -53,7 +53,7 @@ class CRCPipe : public Pipe
 		virtual int Put(void const * source, int slen);
 
 		// Fetch the CRC value.
-		long Result(void) const;
+		int Result(void) const;
 
 	protected:
 		CRCEngine CRC;

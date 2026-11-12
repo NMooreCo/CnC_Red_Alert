@@ -38,7 +38,7 @@
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 
-#include "crcstraw.h"
+#include "CRCSTRAW.H"
 
 
 /***********************************************************************************************
@@ -88,7 +88,7 @@ int CRCStraw::Get(void * source, int slen)
  * HISTORY:                                                                                    *
  *   07/03/1996 JLB : Created.                                                                 *
  *=============================================================================================*/
-long CRCStraw::Result(void) const
+int CRCStraw::Result(void) const
 {
 	return(CRC());
 }

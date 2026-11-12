@@ -57,13 +57,13 @@ class TPoint2D
 #define RAWFILE_H
 #define WWMEM_H
 #define WWFILE_Hx
-#include	<wwlib32.h>
+#include	<WWLIB32.H>
 #include <stdio.h>
 //#include "gbuffer.h"
 //#include "math.h"
 
 
-long _SineTab[256] = {
+int _SineTab[256] = {
 0 ,6 ,12 , 18 , 25 , 31 , 37 , 43 , 49 , 56 , 62 , 68 , 74 , 80 , 86 ,
 92 , 97 , 103 , 109 , 115 , 120 , 126 , 131 , 136 , 142 , 147 , 152 ,
 157 , 162 , 167 , 171 , 176 , 180 , 185 , 189 , 193 , 197 , 201 , 205 ,
@@ -89,7 +89,7 @@ long _SineTab[256] = {
 -38 , -32 , -25 , -19 , -13 , -7 ,
 };
 
-long _CosineTab[256] = {
+int _CosineTab[256] = {
 256 , 255 , 255 , 255 , 254 , 254 , 253 , 252 , 251 , 249 , 248 , 246 ,
 244 , 243 , 241 , 238 , 236 , 234 , 231 , 228 , 225 , 222 , 219 , 216 ,
 212 , 209 , 205 , 201 , 197 , 193 , 189 , 185 , 181 , 176 , 171 , 167 ,
@@ -134,7 +134,7 @@ long _CosineTab[256] = {
 *
 ***************************************************************/
 
-void GraphicBufferClass::Scale_Rotate(BitmapClass &bmp,TPoint2D const &pt,long scale,unsigned char angle)
+void GraphicBufferClass::Scale_Rotate(BitmapClass &bmp,TPoint2D const &pt,int scale,unsigned char angle)
 {
 	unsigned int scrpos;
 	unsigned int temp;
@@ -154,10 +154,10 @@ void GraphicBufferClass::Scale_Rotate(BitmapClass &bmp,TPoint2D const &pt,long s
 	-------------------------------------------------*/
 	{
 		angle &= 0x0FF;
-		long c = _CosineTab[angle];
- 		long s = _SineTab[angle];
-		long W = (scale*bmp.Width)>>1;
-		long L = (scale*bmp.Height)>>1;
+		int c = _CosineTab[angle];
+ 		int s = _SineTab[angle];
+		int W = (scale*bmp.Width)>>1;
+		int L = (scale*bmp.Height)>>1;
 
 		p0.x = (pt.x + ((( (L*c) >> 8)-((W*s) >> 8)) >> 8));
 		p0.y = (pt.y + (((-(L*s) >> 8)-((W*c) >> 8)) >> 8));

@@ -48,7 +48,7 @@
 #include <io.h>
 #include <string.h>
 #include <malloc.h>
-#include "font.h"
+#include "FONT.H"
 
 
 /*---------------------------------------------------------------------------
@@ -98,7 +98,7 @@ char *FontWidthBlockPtr = NULL;
 void *cdecl Load_Font(char const *name)
 {
 	Font  *font = NULL;
-	long  fh;
+	int  fh;
 	short size;
 	short valid;
 
@@ -109,12 +109,12 @@ void *cdecl Load_Font(char const *name)
 		if (read(fh, &size, 2) == 2) {
 
 			/* Allocate memory to contain the font. */
-			if ((font = (Font *)malloc((unsigned long)size)) != NULL) {
+			if ((font = (Font *)malloc((unsigned int)size)) != NULL) {
 				valid = 0;	
 
 				/* Read in the body of the font. */
-				if (read(fh, &font->CompMethod, (unsigned long)(size - 2))
-						== (unsigned long)(size - 2)) {
+				if (read(fh, &font->CompMethod, (unsigned int)(size - 2))
+						== (unsigned int)(size - 2)) {
 					
 					/* Verify the validity of the font. */
 					if ((font->CompMethod == 0) && (font->NumBlks == 5)) {
@@ -202,8 +202,8 @@ void *cdecl Set_Font(void const *font)
 
 unsigned short String_Pixel_Width(char const *string)
 {
-	long width = 0;
-	long largest = 0;
+	int width = 0;
+	int largest = 0;
 
 	while (*string != NULL) {
 		if (*string == '\r') {

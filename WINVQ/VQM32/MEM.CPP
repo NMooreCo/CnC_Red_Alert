@@ -45,8 +45,8 @@
 
 #ifdef __WATCOMC__
 #include <dos.h>
-#include <mem.h>
-#include <vqm32\mem.h>
+#include <MEM.H>
+#include <VQM32/MEM.H>
 
 
 /****************************************************************************
@@ -70,7 +70,7 @@
 *
 ****************************************************************************/
 
-void DPMI_Lock(void const *ptr, long const size)
+void DPMI_Lock(void const *ptr, int const size)
 {
 	union REGS   regs;
 	struct SREGS sregs;
@@ -85,10 +85,10 @@ void DPMI_Lock(void const *ptr, long const size)
 	 * SI:DI = Size of region to lock in bytes.
 	 */
 	regs.x.eax = DPMI_LOCK;
-	regs.x.ebx = ((long)ptr & 0xFFFF0000) >> 16;
-	regs.x.ecx = ((long)ptr & 0x0000FFFF);
-	regs.x.esi = ((long)size & 0xFFFF0000) >> 16;
-	regs.x.edi = ((long)size & 0x0000FFFF);
+	regs.x.ebx = ((int)ptr & 0xFFFF0000) >> 16;
+	regs.x.ecx = ((int)ptr & 0x0000FFFF);
+	regs.x.esi = ((int)size & 0xFFFF0000) >> 16;
+	regs.x.edi = ((int)size & 0x0000FFFF);
 	int386x(DPMI_INT, &regs, &regs, &sregs);
 }
 
@@ -114,7 +114,7 @@ void DPMI_Lock(void const *ptr, long const size)
 *
 ****************************************************************************/
 
-void DPMI_Unlock(void const *ptr, long const size)
+void DPMI_Unlock(void const *ptr, int const size)
 {
 	union REGS   regs;
 	struct SREGS sregs;
@@ -124,10 +124,10 @@ void DPMI_Unlock(void const *ptr, long const size)
 	segread(&sregs);
 
 	regs.x.eax = DPMI_UNLOCK;
-	regs.x.ebx = ((long)ptr & 0xFFFF0000) >> 16;
-	regs.x.ecx = ((long)ptr & 0x0000FFFF);
-	regs.x.esi = ((long)size & 0xFFFF0000) >> 16;
-	regs.x.edi = ((long)size & 0x0000FFFF);
+	regs.x.ebx = ((int)ptr & 0xFFFF0000) >> 16;
+	regs.x.ecx = ((int)ptr & 0x0000FFFF);
+	regs.x.esi = ((int)size & 0xFFFF0000) >> 16;
+	regs.x.edi = ((int)size & 0x0000FFFF);
 	int386x(DPMI_INT, &regs, &regs, &sregs);
 }
 

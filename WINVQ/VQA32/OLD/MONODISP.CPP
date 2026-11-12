@@ -48,9 +48,9 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "vq.h"
-#include "vqaplayp.h"
-#include <vqm32\all.h>
+#include "VQ.H"
+#include "VQAPLAYP.H"
+#include <VQM32/ALL.H>
 
 #if(VQAMONO_ON)
 
@@ -231,7 +231,7 @@ void VQA_InitMono(VQAHandleP *vqap)
 
 	/* Memory Usage */
 	Mono_Set_Cursor(MAIN_WX1 + 18, MAIN_WY1 + 7);
-	sprintf(txt,"         Memory Used: %ld", vqabuf->MemUsed);
+	sprintf(txt,"         Memory Used: %d", vqabuf->MemUsed);
 	Mono_Print(txt);
 
 	/* Timer Method */
@@ -346,11 +346,11 @@ void VQA_UpdateMono(VQAHandleP *vqap)
 	VQAConfig     *config;
 	VQAFrameNode  *frame;
 	VQACBNode     *cbook;
-	long          frameindex = -1;
-	long          loadcb = -1;
-	long          drawcb = -1;
-	long          i;
-	unsigned long curtime;
+	int          frameindex = -1;
+	int          loadcb = -1;
+	int          drawcb = -1;
+	int          i;
+	unsigned int curtime;
 	char          txt[80];
 
 	/* Dereference commonly used data members for quick access. */
@@ -360,9 +360,9 @@ void VQA_UpdateMono(VQAHandleP *vqap)
 	/* Timer value */
 	curtime = VQA_GetTime(vqap);
 	Mono_Set_Cursor(MAIN_WX1 + 40, MAIN_WY1 + 8);
-	sprintf(txt,"%02ld:%02ld.%02ld",curtime / (VQA_TIMETICKS * VQA_TIMETICKS),
-			curtime / VQA_TIMETICKS,((curtime * 100L) / VQA_TIMETICKS)
-			-((curtime / VQA_TIMETICKS) * 100L));
+	sprintf(txt,"%02d:%02d.%02d",curtime / (VQA_TIMETICKS * VQA_TIMETICKS),
+			curtime / VQA_TIMETICKS,((curtime * 100) / VQA_TIMETICKS)
+			-((curtime / VQA_TIMETICKS) * 100));
 
 	Mono_Print(txt);
 
@@ -372,11 +372,11 @@ void VQA_UpdateMono(VQAHandleP *vqap)
 	Mono_Print(txt);
 
 	Mono_Set_Cursor(LOADER_WX1 + 22, LOADER_WY1 + 2);
-	sprintf(txt,"%4ld",vqabuf->Loader.WaitsOnDrawer);
+	sprintf(txt,"%4d",vqabuf->Loader.WaitsOnDrawer);
 	Mono_Print(txt);
 
 	Mono_Set_Cursor(LOADER_WX1 + 22, LOADER_WY1 + 3);
-	sprintf(txt,"%4ld",vqabuf->Loader.WaitsOnAudio);
+	sprintf(txt,"%4d",vqabuf->Loader.WaitsOnAudio);
 	Mono_Print(txt);
 
 	Mono_Set_Cursor(LOADER_WX1 + 22, LOADER_WY1 + 4);
@@ -425,11 +425,11 @@ void VQA_UpdateMono(VQAHandleP *vqap)
 	Mono_Print(txt);
 
 	Mono_Set_Cursor(DRAWER_WX1 + 22,DRAWER_WY1 + 3);
-	sprintf(txt,"%4ld", vqabuf->Drawer.WaitsOnFlipper);
+	sprintf(txt,"%4d", vqabuf->Drawer.WaitsOnFlipper);
 	Mono_Print(txt);
 
 	Mono_Set_Cursor(DRAWER_WX1 + 22,DRAWER_WY1 + 4);
-	sprintf(txt,"%4ld", vqabuf->Drawer.WaitsOnLoader);
+	sprintf(txt,"%4d", vqabuf->Drawer.WaitsOnLoader);
 	Mono_Print(txt);
 
 	Mono_Set_Cursor(DRAWER_WX1 + 22,DRAWER_WY1 + 5);
@@ -497,7 +497,7 @@ void VQA_UpdateMono(VQAHandleP *vqap)
 	/* Audio data */
 	#if(VQAAUDIO_ON)
 	Mono_Set_Cursor(AUDIO_WX1 + 22, AUDIO_WY1 + 1);
-	sprintf(txt,"%4ld", vqabuf->Audio.NumSkipped);
+	sprintf(txt,"%4d", vqabuf->Audio.NumSkipped);
 	Mono_Print(txt);
 	#endif
 

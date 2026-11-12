@@ -40,7 +40,7 @@
 #include <mainwind.h>
 #include <vidmode.h>
 #include <wm.h>
-#include <misc.h>
+#include <MISC.H>
 #include <wwlib.h>
 
 //==========================================================================
@@ -61,11 +61,11 @@ MainWindowClass Main_Window;
 // Private functions
 //==========================================================================
 
-long WINAPI Main_Window_Message_Handler(
+int WINAPI Main_Window_Message_Handler(
 	WindowHandle window_handle,
 	unsigned int message,
 	unsigned int w_param,
-	long l_param );
+	int l_param );
 
 
 /***************************************************************************
@@ -174,11 +174,11 @@ WindowHandle MainWindowClass::Get_Window_Handle( void )
 }
 
 
-long WINAPI Main_Window_Message_Handler(
+int WINAPI Main_Window_Message_Handler(
 	WindowHandle window_handle,
 	unsigned int message,
 	unsigned int w_param,
-	long l_param )
+	int l_param )
 {
 	switch ( message ) {
 

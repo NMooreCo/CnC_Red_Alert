@@ -41,7 +41,7 @@
 
 #include <windows.h>
 #include <westwood.h>
-#include <vq.h>
+#include <VQ.H>
 #include <movies.h>
 #include <mainwind.h>
 #include <main.h>
@@ -195,7 +195,7 @@ void Choose_Movie( WindowHandle window_handle )
 	open_file_dlg.nFileOffset 			= 0;
 	open_file_dlg.nFileExtension 		= 0;
 	open_file_dlg.lpstrDefExt			= "vqa";
-	open_file_dlg.lCustData				= 0l;
+	open_file_dlg.lCustData				= 0;
 	open_file_dlg.lpfnHook				= NULL;
 	open_file_dlg.lpTemplateName		= NULL;
 
@@ -248,7 +248,7 @@ void VQA_Test( char *filename )
 	int				i;
 	char				*draw_surface_ptr;
 	GraphicBufferClass	*draw_buffer_ptr;
-	long				(*callback_function_ptr) (unsigned char *, long);
+	int				(*callback_function_ptr) (unsigned char *, int);
 
 	//
 	// Handle windows messages so that any repaint occurs before we start
@@ -330,7 +330,7 @@ void VQA_Test( char *filename )
  * HISTORY:                                                                *
  *   11/22/1995  MG : Created.                                             *
  *=========================================================================*/
-long Draw_To_Video_Callback( unsigned char *buffer, long frame_number )
+int Draw_To_Video_Callback( unsigned char *buffer, int frame_number )
 {
 	return( 0 );
 }
@@ -349,7 +349,7 @@ long Draw_To_Video_Callback( unsigned char *buffer, long frame_number )
  * HISTORY:                                                                *
  *   11/22/1995  MG : Created.                                             *
  *=========================================================================*/
-long Draw_To_Buffer_Callback( unsigned char *buffer, long frame_number )
+int Draw_To_Buffer_Callback( unsigned char *buffer, int frame_number )
 {
 	//
 	// Frame was skipped, bail.

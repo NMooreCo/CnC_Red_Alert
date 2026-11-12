@@ -35,7 +35,7 @@
 ;* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 #ifndef FILE_H
-#include "file.h"
+#include "FILE.H"
 #endif
 
 #ifndef _FILE_H
@@ -63,7 +63,7 @@
 #define CHANGEDIR(p)				ibm_chdir(p)
 
 #define FILENAMESIZE				13
-#define IO_CHUNK_SIZE			0xfff0UL
+#define IO_CHUNK_SIZE			0xfff0U
 
 /* 
 **	Maximum number of file handles 
@@ -163,7 +163,7 @@ extern VOID Remove_Hard_Error_Handler(VOID);
 /*=========================================================================*/
 
 extern BYTE CallingDOSInt;					 
-extern "C" extern BYTE MaxDevice,DefaultDrive;
+extern "C" BYTE MaxDevice,DefaultDrive;
 extern BYTE MultiDriveSearch;	
 extern FileDataType *FileDataPtr;
 extern FileHandleType FileHandleTable[TABLE_MAX];

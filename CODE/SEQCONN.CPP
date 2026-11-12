@@ -43,9 +43,9 @@
  *   SequencedConnClass::Service_Receive_Queue -- services recieve queue	*
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include "function.h"
+#include "FUNCTION.H"
 
-#include "WolDebug.h"
+#include "WOLDEBUG.H"
 
 /***************************************************************************
  * SequencedConnClass::SequencedConnClass -- class constructor             *
@@ -71,8 +71,8 @@
  *   12/20/1994 BR : Created.                                              *
  *=========================================================================*/
 SequencedConnClass::SequencedConnClass (int numsend, int numreceive, 
-	int maxlen, unsigned short magicnum, unsigned long retry_delta,
-	unsigned long max_retries, unsigned long timeout) :
+	int maxlen, unsigned short magicnum, unsigned int retry_delta,
+	unsigned int max_retries, unsigned int timeout) :
 	ConnectionClass (maxlen, magicnum, retry_delta, max_retries, timeout)
 {
 	NumRecNoAck = 0;
@@ -396,7 +396,7 @@ int SequencedConnClass::Service_Send_Queue (void)
 {
 	SendQueueType *send_entry;						// ptr to send queue entry
 	CommHeaderType *packet_hdr;					// packet header
-	unsigned long curtime;							// current time
+	unsigned int curtime;							// current time
 
 	/*------------------------------------------------------------------------
 	- If the next packet is ACK'd remove it from the queue

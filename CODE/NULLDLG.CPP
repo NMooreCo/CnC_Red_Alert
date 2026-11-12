@@ -49,13 +49,13 @@
  *   Test_Null_Modem -- Null-Modem test routine                            *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include "function.h"
+#include "FUNCTION.H"
 #ifdef FIXIT_RANDOM_GAME
 #include "time.h"
 #endif
 #ifdef WIN32
-#include "wincomm.h"
-#include "modemreg.h"
+#include "WINCOMM.H"
+#include "MODEMREG.H"
 ModemRegistryEntryClass *ModemRegistry = NULL;		//Ptr to modem registry data
 #endif	//WIN32
 
@@ -213,7 +213,7 @@ void Shutdown_Modem( void )
  *=========================================================================*/
 void Modem_Signoff( void )
 {
-	unsigned long starttime;
+	unsigned int starttime;
 	EventClass event;
 
 	if (!Session.Play) {
@@ -269,7 +269,7 @@ int Test_Null_Modem( void )
 	bool process = true;						// process while true
 
 	int retval;
-	unsigned long starttime;
+	unsigned int starttime;
 	int packetlen;
 
 	int x,y,width,height;					// dialog dimensions
@@ -286,7 +286,7 @@ int Test_Null_Modem( void )
 	**	These dimensions will control how the dialog box looks.
 	*/
 	strcpy( buffer, Text_String( TXT_WAITING_CONNECT ) );
-	Fancy_Text_Print(TXT_NONE,0,0,TBLACK,TBLACK,TPF_6PT_GRAD | TPF_NOSHADOW);
+	Fancy_Text_Print(TXT_NONE,0,0,(RemapControlType *)NULL,TBLACK,TPF_6PT_GRAD | TPF_NOSHADOW);
 	Format_Window_String(buffer, SeenBuff.Get_Height(), width, height);
 
 	width = max(width, 50 * RESFACTOR);
@@ -600,8 +600,8 @@ static int Reconnect_Null_Modem( void )
 	KeyNumType input;
 
 	int retval;
-	unsigned long starttime;
-	unsigned long lastmsgtime;
+	unsigned int starttime;
+	unsigned int lastmsgtime;
 	int packetlen;
 	RemapControlType * scheme = GadgetClass::Get_Color_Scheme();
 
@@ -619,7 +619,7 @@ static int Reconnect_Null_Modem( void )
 	**	These dimensions will control how the dialog box looks.
 	*/
 	strcpy( buffer, Text_String( TXT_NULL_CONNERR_CHECK_CABLES ) );
-	Fancy_Text_Print(TXT_NONE,0,0,TBLACK,TBLACK,TPF_6PT_GRAD | TPF_NOSHADOW);
+	Fancy_Text_Print(TXT_NONE,0,0,(RemapControlType *)NULL,TBLACK,TPF_6PT_GRAD | TPF_NOSHADOW);
 	Format_Window_String(buffer, SeenBuff.Get_Height(), width, height);
 
 	width = max(width, 50 * RESFACTOR);
@@ -2214,7 +2214,7 @@ static int Com_Settings_Dialog( SerialSettingsType *settings )
 
 				// init font variables
 
-				Fancy_Text_Print(TXT_NONE, 0, 0, TBLACK, TBLACK, TPF_CENTER | TPF_TEXT);
+				Fancy_Text_Print(TXT_NONE, 0, 0, (RemapControlType *)NULL, TBLACK, TPF_CENTER | TPF_TEXT);
 
 				/*
 				** Dialog & Field labels
@@ -3082,19 +3082,19 @@ int Com_Scenario_Dialog(bool skirmish)
 	int rc;
 	int recsignedoff = false;
 	int i;
-	unsigned long version;
-	unsigned long starttime;
-	unsigned long timingtime;
-	unsigned long lastmsgtime;
-	unsigned long lastredrawtime;
-	unsigned long transmittime = 0;
-	unsigned long theirresponsetime;
+	unsigned int version;
+	unsigned int starttime;
+	unsigned int timingtime;
+	unsigned int lastmsgtime;
+	unsigned int lastredrawtime;
+	unsigned int transmittime = 0;
+	unsigned int theirresponsetime;
 	int packetlen;
 	static bool first_time = true;
 	bool oppscorescreen = false;
 	bool gameoptions = Session.Type == GAME_SKIRMISH;
 	EventClass *event;					// event ptr
-	unsigned long msg_timeout = 1200;	// init to 20 seconds
+	unsigned int msg_timeout = 1200;	// init to 20 seconds
 
 	CCFileClass loadfile ("SAVEGAME.NET");
 	bool load_game = false;					// 1 = load a saved game
@@ -3312,7 +3312,8 @@ int Com_Scenario_Dialog(bool skirmish)
 	Init scenario description list box
 	........................................................................*/
 	for (i = 0; i < Session.Scenarios.Count(); i++) {
-		for (int j = 0; EngMisStr[j] != NULL;  j++) {
+		int j;
+		for (j = 0; EngMisStr[j] != NULL;  j++) {
 			if (!strcmp(Session.Scenarios[i]->Description(), EngMisStr[j])) {
 #ifdef FIXIT_CSII	//	ajw Added Aftermath installed checks (before, it was assumed).
 			//	Add mission if it's available to us.
@@ -3488,7 +3489,7 @@ oh_dear_its_a_label:
 
 				// init font variables
 
-				Fancy_Text_Print(TXT_NONE, 0, 0, TBLACK, TBLACK, TPF_CENTER | TPF_TEXT);
+				Fancy_Text_Print(TXT_NONE, 0, 0, (RemapControlType *)NULL, TBLACK, TPF_CENTER | TPF_TEXT);
 
 				/*...............................................................
 				Dialog & Field labels
@@ -4940,18 +4941,18 @@ int Com_Show_Scenario_Dialog(void)
 	int rc;
 	int recsignedoff = 0;
 	int i;
-	unsigned long version;
+	unsigned int version;
 	char txt[80];
-	unsigned long starttime;
-	unsigned long timingtime;
-	unsigned long lastmsgtime;
-	unsigned long lastredrawtime;
-	unsigned long transmittime = 0;
+	unsigned int starttime;
+	unsigned int timingtime;
+	unsigned int lastmsgtime;
+	unsigned int lastredrawtime;
+	unsigned int transmittime = 0;
 	int packetlen;
 	bool oppscorescreen = false;
 	bool gameoptions = false;
 	EventClass *event;					// event ptr
-	unsigned long msg_timeout = 1200;	// init to 20 seconds
+	unsigned int msg_timeout = 1200;	// init to 20 seconds
 	bool load_game = false;					// 1 = load saved game
 	NodeNameType *who;					// node to add to Players
 	char *item;								// for filling in lists
@@ -6483,7 +6484,7 @@ static int Phone_Dialog (void)
 
 				// init font variables
 
-				Fancy_Text_Print(TXT_NONE, 0, 0, TBLACK, TBLACK, TPF_CENTER | TPF_TEXT);
+				Fancy_Text_Print(TXT_NONE, 0, 0, (RemapControlType *)NULL, TBLACK, TPF_CENTER | TPF_TEXT);
 
 				/*...............................................................
 				Dialog & Field labels
@@ -7579,7 +7580,7 @@ void Hex_Dump_Data( char *buffer, int length )
 	while (length >= 16) {
 		memcpy( ptr, (buffer + offset), 16);
 
-		Smart_Printf("%05lX  ", offset);
+		Smart_Printf("%05X  ", offset);
 
 		for (i = 0; i < 16; i++) {
 
@@ -7614,7 +7615,7 @@ void Hex_Dump_Data( char *buffer, int length )
 	if (length) {
 		memcpy( ptr, (buffer + offset), 16);
 
-		Smart_Printf("%05lX  ", offset);
+		Smart_Printf("%05X  ", offset);
 
 		for (i = 0; i < 16; i++) {
 			if (i < length) {
@@ -7691,8 +7692,8 @@ void Log_Start_Time( char *string )
 void Log_End_Time( char *string )
 {
 	int i;
-	unsigned long currtime;
-	unsigned long ticks;
+	unsigned int currtime;
+	unsigned int ticks;
 
 
 	currtime = TickCount;
@@ -7722,8 +7723,8 @@ void Log_End_Time( char *string )
 void Log_Time( char *string )
 {
 	int i;
-	unsigned long currtime;
-	unsigned long ticks;
+	unsigned int currtime;
+	unsigned int ticks;
 
 
 	currtime = TickCount;
@@ -7753,8 +7754,8 @@ void Log_Time( char *string )
 void Log_Start_Nest_Time( char *string )
 {
 	int i;
-	unsigned long currtime;
-	unsigned long ticks;
+	unsigned int currtime;
+	unsigned int ticks;
 
 
 	currtime = TickCount;
@@ -7790,8 +7791,8 @@ void Log_Start_Nest_Time( char *string )
 void Log_End_Nest_Time( char *string )
 {
 	int i;
-	unsigned long currtime;
-	unsigned long ticks;
+	unsigned int currtime;
+	unsigned int ticks;
 
 
 	currtime = TickCount;

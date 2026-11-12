@@ -33,13 +33,89 @@
  *   WWMouseClass::WWMouseClass -- Constructor for the Mouse Class                                 *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include "mouse.h"
+#include "MOUSE.H"
 #include <mmsystem.h>
 
 static WWMouseClass *_Mouse=NULL;
 void CALLBACK Process_Mouse( UINT event_id, UINT res1 , DWORD user, DWORD  res2, DWORD  res3 );
 extern BOOL GameInFocus;
 
+
+#ifdef RA_PORT
+/*
+**	RA_PORT: The original drew the cursor straight into the visible DirectDraw surface from a
+**	60Hz timer callback, saving and restoring the pixels underneath it (WWMOUSE.ASM). The port
+**	composites the cursor on top of the visible page whenever the screen is presented (see
+**	Video_Present), so the buffers never contain the cursor: this class only keeps track of
+**	the cursor shape and of whether it is shown.
+*/
+#include "PLATFORM.H"
+#include "SHAPE.H"
+
+extern "C" unsigned int __cdecl LCW_Uncompress(void * source, void * dest, unsigned int length);
+
+WWMouseClass::WWMouseClass(GraphicViewPortClass *scr, int mouse_max_width, int mouse_max_height)
+{
+	MouseCursor 	= new char[mouse_max_width * mouse_max_height];
+	MouseXHot		= 0;
+	MouseYHot		= 0;
+	CursorWidth		= 0;
+	CursorHeight	= 0;
+
+	MouseBuffer		= NULL;
+	MouseBuffX		= -1;
+	MouseBuffY  	= -1;
+	MaxWidth			= mouse_max_width;
+	MaxHeight		= mouse_max_height;
+
+	MouseCXLeft		= 0;
+	MouseCYUpper	= 0;
+	MouseCXRight	= 0;
+	MouseCYLower	= 0;
+	MCFlags			= 0;
+	MCCount			= 0;
+
+	Screen			= scr;
+	PrevCursor		= NULL;
+	MouseUpdate		= 0;
+	State				= 1;
+
+	InitializeCriticalSection (&MouseCriticalSection);
+
+	EraseBuffer		= NULL;
+	EraseBuffX		= -1;
+	EraseBuffY  	= -1;
+	EraseBuffHotX	= -1;
+	EraseBuffHotY	= -1;
+	EraseFlags		= FALSE;
+
+	_Mouse			= this;
+	TimerHandle		= 0;
+	Video_Show_Cursor(false);
+
+	/*
+	** Force the windows mouse pointer to stay withing the graphic view port region
+	*/
+	Set_Cursor_Clip();
+}
+
+WWMouseClass::~WWMouseClass()
+{
+	MouseUpdate++;
+
+	Video_Show_Cursor(false);
+	Video_Set_Cursor(NULL, 0, 0, 0, 0);
+	if (MouseCursor) delete[] MouseCursor;
+	DeleteCriticalSection(&MouseCriticalSection);
+	if (_Mouse == this) _Mouse = NULL;
+
+	/*
+	** Free up the windows mouse pointer movement
+	*/
+	Clear_Cursor_Clip();
+}
+
+#else
 
 /***********************************************************************************************
  * MOUSECLASS::MOUSECLASS -- Constructor for the Mouse Class                                   *
@@ -118,6 +194,8 @@ WWMouseClass::~WWMouseClass()
 }
 
 
+#endif	// RA_PORT
+
 void Block_Mouse(GraphicBufferClass *buffer)
 {
 	if (_Mouse){
@@ -177,6 +255,142 @@ void WWMouseClass::Clear_Cursor_Clip(void)
 }
 
 
+
+#ifdef RA_PORT
+
+void WWMouseClass::Process_Mouse(void)
+{
+	/*
+	**	Nothing to do: the cursor follows the mouse when the screen is presented.
+	*/
+}
+
+
+/***********************************************************************************************
+ * WWMouseClass::Set_Cursor -- Sets the shape to be used as the mouse cursor.                  *
+ *                                                                                             *
+ *    The cursor is a (possibly LCW compressed, possibly 16 colour) shape. Its pixels are     *
+ *    run length coded: a zero byte is followed by the number of transparent pixels.          *
+ *    (This used to be ASM_Set_Mouse_Cursor in WWMOUSE.ASM.)                                  *
+ *                                                                                             *
+ * OUTPUT:  Returns with the previous cursor shape.                                            *
+ *=============================================================================================*/
+void *WWMouseClass::Set_Cursor(int xhotspot, int yhotspot, void *cursor)
+{
+	if (!cursor || cursor == PrevCursor)
+		return(cursor);
+
+	MouseUpdate++;
+
+	unsigned char const * shape = (unsigned char const *)cursor;
+	int type = shape[0] | (shape[1] << 8);
+	int width = Get_Shape_Width(cursor);
+	int height = Get_Shape_Original_Height(cursor);
+
+	if (width > 0 && height > 0 && width <= MaxWidth && height <= MaxHeight) {
+		int header = 10 + ((type & MAKESHAPE_COMPACT) ? 16 : 0);
+		unsigned char const * data = shape + header;
+		unsigned char const * remap = (type & MAKESHAPE_COMPACT) ? shape + 10 : NULL;
+		unsigned char * uncompressed = NULL;
+
+		if (!(type & MAKESHAPE_NOCOMP)) {
+			int datasize = Get_Shape_Uncomp_Size(cursor);
+			uncompressed = new unsigned char[datasize + 256];
+			memset(uncompressed, 0, datasize + 256);
+			LCW_Uncompress((void *)data, uncompressed, datasize);
+			data = uncompressed;
+		}
+
+		unsigned char * out = (unsigned char *)MouseCursor;
+		int remaining = width * height;
+		while (remaining > 0) {
+			unsigned char pixel = *data++;
+			if (pixel) {
+				*out++ = remap ? remap[pixel] : pixel;
+				remaining--;
+			} else {
+				int count = *data++;
+				if (count > remaining) count = remaining;
+				memset(out, 0, count);
+				out += count;
+				remaining -= count;
+			}
+		}
+		delete[] uncompressed;
+
+		MouseXHot = xhotspot;
+		MouseYHot = yhotspot;
+		CursorWidth = width;
+		CursorHeight = height;
+		Video_Set_Cursor(MouseCursor, CursorWidth, CursorHeight, MouseXHot, MouseYHot);
+	}
+
+	void * retval = PrevCursor;
+	PrevCursor = (char *)cursor;
+	MouseUpdate--;
+	return(retval);
+}
+
+void WWMouseClass::Low_Hide_Mouse()
+{
+	State++;
+	Video_Show_Cursor(State == 0);
+}
+
+void WWMouseClass::Hide_Mouse()
+{
+	MouseUpdate++;
+	Low_Hide_Mouse();
+	MouseUpdate--;
+}
+
+void WWMouseClass::Low_Show_Mouse(int, int)
+{
+	if (State == 0) return;
+	State--;
+	Video_Show_Cursor(State == 0);
+}
+
+void WWMouseClass::Show_Mouse()
+{
+	MouseUpdate++;
+	Low_Show_Mouse(0, 0);
+	MouseUpdate--;
+}
+
+/*
+**	Conditional hiding protected the visible surface from being drawn over while the cursor
+**	was in it. The composited cursor never is, so only the nesting is tracked.
+*/
+void WWMouseClass::Conditional_Hide_Mouse(int, int, int, int)
+{
+	MCFlags |= CONDHIDE;
+	MCCount++;
+}
+
+void WWMouseClass::Conditional_Show_Mouse(void)
+{
+	if (MCCount) {
+		MCCount--;
+		if (!MCCount) {
+			MCFlags = 0;
+		}
+	}
+}
+
+/*
+**	Drawing the cursor into another buffer was only needed to avoid flicker when that buffer
+**	was copied to the visible surface.
+*/
+void WWMouseClass::Draw_Mouse(GraphicViewPortClass *)
+{
+}
+
+void WWMouseClass::Erase_Mouse(GraphicViewPortClass *, int)
+{
+}
+
+#else
 
 void WWMouseClass::Process_Mouse(void)
 {
@@ -550,6 +764,8 @@ void WWMouseClass::Erase_Mouse(GraphicViewPortClass *scr, int forced)
 	MouseUpdate--;
   	EraseFlags = FALSE;
 }
+
+#endif	// RA_PORT
 
 int WWMouseClass::Get_Mouse_State(void)
 {

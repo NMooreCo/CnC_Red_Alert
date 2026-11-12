@@ -42,15 +42,7 @@
 // Win 95 includes
 //
 
-#ifndef WIN32
-#ifndef _WIN32 // Denzil 6/2/98 Watcom 11.0 complains without this check
-#define _WIN32
-#endif // _WIN32
-#define WIN32 1
-#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include <windowsx.h>
-#endif
 
 
 // Note: SKB 4/11/94
@@ -90,7 +82,7 @@
 #endif
 
 #ifndef NULL
-#define NULL		0L
+#define NULL		0
 #endif
 
 #ifdef VOID
@@ -121,8 +113,6 @@ template<class T> T ABS(T a)
 {
 	return (a < 0) ? -a : a;
 }
-int ABS(int);
-long ABS(long);
 
 // Returns the minimum of the two numbers.
 #ifdef MIN
@@ -132,9 +122,10 @@ template<class T> T MIN(T a, T b)
 {
 	return (b < a) ? b : a;
 };
-short MIN(short, short);
-int MIN(int, int);
-long MIN(long, long);
+template<class A, class B> inline int MIN(A a, B b)
+{
+	return MIN((int)a, (int)b);		// Mixed types: behave like the old "int MIN(int, int)".
+};
 
 // Returns the maximum of the two numbers.
 #ifdef MAX
@@ -144,19 +135,20 @@ template<class T> T MAX(T a, T b)
 {
 	return (b > a) ? b : a;
 };
-short MAX(short, short);
-int MAX(int, int);
-long MAX(long, long);
+template<class A, class B> inline int MAX(A a, B b)
+{
+	return MAX((int)a, (int)b);		// Mixed types: behave like the old "int MAX(int, int)".
+};
 #pragma option -Jgd
 
 // Returns the low word of a long
-#define	LOW_WORD(a)		((unsigned short)((long)(a) & 0x0000FFFFL))
+#define	LOW_WORD(a)		((unsigned short)((int)(a) & 0x0000FFFF))
 
 // Returns the high word of a long
-#define	HIGH_WORD(a)	((unsigned long)(a) >> 16)
+#define	HIGH_WORD(a)	((unsigned int)(a) >> 16)
 
 // Merges to shorts to become a long
-#define	MAKE_LONG(a,b) (((long)(a) << 16) | (long)((b)&0x0000FFFFL))
+#define	MAKE_LONG(a,b) (((int)(a) << 16) | (int)((b)&0x0000FFFF))
 
 /*
 ** Macro allows our routines to act like
@@ -218,7 +210,7 @@ typedef int bool;
 //#define	true		1
 //#define	false		0
 
-#define	BOOL		int					// 32 bits for speed. use CHAR for size optimizations.
+// BOOL is a 32 bit int, typedef'd by <windows.h>.
 #if(0)
 #ifndef HMI_DRIVER
 #define	INT		int
@@ -230,9 +222,9 @@ typedef int bool;
 #define	UWORD		unsigned short
 #define  USHORT	unsigned short
 
-#define	LONG		signed 	long
-#define	ULONG		unsigned long
-#define  REALPTR	unsigned long
+#define	LONG		signed 	int
+#define	ULONG		unsigned int
+#define  REALPTR	unsigned int
 
 #define	FARPTR  char far *
 

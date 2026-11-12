@@ -43,13 +43,13 @@
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 
-#include	"cdfile.h"
+#include	"CDFILE.H"
 #include	<stdio.h>
 #include	<string.h>
 
 #ifndef WIN32
-#include	<wwstd.h>
-#include	<playcd.h>
+#include	<WWSTD.H>
+#include	<PLAYCD.H>
 #endif
 
 /*
@@ -74,6 +74,9 @@ CDFileClass::CDFileClass(void) :
 {
 }
 extern int Get_CD_Index (int cd_drive, int timeout);
+#ifdef RA_PORT
+extern bool Port_Get_CD_Directory(char * buffer);
+#endif
 
 /***********************************************************************************************
  * harderr_handler -- Handles hard DOS errors.                                                 *
@@ -98,7 +101,11 @@ int harderr_handler(unsigned int , unsigned int , unsigned int *)
 int harderr_handler(unsigned int , unsigned int , unsigned int __far *)
 #endif
 {
+#ifdef _HARDERR_FAIL
 	return(_HARDERR_FAIL);
+#else
+	return(3);
+#endif
 }
 
 
@@ -417,6 +424,20 @@ int CDFileClass::Set_Search_Drives(char * pathlist)
 			** 																						ST - 5/21/96 4:40PM
 			*/
 			if (strncmp(path, "?:", 2) == 0) {
+#ifdef RA_PORT
+				/*
+				**	Modern port: "?:" refers to the directory of the current disc (see
+				**	Force_CD_Available). The data directory itself is always searched first.
+				*/
+				found = true;
+				char cdpath[PATH_MAX];
+				if (Port_Get_CD_Directory(cdpath)) {
+					strcat(cdpath, path + 3);
+					Add_Search_Drive(cdpath);
+				}
+				ptr = strtok(NULL, ";");
+				continue;
+#endif
 				if (CurrentCDDrive) {
 					found = true;
 

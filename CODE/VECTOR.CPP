@@ -53,12 +53,12 @@
  *   VectorClass<T>::~VectorClass -- Default destructor for vector class.                      *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
+#include	"FUNCTION.H"
 #ifdef WINSOCK_IPX
-#include	"WSProto.h"
-#include	"WSPUDP.h"
+#include	"WSPROTO.H"
+#include	"WSPUDP.H"
 #endif	//WINSOCK_IPX
-#include "vector.h"
+#include "VECTOR.H"
 #include	<mem.h>
 #include	<stdio.h>
 
@@ -246,7 +246,7 @@ int VectorClass<T>::operator == (VectorClass<T> const & vector) const
 template<class T>
 inline int VectorClass<T>::ID(T const * ptr)
 {
-	return(((unsigned long)ptr - (unsigned long)&(*this)[0]) / sizeof(T));
+	return(((unsigned int)ptr - (unsigned int)&(*this)[0]) / sizeof(T));
 }
 
 
@@ -673,3 +673,19 @@ void BooleanVectorClass::Fixup(int index) const
 }
 
 
+
+
+/*
+**	Modern port: explicit instantiations. Watcom instantiated every specialisation declared
+**	in an included header in the module defining the template functions (see the comment at
+**	the top of this file); standard C++ needs them spelled out.
+*/
+#define RA_VECTOR_TYPES(X) \
+	X(CellClass) X(unsigned char) X(ObjectClass *) X(char const *) X(char *) X(void *) \
+	X(unsigned char *) X(TriggerClass *) X(RemapControlType *) X(PhoneEntryClass *) \
+	X(NodeNameType *) X(MultiMission *) X(FileEntryClass *) X(EgoClass *) X(BaseNodeClass) \
+	X(TeamMissionClass *) X(EventChoiceClass *) X(ActionChoiceClass *) X(EventChoiceClass) \
+	X(ActionChoiceClass) X(CCPtr<TeamTypeClass>) X(CCPtr<TriggerTypeClass>) \
+	X(WinsockInterfaceClass::WinsockBufferType *)
+#define RA_INSTANTIATE_VECTOR(T) template class VectorClass<T>;
+RA_VECTOR_TYPES(RA_INSTANTIATE_VECTOR)

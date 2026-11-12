@@ -44,9 +44,28 @@
 /*
 ********************************* Includes **********************************
 */
-#include "nullconn.h"
-#include "connmgr.h"
+#include "NULLCONN.H"
+#include "CONNMGR.H"
+#ifndef WIN32
 #include "commlib.h"
+#else
+struct PORT;		// Greenleaf serial port handle (DOS only)
+/*
+**	Greenleaf constants still referenced by code shared between the DOS and Win95 builds.
+*/
+#ifndef ASSUCCESS
+#define ASSUCCESS		0
+#define ASUSERABORT	-16
+#define COM1			0
+#define COM2			1
+#define COM3			2
+#define COM4			3
+#define COM5			4
+inline void HMSetUpEchoRoutine(void (*)(char)) {}
+inline int HMWaitForOK(int, char *) {return(ASSUCCESS);}
+#endif
+const int CD_SET = 0x80;	// Carrier detect modem status bit (also WinModemClass::CD_SET)
+#endif
 
 /*
 ***************************** Class Declaration *****************************
@@ -103,8 +122,8 @@ class NullModemClass : public ConnManClass
 		int Init_Send_Queue( void );
 		void Shutdown( void );
 
-		virtual void Set_Timing (unsigned long retrydelta,
-			unsigned long maxretries, unsigned long timeout);
+		virtual void Set_Timing (unsigned int retrydelta,
+			unsigned int maxretries, unsigned int timeout);
 
 		/*
 		**	This is how the application sends & receives messages.
@@ -133,7 +152,7 @@ class NullModemClass : public ConnManClass
 		*/
 		int Num_Send(void);
 		int Num_Receive(void);
-		virtual unsigned long Response_Time(void);
+		virtual unsigned int Response_Time(void);
 		virtual void Reset_Response_Time(void);
 		void * Oldest_Send(void);
 		virtual void Configure_Debug(int index, int type_offset, int type_size,
@@ -153,10 +172,10 @@ class NullModemClass : public ConnManClass
 			{return (Num_Receive());}
 
 		DetectPortType Detect_Port( SerialSettingsType *settings );
-		int Detect_Modem( SerialSettingsType *settings, int reconnect = 0 );
-		DialStatusType Dial_Modem(char *string, DialMethodType method, int reconnect = 0);
-		DialStatusType Answer_Modem(int reconnect = 0);
-		int Hangup_Modem(void);
+		int Detect_Modem( SerialSettingsType *settings, bool reconnect = false );
+		DialStatusType Dial_Modem(char *string, DialMethodType method, bool reconnect = false);
+		DialStatusType Answer_Modem(bool reconnect = false);
+		bool Hangup_Modem(void);
 		void Setup_Modem_Echo(void (*func)(char c));
 		void Remove_Modem_Echo(void);
 		void Print_EchoBuf(void);
@@ -209,9 +228,9 @@ class NullModemClass : public ConnManClass
 		/*.....................................................................
 		Timing parameters for all connections
 		.....................................................................*/
-		unsigned long RetryDelta;
-		unsigned long MaxRetries;
-		unsigned long Timeout;
+		unsigned int RetryDelta;
+		unsigned int MaxRetries;
+		unsigned int Timeout;
 
 		/*
 		**	Various Statistics

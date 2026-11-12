@@ -120,10 +120,10 @@
 /*
 ********************************* Includes **********************************
 */
-#include "ipxconn.h"
-#include "ipxgconn.h"
-#include "ipxaddr.h"
-#include "connmgr.h"
+#include "IPXCONN.H"
+#include "IPXGCONN.H"
+#include "IPXADDR.H"
+#include "CONNMGR.H"
 
 /*
 ********************************** Defines **********************************
@@ -145,7 +145,7 @@ it's stored in protected-mode memory.
 ---------------------------------------------------------------------------*/
 extern "C" {
 	void * __cdecl Get_RM_IPX_Address(void);
-	long __cdecl Get_RM_IPX_Size(void);
+	int __cdecl Get_RM_IPX_Size(void);
 }
 
 /*
@@ -169,8 +169,8 @@ class IPXManagerClass : public ConnManClass
 		.....................................................................*/
 		int Init (void);
 		int Is_IPX(void);
-		virtual void Set_Timing (unsigned long retrydelta, unsigned long maxretries,
-			unsigned long timeout);
+		virtual void Set_Timing (unsigned int retrydelta, unsigned int maxretries,
+			unsigned int timeout);
 		void Set_Bridge(NetNumType bridge);
 
 		/*.....................................................................
@@ -229,8 +229,8 @@ class IPXManagerClass : public ConnManClass
 		Routines to return the largest average queue response time, and to
 		reset the response time for all queues.
 		.....................................................................*/
-		virtual unsigned long Response_Time(void);
-		unsigned long Global_Response_Time(void);
+		virtual unsigned int Response_Time(void);
+		unsigned int Global_Response_Time(void);
 		virtual void Reset_Response_Time(void);
 
 		/*.....................................................................
@@ -297,9 +297,9 @@ class IPXManagerClass : public ConnManClass
 		/*.....................................................................
 		Timing parameters for all connections
 		.....................................................................*/
-		unsigned long RetryDelta;
-		unsigned long MaxRetries;
-		unsigned long Timeout;
+		unsigned int RetryDelta;
+		unsigned int MaxRetries;
+		unsigned int Timeout;
 
 		/*---------------------------------------------------------------------
 		Real-mode memory pointers and such
@@ -350,7 +350,7 @@ class IPXManagerClass : public ConnManClass
 		This is a real-mode pointer to the address of the real-mode assembly
 		entry point.
 		.....................................................................*/
-		long Handler;
+		int Handler;
 
 		/*.....................................................................
 		Event Control Block for listening; contained within the real-mode

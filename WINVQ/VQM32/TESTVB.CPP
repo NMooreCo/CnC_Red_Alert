@@ -41,10 +41,10 @@
 *
 ****************************************************************************/
 
-#include <sys\timeb.h>
+#include <sys/timeb.h>
 
 #ifdef __BORLANDC__
-#include "portio.h"
+#include "PORTIO.H"
 #else
 #include <conio.h>
 #endif
@@ -69,13 +69,13 @@
 *
 ****************************************************************************/
 
-long TestVBIBit(void)
+int TestVBIBit(void)
 {
 	static struct timeb mytime;
-	long          curtime;
-	long          endtime;
-	unsigned long high = 0;
-	unsigned long low = 0;
+	int          curtime;
+	int          endtime;
+	unsigned int high = 0;
+	unsigned int low = 0;
 
 	/* Set the check time for .25 (1/4) of a second. */
 	ftime(&mytime);

@@ -69,16 +69,16 @@
 #include	<stddef.h>
 #include	<stdio.h>
 #include	<ctype.h>
-#include	"ini.h"
-#include	"readline.h"
-#include	"xpipe.h"
-#include	"b64pipe.h"
-#include	"xstraw.h"
-#include	"b64straw.h"
+#include	"INI.H"
+#include	"READLINE.H"
+#include	"XPIPE.H"
+#include	"B64PIPE.H"
+#include	"XSTRAW.H"
+#include	"B64STRAW.H"
 
 
 #ifdef FIXIT_FAST_LOAD
-#include	"cstraw.h"
+#include	"CSTRAW.H"
 #endif
 
 
@@ -396,7 +396,7 @@ INIClass::INISection * INIClass::Find_Section(char const * section) const
 {
 	if (section != NULL) {
 
-		long crc = CRCEngine()(section, strlen(section));
+		int crc = CRCEngine()(section, strlen(section));
 
 		if (SectionIndex.Is_Present(crc)) {
 			return(SectionIndex.Fetch_Index(crc));

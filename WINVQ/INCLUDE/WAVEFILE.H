@@ -45,9 +45,9 @@
  * WAVE - 4 byte identifier (always "WAVE").
  */
 typedef struct _WAVHeader {
-	long RIFF;
-	long Size;
-	long WAVE;
+	int RIFF;
+	int Size;
+	int WAVE;
 } WAVHeader;
 
 /* WAVFormat: This structure describes the format of the audio data contained
@@ -63,8 +63,8 @@ typedef struct _WAVHeader {
 typedef struct _WAVFormat {
 	short FormatTag;
 	short Channels;
-	long  SamplesPerSec;
- 	long  AvgBytesPerSec;
+	int  SamplesPerSec;
+ 	int  AvgBytesPerSec;
 	short BlockAlign;
 	short BitsPerSample;
 } WAVFormat;

@@ -41,11 +41,11 @@
 
 #include <mem.h>
 #include <malloc.h>
-#include <vqm32\font.h>
-#include <vqm32\text.h>
-#include <vqm32\graphics.h>
-#include <vqm32\captoken.h>
-#include "caption.h"
+#include <VQM32/FONT.H>
+#include <VQM32/TEXT.H>
+#include <VQM32/GRAPHICS.H>
+#include <VQM32/CAPTOKEN.H>
+#include "CAPTION.H"
 
 #if( VQACAPTIONS_ON )
 
@@ -91,7 +91,7 @@ CaptionInfo *OpenCaptions(void *captions, void *font)
 	CaptionInfo *cap = NULL;
 	CaptionNode *node;
 	FontInfo    *fi;
-	long        i;
+	int        i;
 
 	/* Allocate memory for the captioning system. */
 	cap = (CaptionInfo *)malloc(sizeof(CaptionInfo) + (sizeof(CaptionNode)
@@ -183,13 +183,13 @@ void CloseCaptions(CaptionInfo *cap)
 *
 ****************************************************************************/
 
-void DoCaptions(CaptionInfo *cap, unsigned long frame)
+void DoCaptions(CaptionInfo *cap, unsigned int frame)
 {
 	CaptionText *captext;
 	CaptionNode *node;
 	void const  *oldfont;
-	long        width;
-	long        i;
+	int        width;
+	int        i;
 
 	/* Initialize variables. */
 	oldfont = Set_Font((char *)cap->Font);
@@ -400,4 +400,3 @@ static void RemCaptionNode(CaptionList *list, CaptionNode *node)
 
 
 #endif // VQACAPTIONS_ON
-

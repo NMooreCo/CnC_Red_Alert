@@ -40,8 +40,8 @@
 #define RNDSTRAW_H
 
 
-#include	"straw.h"
-#include	"random.h"
+#include	"STRAW.H"
+#include	"RANDOM.H"
 
 /*
 **	This is a straw terminator class. It will generate random numbers to fill the data request.
@@ -59,7 +59,7 @@ class RandomStraw : public Straw
 		void Seed_Bit(int seed);
 		void Seed_Byte(char seed);
 		void Seed_Short(short seed);
-		void Seed_Long(long seed);
+		void Seed_Long(int seed);
 
 		int Seed_Bits_Needed(void) const;
 

@@ -41,13 +41,13 @@
  *   NullModemConnClass::Packet_Overhead_Size -- number of extra bytes     *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
+#include	"FUNCTION.H"
 #ifdef WIN32
-#include "wincomm.h"
+#include "WINCOMM.H"
 #endif	//WIN32
 #include <stdio.h>
 #include <mem.h>
-#include "nullconn.h"
+#include "NULLCONN.H"
 
 
 /***************************************************************************
@@ -164,7 +164,7 @@ int NullModemConnClass::Send (char *buf, int buflen, void *, int )
 {
 	int *ibuf;
 	SerialHeaderType *header;
-	unsigned long sendlen;
+	unsigned int sendlen;
 
 	/*------------------------------------------------------------------------
 	Error if we haven't been properly initialized

@@ -1,0 +1,10 @@
+# Build output
+/build/
+/build-*/
+/out/
+
+# Game data must never be committed (it is not covered by the GPL source release)
+*.MIX
+*.mix
+*.AUD
+*.VQA

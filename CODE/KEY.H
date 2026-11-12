@@ -37,7 +37,7 @@
 #define KEYBOARD_H
 
 #ifndef WIN32
-#include	"..\wwflat32\include\keyboard.h"
+#include	"../WWFLAT32/INCLUDE/KEYBOARD.H"
 #else
 
 #include	<windows.h>

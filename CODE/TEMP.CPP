@@ -54,25 +54,25 @@ keyframe.cpp
 line 116
 #ifdef FIXIT_SCORE_CRASH
 	char * ptr;
-	unsigned long offcurr, offdiff;
+	unsigned int offcurr, offdiff;
 #else
 	char * ptr, * lockptr;
-	unsigned long offcurr, off16, offdiff;
+	unsigned int offcurr, off16, offdiff;
 #endif
 
 
 line 184
 #ifndef FIXIT_SCORE_CRASH
-		off16 = (unsigned long)lockptr & 0x00003FFFL;
+		off16 = (unsigned int)lockptr & 0x00003FFF;
 #endif
 
 
 line 194
 #ifndef FIXIT_SCORE_CRASH
-		if ( ((offset[2] & 0x00FFFFFFL) - offcurr) >= (0x00010000L - off16) ) {
+		if ( ((offset[2] & 0x00FFFFFF) - offcurr) >= (0x00010000 - off16) ) {
 
 			ptr = (char *)Add_Long_To_Pointer( ptr, offdiff );
-			off16 = (unsigned long)ptr & 0x00003FFFL;
+			off16 = (unsigned int)ptr & 0x00003FFF;
 
 			offcurr += offdiff;
 			offdiff = 0;
@@ -82,10 +82,10 @@ line 194
 
 line 228
 #ifndef FIXIT_SCORE_CRASH
-				if ( ((offset[subframe+2] & 0x00FFFFFFL) - offcurr) >= (0x00010000L - off16) ) {
+				if ( ((offset[subframe+2] & 0x00FFFFFF) - offcurr) >= (0x00010000 - off16) ) {
 
 					ptr = (char *)Add_Long_To_Pointer( ptr, offdiff );
-					off16 = (unsigned long)lockptr & 0x00003FFFL;
+					off16 = (unsigned int)lockptr & 0x00003FFF;
 
 					offcurr += offdiff;
 					offdiff = 0;

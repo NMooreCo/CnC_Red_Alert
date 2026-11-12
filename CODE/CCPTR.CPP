@@ -37,7 +37,7 @@
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 
-#include	"function.h"
+#include	"FUNCTION.H"
 
 /*
 **	These member functions for the CCPtr class cannot be declared inside the
@@ -74,3 +74,18 @@ bool CCPtr<T>::operator > (CCPtr<T> const & rvalue) const
 {
 	return (stricmp((*this)->Name(), rvalue->Name()) > 0);
 }
+
+
+/*
+**	Modern port: explicit instantiations (see HEAP.CPP). The Heap members are specialised
+**	in GLOBALS.CPP.
+*/
+#define RA_CCPTR_TYPES(X) \
+	X(AircraftClass) X(AircraftTypeClass) X(AnimClass) X(AnimTypeClass) X(BuildingClass) \
+	X(BuildingTypeClass) X(BulletClass) X(BulletTypeClass) X(FactoryClass) X(HouseClass) \
+	X(HouseTypeClass) X(InfantryClass) X(InfantryTypeClass) X(OverlayClass) X(OverlayTypeClass) \
+	X(SmudgeClass) X(SmudgeTypeClass) X(TeamClass) X(TeamTypeClass) X(TemplateClass) \
+	X(TemplateTypeClass) X(TerrainClass) X(TerrainTypeClass) X(TriggerClass) X(TriggerTypeClass) \
+	X(UnitTypeClass) X(VesselTypeClass)
+#define RA_INSTANTIATE_CCPTR(T) template class CCPtr<T>;
+RA_CCPTR_TYPES(RA_INSTANTIATE_CCPTR)

@@ -48,9 +48,9 @@
  *   Window_Box -- Draws a fancy box over the specified window.                                *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
+#include	"FUNCTION.H"
 
-#include   "defines.h"   //VG 10/17/96
+#include   "DEFINES.H"   //VG 10/17/96
 
 unsigned char * Font_Palette(int color);
 
@@ -790,7 +790,7 @@ void Conquer_Clip_Text_Print(char const * text, unsigned x, unsigned y, RemapCon
 		**	Set the font and spacing characteristics according to the flag
 		**	value passed in.
 		*/
-		Simple_Text_Print(TXT_NONE, 0, 0, TBLACK, TBLACK, flag);
+		Simple_Text_Print(TXT_NONE, 0, 0, (RemapControlType *)NULL, TBLACK, flag);
 
 		char * source = &buffer[0];
 		unsigned offset = 0;

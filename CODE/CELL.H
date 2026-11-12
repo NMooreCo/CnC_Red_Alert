@@ -38,9 +38,9 @@
 #ifndef CELL_H
 #define CELL_H
 
-#include	"building.h"
-#include	"unit.h"
-#include	"template.h"
+#include	"BUILDING.H"
+#include	"UNIT.H"
+#include	"TEMPLATE.H"
 
 
 /****************************************************************************
@@ -274,7 +274,7 @@ class CellClass
 		*/
 		bool Grow_Tiberium(void);
 		bool Spread_Tiberium(bool forced=false);
-		long Tiberium_Adjust(bool pregame=false);
+		int Tiberium_Adjust(bool pregame=false);
 		void Wall_Update(void);
 		void Concrete_Calc(void);
 		void Recalc_Attributes(void);

@@ -92,7 +92,7 @@
 #ifndef GADGET_H
 #define GADGET_H
 
-#include "link.h"
+#include "LINK.H"
 
 class ControlClass;
 
@@ -248,10 +248,9 @@ class GadgetClass : public LinkClass
 	private:
 		virtual int Clicked_On(KeyNumType & key, unsigned flags, int x, int y);
 };
-
-inline GadgetClass::FlagEnum operator |(GadgetClass::FlagEnum, GadgetClass::FlagEnum);
-inline GadgetClass::FlagEnum operator &(GadgetClass::FlagEnum, GadgetClass::FlagEnum);
-inline GadgetClass::FlagEnum operator ~(GadgetClass::FlagEnum);
+//inline GadgetClass::FlagEnum operator |(GadgetClass::FlagEnum, GadgetClass::FlagEnum);	// (pre-standard guiding declaration; the JSHELL.H template is used)
+//inline GadgetClass::FlagEnum operator &(GadgetClass::FlagEnum, GadgetClass::FlagEnum);	// (pre-standard guiding declaration; the JSHELL.H template is used)
+//inline GadgetClass::FlagEnum operator ~(GadgetClass::FlagEnum);	// (pre-standard guiding declaration; the JSHELL.H template is used)
 
 
 #endif

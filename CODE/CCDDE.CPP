@@ -55,9 +55,9 @@
 #ifdef WIN32
 
 #include <WINDOWS.H>
-#include "ccdde.h"
+#include "CCDDE.H"
 #include <stdio.h>
-#include <timer.h>
+#include <TIMER.H>
 
 DDEServerClass	DDEServer;				//Instance of the DDE Server class
 
@@ -90,7 +90,7 @@ extern void 			WWDebugString (char *string);
  * HISTORY:                                                                                    *
  *    6/8/96 3:19PM ST : Created                                                               *
  *=============================================================================================*/
-BOOL CALLBACK DDE_Callback (unsigned char *data, long length)
+BOOL CALLBACK DDE_Callback (unsigned char *data, int length)
 {
 	return (DDEServer.Callback(data, length));
 }
@@ -219,7 +219,7 @@ DDEServerClass::~DDEServerClass(void)
  * HISTORY:                                                                                    *
  *    6/8/96 3:21PM ST : Created                                                               *
  *=============================================================================================*/
-BOOL DDEServerClass::Callback(unsigned char *data, long length)
+BOOL DDEServerClass::Callback(unsigned char *data, int length)
 {
 
 	/*

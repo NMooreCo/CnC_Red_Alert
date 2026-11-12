@@ -16,7 +16,7 @@
 **	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "mpmgrd.h"
+#include "MPMGRD.H"
 
 extern "C" {
 #include <stdio.h>
@@ -312,16 +312,16 @@ MPlayerManClass::Reset_Response_Time(void)
    // unsupported
 }
 
-unsigned long
+unsigned int
 MPlayerManClass::Response_Time(void)
 {
    return (160 * 60) / 1000;   // 160 microseconds one way (9 ticks)
 }
 
 void
-MPlayerManClass::Set_Timing(unsigned long /*retrydelta*/,
-                            unsigned long /*maxretries*/,
-                            unsigned long /*timeout*/)
+MPlayerManClass::Set_Timing(unsigned int /*retrydelta*/,
+                            unsigned int /*maxretries*/,
+                            unsigned int /*timeout*/)
 {
    // unsupported
 }

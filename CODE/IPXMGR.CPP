@@ -67,25 +67,25 @@
  *   IPXManagerClass::Free_RealMode_Mem -- frees real-mode memory				*
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
+#include	"FUNCTION.H"
 #include <stdio.h>
 #include <mem.h>
 #include <i86.h>
-#include "ipxmgr.h"
-#include "wwlib32.h"	// to enable mono output
+#include "IPXMGR.H"
+#include "WWLIB32.H"	// to enable mono output
 
 #ifdef WINSOCK_IPX
 
-#include "WSProto.h"
-#include "WSPIPX.h"
+#include "WSPROTO.H"
+#include "WSPIPX.H"
 
 #else	//WINSOCK_IPX
 
-#include "ipx95.h"
+#include "IPX95.H"
 #ifdef WIN32
-#include "tcpip.h"
+#include "TCPIP.H"
 #else
-#include	"fakesock.h"
+#include	"FAKESOCK.H"
 #endif	//WIN32
 
 #endif	//WINSOCK_IPX
@@ -93,7 +93,7 @@
 // Turn off "expression is not meaningful".
 #pragma warning 628 9
 
-#include "WolDebug.h"
+#include "WOLDEBUG.H"
 
 /***************************************************************************
  * IPXManagerClass::IPXManagerClass -- class constructor                   *
@@ -180,8 +180,8 @@ IPXManagerClass::IPXManagerClass (int glb_maxlen, int pvt_maxlen,
 	//........................................................................
 	//	Save our socket ID number
 	//........................................................................
-	Socket = (unsigned short)( (((unsigned long)socket & 0x00ff) << 8) |
-		(((unsigned long)socket & 0xff00) >> 8));
+	Socket = (unsigned short)( (((unsigned int)socket & 0x00ff) << 8) |
+		(((unsigned int)socket & 0xff00) >> 8));
 
 	//------------------------------------------------------------------------
 	//	Get the user's IPX local connection number
@@ -423,8 +423,8 @@ int IPXManagerClass::Is_IPX(void)
  * HISTORY:                                                                *
  *   07/02/1995 BR : Created.                                              *
  *=========================================================================*/
-void IPXManagerClass::Set_Timing (unsigned long retrydelta,
-	unsigned long maxretries, unsigned long timeout)
+void IPXManagerClass::Set_Timing (unsigned int retrydelta,
+	unsigned int maxretries, unsigned int timeout)
 {
 	int i;
 
@@ -1506,8 +1506,8 @@ int IPXManagerClass::Private_Num_Receive(int id)
  *=========================================================================*/
 void IPXManagerClass::Set_Socket(unsigned short socket)
 {
-	Socket = (unsigned short)( (((unsigned long)socket & 0x00ff) << 8) |
-		(((unsigned long)socket & 0xff00) >> 8));
+	Socket = (unsigned short)( (((unsigned int)socket & 0x00ff) << 8) |
+		(((unsigned int)socket & 0xff00) >> 8));
 
 }	/* end of Set_Socket */
 
@@ -1527,10 +1527,10 @@ void IPXManagerClass::Set_Socket(unsigned short socket)
  * HISTORY:                                                                *
  *   05/04/1995 BRR : Created.                                             *
  *=========================================================================*/
-unsigned long IPXManagerClass::Response_Time(void)
+unsigned int IPXManagerClass::Response_Time(void)
 {
-	unsigned long resp;
-	unsigned long maxresp = 0;
+	unsigned int resp;
+	unsigned int maxresp = 0;
 	int i;
 
 	for (i = 0; i < NumConnections; i++) {
@@ -1560,7 +1560,7 @@ unsigned long IPXManagerClass::Response_Time(void)
  * HISTORY:                                                                *
  *   05/04/1995 BRR : Created.                                             *
  *=========================================================================*/
-unsigned long IPXManagerClass::Global_Response_Time(void)
+unsigned int IPXManagerClass::Global_Response_Time(void)
 {
 	if (GlobalChannel) {
 		return (GlobalChannel->Queue->Avg_Response_Time());
@@ -1619,8 +1619,8 @@ void IPXManagerClass::Reset_Response_Time(void)
 void * IPXManagerClass::Oldest_Send(void)
 {
 	int i,j;
-	unsigned long time;
-	unsigned long mintime = 0xffffffff;
+	unsigned int time;
+	unsigned int mintime = 0xffffffff;
 	SendQueueType *send_entry;				// ptr to send entry header
 	CommHeaderType *packet;
 	void *buf = NULL;
@@ -1835,7 +1835,7 @@ int IPXManagerClass::Alloc_RealMode_Mem(void)
 	int size;									// required size of allocation
 	unsigned char *realmode;				// start addresses of real-mode data
 	int realmodelen;							// length of real-mode data
-	unsigned long func_val;
+	unsigned int func_val;
 	char *p;										// for parsing buffer
 	int i;
 
@@ -1898,7 +1898,7 @@ int IPXManagerClass::Alloc_RealMode_Mem(void)
 	Selector = regs.w.dx;
 	Segment = regs.w.ax;
 	RealMemSize = size;
-	RealModeData = (RealModeDataType *)(((long)Segment) << 4);
+	RealModeData = (RealModeDataType *)(((int)Segment) << 4);
 
 	//------------------------------------------------------------------------
 	//	Lock the memory (since we're servicing interrupts with it)
@@ -1910,10 +1910,10 @@ int IPXManagerClass::Alloc_RealMode_Mem(void)
 	memset (&regs, 0 ,sizeof(regs));
 	segread (&sregs);
 	regs.x.eax = DPMI_LOCK_MEM;							// DPMI function to call
-	regs.x.ebx = ((long)RealModeData & 0xffff0000) >> 16;
-	regs.x.ecx = ((long)RealModeData & 0x0000ffff);
-	regs.x.esi = ((long)RealMemSize & 0xffff0000) >> 16;
-	regs.x.edi = ((long)RealMemSize & 0x0000ffff);
+	regs.x.ebx = ((int)RealModeData & 0xffff0000) >> 16;
+	regs.x.ecx = ((int)RealModeData & 0x0000ffff);
+	regs.x.esi = ((int)RealMemSize & 0xffff0000) >> 16;
+	regs.x.edi = ((int)RealMemSize & 0x0000ffff);
 	int386x (DPMI_INT, &regs, &regs, &sregs);			// call DPMI
 
 	//------------------------------------------------------------------------
@@ -1931,14 +1931,14 @@ int IPXManagerClass::Alloc_RealMode_Mem(void)
 	//------------------------------------------------------------------------
 	//	Copy the Real-mode code into our memory buffer
 	//------------------------------------------------------------------------
-	p = (char *)(((long)Segment) << 4);
+	p = (char *)(((int)Segment) << 4);
 	memcpy (p,realmode,realmodelen);
 	p += realmodelen;
 
 	//------------------------------------------------------------------------
 	//	Compute & save the entry point for the real-mode packet handler
 	//------------------------------------------------------------------------
-	func_val = (unsigned long)RealModeData;
+	func_val = (unsigned int)RealModeData;
 	Handler = (((func_val & 0xffff0) << 12) |
 		((func_val & 0x000f) + RealModeData->FuncOffset));
 
@@ -1971,12 +1971,12 @@ int IPXManagerClass::Alloc_RealMode_Mem(void)
 	//------------------------------------------------------------------------
 	RealModeData->NumBufs = (short)NumBufs;
 	RealModeData->BufferFlags = (char *)
-		((((long)BufferFlags & 0xffff0) << 12) |
-		((long)BufferFlags & 0x0000f));
+		((((int)BufferFlags & 0xffff0) << 12) |
+		((int)BufferFlags & 0x0000f));
 	RealModeData->PacketSize = (short)FullPacketLen;
 	RealModeData->FirstPacketBuf = (IPXHeaderType *)
-		((((long)FirstHeaderBuf & 0xffff0) << 12) |
-		((long)FirstHeaderBuf & 0x0000f));
+		((((int)FirstHeaderBuf & 0xffff0) << 12) |
+		((int)FirstHeaderBuf & 0x0000f));
 	RealModeData->CurIndex = 0;
 	RealModeData->CurPacketBuf = RealModeData->FirstPacketBuf;
 	RealModeData->Semaphore = 0;
@@ -2038,10 +2038,10 @@ int IPXManagerClass::Free_RealMode_Mem(void)
 	memset (&regs, 0 ,sizeof(regs));
 	segread (&sregs);
 	regs.x.eax = DPMI_UNLOCK_MEM;							// DPMI function to call
-	regs.x.ebx = ((long)RealModeData & 0xffff0000) >> 16;
-	regs.x.ecx = ((long)RealModeData & 0x0000ffff);
-	regs.x.esi = ((long)RealMemSize & 0xffff0000) >> 16;
-	regs.x.edi = ((long)RealMemSize & 0x0000ffff);
+	regs.x.ebx = ((int)RealModeData & 0xffff0000) >> 16;
+	regs.x.ecx = ((int)RealModeData & 0x0000ffff);
+	regs.x.esi = ((int)RealMemSize & 0xffff0000) >> 16;
+	regs.x.edi = ((int)RealMemSize & 0x0000ffff);
 	int386x (DPMI_INT, &regs, &regs, &sregs);			// call DPMI
 
 	//------------------------------------------------------------------------

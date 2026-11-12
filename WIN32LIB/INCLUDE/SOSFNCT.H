@@ -213,7 +213,6 @@ VOID  sosDIGILoad_End( VOID );
 VOID  sosDIGICntl_Start( VOID );
 VOID  sosDIGICntl_End( VOID );
 
-#pragma pack()
-
+#pragma pack(1)		/* RA_PORT: Watcom "pack()" restored the /zp1 default. */
 #endif
 

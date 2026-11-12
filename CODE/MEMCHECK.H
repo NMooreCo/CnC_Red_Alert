@@ -51,7 +51,7 @@
         #if-#endif's around the header file's inclusion, as in
 
                     #ifdef DEBUG        // DON'T DO THIS!
-                    #include <memcheck.h>
+                    #include <MEMCHECK.H>
                     #endif
 
         Using the "#ifdef DEBUG" as above doesn't allow the
@@ -539,7 +539,7 @@ extern "C" {
 #   ifdef LDATA
         /* If in far data, stack could be in its own
             seg. tho not usually. see /FARSTACK */
-#       define  STACKEND    ((unsigned) ((unsigned long)&end) + STACKSLOP)
+#       define  STACKEND    ((unsigned) ((unsigned int)&end) + STACKSLOP)
 #   else
         /*  If near data, must be in DS; use near ptr */
 #       define  STACKEND    ((unsigned)&end + STACKSLOP)
@@ -1030,10 +1030,10 @@ typedef char *          MCSF;       /* MemCheck source file */
 typedef unsigned int    MCSL;       /* MemCheck source line */
 typedef unsigned char   MCID;       /* MemCheck function ID */
 
-typedef unsigned long   MCEFLAGS;   /* MemCheck error flags */
+typedef unsigned int   MCEFLAGS;   /* MemCheck error flags */
 typedef void _MCFAR *   MCPTR;      /* type of ptr stored in tree */
 typedef unsigned char   MRFLAGS;    /* flags in MEMRECORD */
-typedef unsigned long   MCFLAGS;    /* MemCheck settings flags */
+typedef unsigned int   MCFLAGS;    /* MemCheck settings flags */
 
 /* MemCheck Rocket allocator prototypes */
 typedef void _MCFAR * (_MCFAR *ROCKETALLOCF)    (size_t);
@@ -1051,8 +1051,8 @@ typedef struct MemRecord
         MCPTR           ptr;            /* heap/registered ptr */
         MCID            mcid;           /* MemCheck function ID */
         MRFLAGS         flags;          /* internal MC flags */
-        unsigned long   allocno;        /* cardinality of allocation */
-        unsigned long   size;           /* size of block */
+        unsigned int   allocno;        /* cardinality of allocation */
+        unsigned int   size;           /* size of block */
         MCSF            file;           /* source file */
         MCSL            line;           /* source line */
 
@@ -1094,11 +1094,11 @@ typedef struct MCSETTINGS {
 
 
 /* Random 32-bit .CFG file sentinel */
-#define MC_CFG_FILE_SENTINEL        ( (unsigned long) 0x10F23BC4 )
+#define MC_CFG_FILE_SENTINEL        ( (unsigned int) 0x10F23BC4 )
 
 typedef struct MCCfgInfo {
 
-    unsigned long   sentinel;           /* always MC_CFG_FILE_SENTINEL */
+    unsigned int   sentinel;           /* always MC_CFG_FILE_SENTINEL */
     MCSETTINGS      MemCheckSettings;   /* saved by user */
 
     } MCCFGINFO, *MCCFGINFOP;
@@ -1125,15 +1125,15 @@ typedef struct {
 /* 32-bit exception stack */
 typedef struct {
 
-    unsigned long   xRetEIP;
+    unsigned int   xRetEIP;
     unsigned short  xRsvd1;
     unsigned short  xRetCS;
-    unsigned long   xErr;
-    unsigned long   xEIP;
+    unsigned int   xErr;
+    unsigned int   xEIP;
     unsigned short  xRsvd2;
     unsigned short  xCS;
-    unsigned long   xFlags;
-    unsigned long   xESP;
+    unsigned int   xFlags;
+    unsigned int   xESP;
     unsigned short  xRsvd3;
     unsigned short  xSS;
 
@@ -1158,12 +1158,10 @@ typedef struct {
 typedef struct {
     int             nAction;    /* MCCS_ENTER/LEAVE_SECTION */
     int *           pLocked;    /* # times entered          */
-    unsigned long   ulRsvd;     /* internal use             */
+    unsigned int   ulRsvd;     /* internal use             */
     } MCCRITSECT;
 
-#pragma pack()
-
-
+#pragma pack(1)		/* RA_PORT: Watcom "pack()" restored the /zp1 default. */
 #define MC_FEXIT    ( (MCID) 0xFF )
 
 
@@ -1186,7 +1184,7 @@ typedef void (_MCCALLBACK *TRACKF) (int, MEMRECP);
 typedef void (_MCCALLBACK * CHECKF) (
                 int ,           /* 0 or MCE_... error val for this xfer op */
                 void _MCFAR *,  /* user ptr dest */
-                long            /* bytes to copy to dest */
+                int            /* bytes to copy to dest */
             );
 
 /* Funcs called at startup or shutdown */
@@ -1303,12 +1301,12 @@ typedef void (_MCFAR _MCCDECL *_SSFRAMEHANDLER ) (
 /*  Evaporate all MemCheck 3.0 API
     statements to do nothing, safely... */
 
-#   define  mc_alloc_count()                0L
-#   define  mc_blocks_allocated()           0L
-#   define  mc_blocks_freed()               0L
+#   define  mc_alloc_count()                0
+#   define  mc_blocks_allocated()           0
+#   define  mc_blocks_freed()               0
 #   define  mc_breakpoint(fi)               0
-#   define  mc_bytes_allocated()            0L
-#   define  mc_bytes_freed()                0L
+#   define  mc_bytes_allocated()            0
+#   define  mc_bytes_freed()                0
 #   define  mc_check(p)                     0
 #   define  mc_check_buffers()              0
 #   define  mc_cur_file()                   "No file"
@@ -1334,7 +1332,7 @@ typedef void (_MCFAR _MCCDECL *_SSFRAMEHANDLER ) (
 #   define  mc_line()                       0
 #   define  mc_load_debugger()
 #   define  mc_location_text()              "MemCheck not active"
-#   define  mc_memory_leaked()              0L
+#   define  mc_memory_leaked()              0
 #   define  mc_memrec()                     (MEMRECP)NULL
 #   define  mc_memrec_text()                "MemCheck not active"
 #   define  mc_msg_continued()              0
@@ -1462,7 +1460,7 @@ extern "C" {
 
         static char *_thisfile = __FILE__;
         #define _MCSF_  ((MCSF)thisfile)
-        #include <memcheck.h>
+        #include <MEMCHECK.H>
 
     This is only needed under MSC pre-VC++.
     Borland has "-d" Merge duplicate strings.
@@ -1535,11 +1533,11 @@ extern void cdecl mcexitfp_endcheck (void);
 /* Internal helper macro - proto shorthand */
 #define _LOCP   MCSF,MCSL
 
-extern  unsigned long _MCAPI mc_alloc_count (void);
-extern  unsigned long _MCAPI mc_blocks_allocated (void);
-extern  unsigned long _MCAPI mc_blocks_freed     (void);
-extern  unsigned long _MCAPI mc_bytes_allocated  (void);
-extern  unsigned long _MCAPI mc_bytes_freed      (void);
+extern  unsigned int _MCAPI mc_alloc_count (void);
+extern  unsigned int _MCAPI mc_blocks_allocated (void);
+extern  unsigned int _MCAPI mc_blocks_freed     (void);
+extern  unsigned int _MCAPI mc_bytes_allocated  (void);
+extern  unsigned int _MCAPI mc_bytes_freed      (void);
 extern  int         _MCAPI mc_check (void _MCFAR *);
 extern  int         _MCAPI mc_check_buffers (void);
 extern  MCSF        _MCAPI mc_cur_file (void);
@@ -1565,13 +1563,13 @@ extern  int         _MCAPI mc_is_active (void);
 extern  MCSL        _MCAPI mc_line (void);
 extern  char *      _MCAPI mc_location_text (void);
 #define  mc_load_debugger()     _asm int 3
-extern  unsigned long _MCAPI mc_memory_leaked (void);
+extern  unsigned int _MCAPI mc_memory_leaked (void);
 extern  char *      _MCAPI mc_memrec_text (MEMRECP);
 extern  MEMRECP     _MCAPI mc_memrec (void);
 extern  int         _MCAPI mc_msg_continued (void);
 extern  int         _MCAPI mc_nullcheck (void);
 extern  void        _MCAPI mc_null_snapshot (void);
-extern  void        _MCAPI mc_register (void _MCFAR *, unsigned long);
+extern  void        _MCAPI mc_register (void _MCFAR *, unsigned int);
 extern  void        _MCAPI mc_report (REPORTF);
 extern  void        _MCAPI mc_set_alignsize (unsigned int);
 extern  void        _MCAPI mc_set_breakfile (char *);
@@ -1633,7 +1631,7 @@ extern void _MCCDECL _MCFAR _direct_output (char _MCFAR *);
 extern  int     _MCAPI mc_check_transfer(
                             void _MCFAR *,
                             void _MCFAR *,
-                            unsigned long,
+                            unsigned int,
                             unsigned,
                             unsigned,
                             MEMRECP);
@@ -1706,13 +1704,13 @@ extern  void    _MCCALLBACK startf_info     (void); /* write options to log */
 
 /* *** Stock Check Functions *** */
 
-extern  void    _MCCALLBACK checkf_default (int,void _MCFAR *,long);
+extern  void    _MCCALLBACK checkf_default (int,void _MCFAR *,int);
 extern  void    _MCCALLBACK checkf_dataseg (
     int,            /* 0 or MCE_... error val for this xfer op */
     void _MCFAR *,  /* user ptr dest */
-    long            /* bytes to copy to dest */
+    int            /* bytes to copy to dest */
     );
-extern  void    _MCCALLBACK checkf_verify_heap (int,void _MCFAR *,long);
+extern  void    _MCCALLBACK checkf_verify_heap (int,void _MCFAR *,int);
                             
 /* *** Stock Global Interception Functions *** */
 
@@ -1755,7 +1753,7 @@ extern unsigned int _MCAPI mc_stackend (void);  /* low  address */
     ERF or error reporting function).  These variables provide
     a link-level method of setting these functions:
 
-        #include <memcheck.h>
+        #include <MEMCHECK.H>
         :
         // Sets custom erf at link-time
         MC_SET_ERF (erf_custom_startup);
@@ -1818,13 +1816,13 @@ extern unsigned char _MCVAR MC_FreedBufferFillChar;
     (any *one* module will work fine) after the MemCheck 
     header file has been included:
 
-        #include <memcheck.h>
+        #include <MEMCHECK.H>
         MC_SET_...(params);
 
     For example, to change the default log file that MemCheck
     uses at runtime to C:\MYDEV\MYPROG.LOG:
 
-        #include <memcheck.h>
+        #include <MEMCHECK.H>
         MC_SET_LOGFILE ("C:\\MYDEV\\MPROG.LOG");
 
     Most of these macros have runtime function equivalents,
@@ -1874,7 +1872,7 @@ extern unsigned char _MCVAR MC_FreedBufferFillChar;
     MemCheck handles in protected mode by default.
 
     Usage (exactly as typed):
-            #include <memcheck.h>
+            #include <MEMCHECK.H>
             :
             MC_BEGIN_EXCEPTLIST
                 MC_HANDLE_EXCEPTION (0x0)
@@ -1988,8 +1986,8 @@ _RTLDECL(_nfree,    void,       (void _MCNEAR *));
 /* *** Borland *** */
 
 #if !defined(_CC_POWERPACK32_)  
-_RTLDECL(farmalloc, void _MCFAR *,  (unsigned long));
-_RTLDECL(farcalloc, void _MCFAR *,  (unsigned long, unsigned long));
+_RTLDECL(farmalloc, void _MCFAR *,  (unsigned int));
+_RTLDECL(farcalloc, void _MCFAR *,  (unsigned int, unsigned int));
 _RTLDECL(farfree,   void,           (void _MCFAR *));
 
 /* *** General Porpoise *** */
@@ -2343,7 +2341,7 @@ _RTLDECL(_fstrcpy,  char far * _MCFARGLUE,  (char far *,const void far *));
          Module MEM_GET.C ... 
         :
         #define NO_INTERCEPT
-        #include <memcheck.h>
+        #include <MEMCHECK.H>
         :
 
     MCCONFIG may be used to configure even the shrouded
@@ -2446,7 +2444,7 @@ public:
     In new and delete modules, NO_INTERCEPT should be #defined, e.g.
 
         #define NO_INTERCEPT
-        #include <memcheck.h>
+        #include <MEMCHECK.H>
         :
         void * operator new ( size_t size )
         {

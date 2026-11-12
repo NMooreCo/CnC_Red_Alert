@@ -39,9 +39,9 @@
  * IPXInterfaceClass::Message_Handler -- Handler for windows messages relating to IPX          *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
-#include	"wspipx.h"
-#include	"ipxaddr.h"
+#include	"FUNCTION.H"
+#include	"WSPIPX.H"
+#include	"IPXADDR.H"
 
 #include	<assert.h>
 #include	<stdio.h>
@@ -229,7 +229,7 @@ bool IPXInterfaceClass::Open_Socket( SOCKET socketnum )
 	/*
 	** Set the various options for this IPX socket
 	*/
-	unsigned long 	optval = true;
+	unsigned int 	optval = true;
 	int 	packet_type = 4;
 
 	/*
@@ -299,7 +299,7 @@ bool IPXInterfaceClass::Open_Socket( SOCKET socketnum )
  * HISTORY:                                                                                    *
  *    8/4/97 5:55PM ST : Created                                                               *
  *=============================================================================================*/
-long IPXInterfaceClass::Message_Handler(HWND , UINT message, UINT , LONG lParam)
+int IPXInterfaceClass::Message_Handler(HWND , UINT message, UINT , LONG lParam)
 {
 
 	int					addr_len;		// Length of address structure

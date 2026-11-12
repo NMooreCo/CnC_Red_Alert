@@ -46,8 +46,8 @@
 /*
 ********************************* Includes **********************************
 */
-#include "wwstd.h"
-#include	"shape.h"
+#include "WWSTD.H"
+#include	"SHAPE.H"
 
 
 /***************************************************************************
@@ -200,7 +200,7 @@ VOID * cdecl Extract_Shape(VOID const *buffer, int shape)
 {
 	ShapeBlock_Type *block = (ShapeBlock_Type*) buffer;
 	int numshapes;		// Number of shapes
-	long offset;			// Offset of shape data, from start of block
+	int offset;			// Offset of shape data, from start of block
 	char *bytebuf = (char*) buffer;
 
 	/*

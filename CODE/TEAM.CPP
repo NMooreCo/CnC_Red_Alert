@@ -75,8 +75,8 @@
  *   _Is_It_Playing -- Determines if unit is active and an initiated team member.              *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include "function.h"
-#include "mission.h"
+#include "FUNCTION.H"
+#include "MISSION.H"
 
 
 /***********************************************************************************************
@@ -1481,8 +1481,8 @@ void TeamClass::Calc_Center(TARGET & center, TARGET & close_member) const
 
 	} else {
 
-		long	x = 0;								// Accumulated X coordinate.
-		long	y = 0;								// Accumulated Y coordinate.
+		int	x = 0;								// Accumulated X coordinate.
+		int	y = 0;								// Accumulated Y coordinate.
 		int   dist = 0;							// Closest recorded distance to team target.
 		int	quantity = 0;						// Number of team members counted.
 		FootClass const * closest = 0;		// Closest member to target.

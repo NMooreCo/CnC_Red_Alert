@@ -38,19 +38,19 @@
 #ifndef EXTERNS_H
 #define EXTERNS_H
 
-#include	"cell.h"
+#include	"CELL.H"
 
 #ifdef SCENARIO_EDITOR
-#include	"mapedit.h"
+#include	"MAPEDIT.H"
 #endif
-#include	"techno.h"
-#include	"type.h"
-#include	"building.h"
-#include	"unit.h"
-#include	"credits.h"
-#include	"goptions.h"
-#include	"options.h"
-#include	"infantry.H"
+#include	"TECHNO.H"
+#include	"TYPE.H"
+#include	"BUILDING.H"
+#include	"UNIT.H"
+#include	"CREDITS.H"
+#include	"GOPTIONS.H"
+#include	"OPTIONS.H"
+#include	"INFANTRY.H"
 
 
 extern char _staging_buffer[32000];
@@ -65,7 +65,7 @@ void _PRO(void);
 typedef MixFileClass<CCFileClass>	MFCD;
 
 extern bool IsVQ640;
-extern unsigned long GameVersion;
+extern unsigned int GameVersion;
 extern bool Debug_MotionCapture;
 extern bool Debug_Rotate;
 extern bool Debug_Quiet;
@@ -175,7 +175,7 @@ extern VoxType						SpeakQueue;
 extern bool							PlayerWins;
 extern bool							PlayerLoses;
 extern bool							PlayerRestarts;
-extern long							Frame;
+extern int							Frame;
 extern VoxType						SpeechRecord[2];
 extern void *						SpeechBuffer[2];
 extern int							PreserveVQAScreen;
@@ -305,15 +305,15 @@ extern TTimerClass<SystemTimerClass> TickCount;
 extern bool							PassedProximity;	// used in display.cpp
 extern HousesType					Whom;
 extern _VQAConfig					AnimControl;
-extern long							SpareTicks;
-extern long							PathCount;
-extern long							CellCount;
-extern long							TargetScan;
-extern long							SidebarRedraws;
+extern int							SpareTicks;
+extern int							PathCount;
+extern int							CellCount;
+extern int							TargetScan;
+extern int							SidebarRedraws;
 extern DMonoType					MonoPage;
 extern bool							GameActive;
 extern bool							SpecialFlag;
-extern bool							ScenarioInit;
+extern int							ScenarioInit;
 extern HouseClass *				PlayerPtr;
 extern PaletteClass 				CCPalette;
 extern PaletteClass 				BlackPalette;
@@ -324,12 +324,12 @@ extern PaletteClass 				GamePalette;
 extern PaletteClass 				OriginalPalette;
 extern PaletteClass				ScorePalette;
 extern int							BuildLevel;
-extern unsigned long				ScenarioCRC;
+extern unsigned int				ScenarioCRC;
 
 #ifdef FIXIT_VERSION_3
 extern bool							bAftermathMultiplayer;		//	Is multiplayer game being played with Aftermath rules?
 #else
-extern unsigned long 				PlayingAgainstVersion;		// Negotiated version number
+extern unsigned int 				PlayingAgainstVersion;		// Negotiated version number
 extern bool							Version107InMix;				// Is there a v1.07 in the game
 #endif
 
@@ -378,10 +378,10 @@ extern char const * const					SpecialWeaponFile[SPC_COUNT];
 extern char const * const					ArmorName[ARMOR_COUNT];
 extern char const * const					QuarryName[QUARRY_COUNT];
 extern char const * const					FormationName[FORMATION_COUNT];
-extern long const								PlayCodes[];
-extern long const								CheatCodes[];
+extern int const								PlayCodes[];
+extern int const								CheatCodes[];
 //extern char const * const					ProjectileNames[];
-extern long const								EditorCodes[];
+extern int const								EditorCodes[];
 extern char const * const					SourceName[SOURCE_COUNT];
 extern int const								GroundColor[LAND_COUNT];
 extern int const								SnowColor[LAND_COUNT];
@@ -423,8 +423,8 @@ extern int MouseInstalled;
 
 
 extern int LogLevel;
-extern unsigned long LogLevelTime[ MAX_LOG_LEVEL ];
-extern unsigned long LogLastTime;
+extern unsigned int LogLevelTime[ MAX_LOG_LEVEL ];
+extern unsigned int LogLastTime;
 
 extern class DynamicVectorClass<EventChoiceClass> test2;
 extern class DynamicVectorClass<ActionChoiceClass> test3;
@@ -462,9 +462,9 @@ extern bool IsTheaterShape;
 extern char PlanetWestwoodHandle[];			//Planet WW user name
 extern char PlanetWestwoodPassword[];		//Planet WW password
 extern char PlanetWestwoodIPAddress[];		//IP of server or other player
-extern long PlanetWestwoodPortNumber;		//Port number to send to
+extern int PlanetWestwoodPortNumber;		//Port number to send to
 extern bool PlanetWestwoodIsHost;				//Flag true if player has control of game options
-extern unsigned long PlanetWestwoodGameID;	//Game ID
+extern unsigned int PlanetWestwoodGameID;	//Game ID
 extern HWND	WChatHWND;							//Handle to Wchat window.
 extern bool	GameStatisticsPacketSent;
 extern bool	ConnectionLost;
@@ -493,11 +493,11 @@ bool Find_Local_Scenario (char *description, char *filename, unsigned int length
 
 #ifdef MPEGMOVIE // Denzil 6/15/98
 #ifdef MCIMPEG
-#include "mcimovie.h"
+#include "MCIMOVIE.H"
 extern MCIMovie* MciMovie;
 #endif
 
-#include "mpgset.h"
+#include "MPGSET.H"
 extern MPGSettings* MpgSettings;
 #endif
 

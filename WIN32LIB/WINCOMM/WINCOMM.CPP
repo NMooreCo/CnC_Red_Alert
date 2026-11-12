@@ -48,13 +48,13 @@
 
 
 //#include "function.h"
-#include 	"wincomm.h"
-#include	"timer.h"
-#include	"keyboard.h"
-#include	"misc.h"
+#include 	"WINCOMM.H"
+#include	"TIMER.H"
+#include	"KEYBOARD.H"
+#include	"MISC.H"
 #include <io.h>
-#include <sys\types.h>
-#include <sys\stat.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <fcntl.h>
 
 
@@ -700,7 +700,7 @@ void WinModemClass::Set_Modem_Dial_Type(WinCommDialMethodType method)
 unsigned WinModemClass::Get_Modem_Status(void)
 {
 	DWORD		modem_stat = 0;
-	unsigned	long return_stat = 0;
+	unsigned	int return_stat = 0;
 
 	/*
 	** Get the modem status

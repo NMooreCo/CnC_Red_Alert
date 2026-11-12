@@ -38,7 +38,7 @@
  *   operator delete[] -- Overides the array version of delete[]           *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include "wwmem.h"
+#include "WWMEM.H"
 
 
 /*=========================================================================*/
@@ -62,7 +62,7 @@
  *=========================================================================*/
 void * operator new(size_t size) 
 {
-	return (Alloc((unsigned long) size, MEM_NEW));
+	return (Alloc((unsigned int) size, MEM_NEW));
 }
 
 

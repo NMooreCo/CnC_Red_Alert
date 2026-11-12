@@ -16,12 +16,12 @@
 **	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "function.h"
+#include "FUNCTION.H"
 
 extern "C" {
-#include "soscomp.h"
-#include "itable.cpp"
-#include "dtable.cpp"
+#include "SOSCOMP.H"
+#include "ITABLE.CPP"
+#include "DTABLE.CPP"
 
 
 void sosCODECInitStream(_SOS_COMPRESS_INFO* info)
@@ -31,10 +31,10 @@ void sosCODECInitStream(_SOS_COMPRESS_INFO* info)
 }
 
 
-unsigned long sosCODECDecompressData(_SOS_COMPRESS_INFO* info, unsigned long numbytes)
+unsigned int sosCODECDecompressData(_SOS_COMPRESS_INFO* info, unsigned int numbytes)
 {
-	unsigned long token;
-	long sample;
+	unsigned int token;
+	int sample;
 	unsigned int fastindex;
 	unsigned char *inbuff;
 	unsigned short *outbuff;
@@ -55,27 +55,27 @@ unsigned long sosCODECDecompressData(_SOS_COMPRESS_INFO* info, unsigned long num
 		fastindex += token & 0x0f;
 		sample += DiffTable[fastindex];
 		fastindex = IndexTable[fastindex];
-		if (sample > 32767L)
-			sample = 32767L;
-		if (sample < -32768L)
-			sample = -32768L;
+		if (sample > 32767)
+			sample = 32767;
+		if (sample < -32768)
+			sample = -32768;
 		*outbuff++ = (unsigned short)sample;
 
 		// Second nibble
 		fastindex += token >> 4;
 		sample += DiffTable[fastindex];
 		fastindex = IndexTable[fastindex];
-		if (sample > 32767L)
-			sample = 32767L;
-		if (sample < -32768L)
-			sample = -32768L;
+		if (sample > 32767)
+			sample = 32767;
+		if (sample < -32768)
+			sample = -32768;
 		*outbuff++ = (unsigned short)sample;
 	} while(--numbytes);
 
 SkipLoop:
 
 	// Put local vars back
-	info->dwSampleIndex = (unsigned long)fastindex;
+	info->dwSampleIndex = (unsigned int)fastindex;
 	info->dwPredicted = sample;
 	return(numbytes << 2);
 }

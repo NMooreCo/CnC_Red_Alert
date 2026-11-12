@@ -46,8 +46,8 @@
 
 #include <string.h>
 #include <stdio.h>
-#include <sys\types.h>
-#include <sys\stat.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <fcntl.h>
 #include <malloc.h>
 #include <io.h>

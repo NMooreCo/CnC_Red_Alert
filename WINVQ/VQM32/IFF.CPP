@@ -57,9 +57,9 @@
 #include <malloc.h>
 #include <io.h>
 #include <fcntl.h>
-#include <sys\stat.h>
-#include <mem.h>
-#include "iff.h"
+#include <sys/stat.h>
+#include <MEM.H>
+#include "IFF.H"
 
 
 /****************************************************************************
@@ -85,7 +85,7 @@
 *
 ****************************************************************************/
 
-IFFHandle *OpenIFF(char *name, long mode)
+IFFHandle *OpenIFF(char *name, int mode)
 {
 	IFFHandle *iff;
 
@@ -153,7 +153,7 @@ IFFHandle *OpenIFF(char *name, long mode)
 
 void CloseIFF(IFFHandle *iff)
 {
-	long length;
+	int length;
 
 	/* Write the length of the FORM */
 	if ((iff->flags & IFFF_WRITE) && ((iff->form.size == 0)
@@ -193,10 +193,10 @@ void CloseIFF(IFFHandle *iff)
 *
 ****************************************************************************/
 
-long ReadForm(IFFHandle *iff, FormHeader *form)
+int ReadForm(IFFHandle *iff, FormHeader *form)
 {
 	FormHeader *ptr;
- 	long       error;
+ 	int       error;
 
 	/* Read the FORM into the IFFHandle or the provided FormHeader. */
 	if (form == NULL) {
@@ -246,10 +246,10 @@ long ReadForm(IFFHandle *iff, FormHeader *form)
 *
 ****************************************************************************/
 
-long WriteForm(IFFHandle *iff, FormHeader *form)
+int WriteForm(IFFHandle *iff, FormHeader *form)
 {
 	FormHeader *ptr;
-	long       error = 0;
+	int       error = 0;
 
 	/* Use the FORM from the IFFHandle or the provided FormHeader. */
 	if (form == NULL) {
@@ -296,9 +296,9 @@ long WriteForm(IFFHandle *iff, FormHeader *form)
 *
 ****************************************************************************/
 
-long ReadChunkHeader(IFFHandle *iff)
+int ReadChunkHeader(IFFHandle *iff)
 {
-	long error = 0;
+	int error = 0;
 
 	/* Skip any part of the previous chunk that hasn't been processed. */
 	if ((iff->cn.size != 0) && (iff->cn.scan < PADSIZE(iff->cn.size))) {
@@ -354,9 +354,9 @@ long ReadChunkHeader(IFFHandle *iff)
 *
 ****************************************************************************/
 
-long WriteChunkHeader(IFFHandle *iff, long id, long size)
+int WriteChunkHeader(IFFHandle *iff, int id, int size)
 {
-	long error = 0;
+	int error = 0;
 
 	/* Make sure it is okay to write. */
 	if (iff->flags & IFFF_WRITE) {
@@ -399,10 +399,10 @@ long WriteChunkHeader(IFFHandle *iff, long id, long size)
 *
 ****************************************************************************/
 
-long WriteChunk(IFFHandle *iff, long id, char *buffer, long size)
+int WriteChunk(IFFHandle *iff, int id, char *buffer, int size)
 {
 	Context cn;
- 	long    actual;
+ 	int    actual;
 
 	/* Make sure we can write to this file. */
 	if (iff->flags & IFFF_WRITE) {
@@ -469,9 +469,9 @@ long WriteChunk(IFFHandle *iff, long id, char *buffer, long size)
 *
 ****************************************************************************/
 
-long WriteChunkBytes(IFFHandle *iff, char *buffer, long size)
+int WriteChunkBytes(IFFHandle *iff, char *buffer, int size)
 {
-	long actual;
+	int actual;
 
 	/* Make sure we can write to this file. */
 	if (iff->flags & IFFF_WRITE) {
@@ -518,9 +518,9 @@ long WriteChunkBytes(IFFHandle *iff, char *buffer, long size)
 *
 ****************************************************************************/
 
-long ReadChunkBytes(IFFHandle *iff, char *buffer, long size)
+int ReadChunkBytes(IFFHandle *iff, char *buffer, int size)
 {
-	long actual;
+	int actual;
 
 	/* If the actual bytes remaining in the current chunk is less than
 	 * the requested bytes to read then adjust the read request size
@@ -566,9 +566,9 @@ long ReadChunkBytes(IFFHandle *iff, char *buffer, long size)
 *
 ****************************************************************************/
 
-long SkipChunkBytes(IFFHandle *iff, long skip)
+int SkipChunkBytes(IFFHandle *iff, int skip)
 {
-	long error = 0;
+	int error = 0;
 
 	if (lseek(iff->fh, skip, SEEK_CUR) == -1) {
 		error = IFFERR_READ;
@@ -605,10 +605,10 @@ long SkipChunkBytes(IFFHandle *iff, long skip)
 *
 ****************************************************************************/
 
-long FindChunk(IFFHandle *iff, long id)
+int FindChunk(IFFHandle *iff, int id)
 {
-	long found = 0;
-	long error = 0;
+	int found = 0;
+	int error = 0;
 
 	/* Invalid handle check. */
 	if (iff != NULL) {
@@ -654,7 +654,7 @@ long FindChunk(IFFHandle *iff, long id)
 *
 ****************************************************************************/
 
-char *IDtoStr(long id, char *buf)
+char *IDtoStr(int id, char *buf)
 {
 	memcpy(buf, &id, 4);
 	*(buf + 4) = 0;
@@ -686,9 +686,9 @@ char *IDtoStr(long id, char *buf)
 *
 ****************************************************************************/
 
-long CurrentFilePos(IFFHandle *iff)
+int CurrentFilePos(IFFHandle *iff)
 {
-	long offset;
+	int offset;
 
 	if ((offset = lseek(iff->fh, 0, SEEK_CUR)) == -1) {
 		offset = IFFERR_READ;

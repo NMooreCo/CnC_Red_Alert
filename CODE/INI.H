@@ -40,13 +40,13 @@
 #define INI_H
 
 #include	<stdlib.h>
-#include	"listnode.h"
-#include	"pipe.h"
-#include	"wwfile.h"
-#include	"pk.h"
-#include	"fixed.h"
-#include	"crc.h"
-#include	"search.h"
+#include	"LISTNODE.H"
+#include	"PIPE.H"
+#include	"WWFILE.H"
+#include	"PK.H"
+#include	"FIXED.H"
+#include	"CRC.H"
+#include	"SEARCH.H"
 
 /*
 **	This is an INI database handler class. It handles a database with a disk format identical
@@ -64,6 +64,11 @@ class INIClass {
 		bool Load(Straw & file);
 		int Save(FileClass & file) const;
 		int Save(Pipe & file) const;
+		// The original compiler allowed temporaries to bind to these non-const references.
+		bool Load(FileClass && file) {return(Load((FileClass &)file));}
+		bool Load(Straw && file) {return(Load((Straw &)file));}
+		int Save(FileClass && file) const {return(Save((FileClass &)file));}
+		int Save(Pipe && file) const {return(Save((Pipe &)file));}
 
 		/*
 		**	Erase all data within this INI file manager.

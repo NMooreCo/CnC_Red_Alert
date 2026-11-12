@@ -61,7 +61,7 @@ typedef struct _VOCHeader {
 #define VBT_EXTENDED  8
 
 #define IS_VOC(a,b) (((~a)+0x1234)==b)
-#define BLOCK_LEN(a) ((a&0x00FFFFFFL))
+#define BLOCK_LEN(a) ((a&0x00FFFFFF))
 
 #endif  /* VOCFILE_H */
 

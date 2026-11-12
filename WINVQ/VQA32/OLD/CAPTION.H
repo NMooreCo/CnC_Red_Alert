@@ -117,8 +117,6 @@ typedef struct _CaptionInfo {
 
 CaptionInfo *OpenCaptions(void *captions, void *font);
 void CloseCaptions(CaptionInfo *cap);
-void DoCaptions(CaptionInfo *cap, unsigned long frame);
+void DoCaptions(CaptionInfo *cap, unsigned int frame);
 
 #endif /* VQACAPTION_H */
-
-

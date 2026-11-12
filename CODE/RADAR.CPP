@@ -69,7 +69,7 @@
  *   RadarClass::Zoom_Mode(void) -- Handles toggling zoom on the map                           *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
+#include	"FUNCTION.H"
 
 
 //void const * RadarClass::CoverShape;
@@ -1442,8 +1442,8 @@ bool RadarClass::UnJam_Cell(CELL cell, HouseClass * house)
 #pragma argsused
 void RadarClass::Radar_Cursor(int forced)
 {
-	static 					_last_pos = -1;
-	static 					_last_frame = -1;
+	static int				_last_pos = -1;
+	static int				_last_frame = -1;
 #ifdef WIN32
 	GraphicViewPortClass 	* oldpage;
 #else

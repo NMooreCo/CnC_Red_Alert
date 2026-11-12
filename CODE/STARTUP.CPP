@@ -37,17 +37,18 @@
  *   main -- Initial startup routine (preps library systems).                                  *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
+#include "RAPORT.H"
+#include	"FUNCTION.H"
 #include	<conio.h>
 #include	<io.h>
 
 #ifdef WIN32
-#include  "ccdde.h"
-#include	"ipx95.h"
+#include  "CCDDE.H"
+#include	"IPX95.H"
 #endif	//WIN32
 
 #ifdef MCIMPEG // Denzil 6/15/98
-#include "mcimovie.h"
+#include "MCIMOVIE.H"
 #endif
 
 #ifdef WOLAPI_INTEGRATION
@@ -104,7 +105,12 @@ const char* Game_Registry_Key();
  * HISTORY:                                                                                    *
  *   03/20/1995 JLB : Created.                                                                 *
  *=============================================================================================*/
-#ifdef WIN32
+#ifdef RA_PORT
+/*
+**	Modern port: a normal main() (SDL2 provides the window); argc/argv are used directly.
+*/
+int main(int argc, char * argv[])
+#elif defined(WIN32)
 //int PASCAL WinMain(HINSTANCE, HINSTANCE, char *, int )
 int PASCAL WinMain ( HINSTANCE instance , HINSTANCE , char * command_line , int command_show )
 #else	//WIN32
@@ -112,7 +118,14 @@ int main(int argc, char * argv[])
 #endif	//WIN32
 
 {
-#ifdef WIN32
+#ifdef RA_PORT
+	HINSTANCE instance = NULL;
+	int command_show = SW_SHOWNORMAL;
+	ProgramInstance = instance;
+	SpawnedFromWChat = false;
+#endif
+
+#if defined(WIN32) && !defined(RA_PORT)
 
 	#ifndef MPEGMOVIE // Denzil 6/10/98
 	DDSCAPS	surface_capabilities;
@@ -141,7 +154,9 @@ int main(int argc, char * argv[])
 #endif
 //printf("in program.\n");getch();
 //printf("ram free = %ld\n",Ram_Free(MEM_NORMAL));getch();
-#ifdef WIN32
+#ifdef RA_PORT
+	if (false) {
+#elif defined(WIN32)
 	if (Ram_Free(MEM_NORMAL) < 7000000) {
 #else
 
@@ -180,7 +195,7 @@ int main(int argc, char * argv[])
 		return(EXIT_FAILURE);
 	}
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(RA_PORT)
 
 	if (strstr(command_line, "f:\\projects\\c&c0") != NULL ||
 			strstr(command_line, "F:\\PROJECTS\\C&C0") != NULL) {
@@ -241,6 +256,7 @@ int main(int argc, char * argv[])
 
 #endif	//WIN32
 
+#ifndef RA_PORT
 	/*
 	**	Remember the current working directory and drive.
 	*/
@@ -268,6 +284,13 @@ int main(int argc, char * argv[])
 		path[strlen(path)-1] = '\0';
 	}
 	chdir(path);
+#else
+	unsigned olddrive = 0;
+	unsigned drivecount = 0;
+	char oldpath[PATH_MAX];
+	getcwd(oldpath, sizeof(oldpath));
+	Port_Select_Data_Directory(argc, argv);
+#endif
 
 #ifdef WOLAPI_INTEGRATION
 	//	Look for special wolapi install program, used after the patch to version 3, to install "Shared Internet Components".
@@ -445,92 +468,18 @@ int main(int argc, char * argv[])
 			if (!InitDDraw())
 				return (EXIT_FAILURE);
 			#else
-			BOOL video_success = FALSE;
 			/*
-			** Set 640x400 video mode. If its not available then try for 640x480
+			**	Modern port: create the window at the logical resolution the game draws at.
+			**	All pages are system memory buffers; the visible page is presented by SDL.
 			*/
-			if (ScreenHeight == 400) {
-				if (Set_Video_Mode (MainWindow, ScreenWidth, ScreenHeight, 8)) {
-					video_success = TRUE;
-				} else {
-					if (Set_Video_Mode (MainWindow, ScreenWidth, 480, 8)) {
-						video_success = TRUE;
-						ScreenHeight = 480;
-					}
-				}
-			} else {
-				if (Set_Video_Mode (MainWindow, ScreenWidth, ScreenHeight, 8)) {
-					video_success = TRUE;
-				}
-			}
-
-			if (!video_success) {
+			if (!Set_Video_Mode (MainWindow, ScreenWidth, ScreenHeight, 8)) {
 				MessageBox(MainWindow, TEXT_VIDEO_ERROR, TEXT_SHORT_TITLE, MB_ICONEXCLAMATION|MB_OK);
 				if (WindowsTimer) delete WindowsTimer;
-				//if (Palette) delete Palette;
 				return (EXIT_FAILURE);
 			}
 
-			if (ScreenWidth==320) {
-				VisiblePage.Init( ScreenWidth , ScreenHeight , NULL , 0 , (GBC_Enum)0);
-				ModeXBuff.Init( ScreenWidth , ScreenHeight , NULL , 0 , (GBC_Enum)(GBC_VISIBLE | GBC_VIDEOMEM));
-			} else {
-				VisiblePage.Init( ScreenWidth , ScreenHeight , NULL , 0 , (GBC_Enum)(GBC_VISIBLE | GBC_VIDEOMEM));
-
-				/*
-				** Check that we really got a video memory page. Failure is fatal.
-				*/
-				memset (&surface_capabilities, 0, sizeof(surface_capabilities));
-				VisiblePage.Get_DD_Surface()->GetCaps(&surface_capabilities);
-				if (surface_capabilities.dwCaps & DDSCAPS_SYSTEMMEMORY) {
-					/*
-					** Aaaarrgghh!
-					*/
-					WWDebugString(TEXT_DDRAW_ERROR);WWDebugString("\n");
-					MessageBox(MainWindow, TEXT_DDRAW_ERROR, TEXT_SHORT_TITLE, MB_ICONEXCLAMATION|MB_OK);
-					if (WindowsTimer) delete WindowsTimer;
-					return (EXIT_FAILURE);
-				}
-
-				/*
-				** If we have enough left then put the hidpage in video memory unless...
-				**
-				** If there is no blitter then we will get better performance with a system
-				** memory hidpage
-				**
-				** Use a system memory page if the user has specified it via the ccsetup program.
-				*/
-				unsigned video_memory = Get_Free_Video_Memory();
-				unsigned video_capabilities = Get_Video_Hardware_Capabilities();
-				if (video_memory < ScreenWidth*ScreenHeight ||
-						(! (video_capabilities & VIDEO_BLITTER)) ||
-						(video_capabilities & VIDEO_NO_HARDWARE_ASSIST) ||
-						!VideoBackBufferAllowed) {
-					HiddenPage.Init (ScreenWidth , ScreenHeight , NULL , 0 , (GBC_Enum)0);
-				} else {
-					//HiddenPage.Init (ScreenWidth , ScreenHeight , NULL , 0 , (GBC_Enum)0);
-					HiddenPage.Init (ScreenWidth , ScreenHeight , NULL , 0 , (GBC_Enum)GBC_VIDEOMEM);
-
-					/*
-					** Make sure we really got a video memory hid page. If we didnt then things
-					** will run very slowly.
-					*/
-					memset (&surface_capabilities, 0, sizeof(surface_capabilities));
-					HiddenPage.Get_DD_Surface()->GetCaps(&surface_capabilities);
-					if (surface_capabilities.dwCaps & DDSCAPS_SYSTEMMEMORY) {
-
-						/*
-						** Oh dear, big trub. This must be an IBM crAptiva or something similarly cruddy.
-						** We must redo the Hidden Page as system memory.
-						*/
-						AllSurfaces.Remove_DD_Surface(HiddenPage.Get_DD_Surface());  // Remove the old surface from the AllSurfaces list
-						HiddenPage.Get_DD_Surface()->Release();
-						HiddenPage.Init (ScreenWidth , ScreenHeight , NULL , 0 , (GBC_Enum)0);
-					} else {
-						VisiblePage.Attach_DD_Surface(&HiddenPage);
-					}
-				}
-			}
+			VisiblePage.Init( ScreenWidth , ScreenHeight , NULL , 0 , (GBC_Enum)(GBC_VISIBLE | GBC_VIDEOMEM));
+			HiddenPage.Init (ScreenWidth , ScreenHeight , NULL , 0 , (GBC_Enum)0);
 
 			ScreenHeight = 400;
 
@@ -653,6 +602,18 @@ int main(int argc, char * argv[])
 			*/
 			ReadyToQuit = 1;
 
+#ifdef RA_PORT
+			/*
+			**	Clean up directly (the original posted WM_DESTROY to its message thread).
+			*/
+			Prog_End();
+			Reset_Video_Mode();
+			if (WindowsTimer) {
+				delete WindowsTimer;
+				WindowsTimer = NULL;
+			}
+			return (EXIT_SUCCESS);
+#else
 			/*
 			** Post a message to our message handler to tell it to clean up.
 			*/
@@ -667,6 +628,7 @@ int main(int argc, char * argv[])
 			}while (ReadyToQuit == 1);
 
 			return (EXIT_SUCCESS);
+#endif
 
 #else	//WIN32
 			Remove_Mouse();
@@ -699,6 +661,7 @@ int main(int argc, char * argv[])
 }
 
 
+#ifdef MPEGMOVIE
 /* Initialize DirectDraw and surfaces */
 bool InitDDraw(void)
 	{
@@ -822,6 +785,7 @@ bool InitDDraw(void)
 
 	return true;
 	}
+#endif	// MPEGMOVIE
 
 
 /***********************************************************************************************

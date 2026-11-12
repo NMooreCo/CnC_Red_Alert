@@ -17,10 +17,11 @@
 */
 
 
-#include	"wwfile.h"
-#include	"straw.h"
+#include	"WWFILE.H"
+#include	"STRAW.H"
 
 void strtrim(char * buffer);
 int Read_Line(FileClass & file, char * buffer, int len, bool & eof);
 int Read_Line(Straw & file, char * buffer, int len, bool & eof);
+inline int Read_Line(Straw && file, char * buffer, int len, bool & eof) {return(Read_Line((Straw &)file, buffer, len, eof));}
 

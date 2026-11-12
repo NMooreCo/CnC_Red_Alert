@@ -50,7 +50,7 @@ bool 	Client_Remote_Connect(void);
 int 	Read_Game_Options(char *name);
 
 extern char PlanetWestwoodIPAddress[IP_ADDRESS_MAX];
-extern long PlanetWestwoodPortNumber;
+extern int PlanetWestwoodPortNumber;
 extern bool PlanetWestwoodIsHost;
 
 #endif

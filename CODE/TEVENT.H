@@ -135,7 +135,7 @@ struct TEventClass {
 		InfantryType			Infantry;	//	Used for infantry type checking.
 		AircraftType			Aircraft;	// Used for aircraft type checking.
 		HousesType				House;		// Used for house specific events.
-		long	Value;							// Used for other events that need data.
+		int	Value;							// Used for other events that need data.
 	} Data;
 
 	TEventClass(void) : Event(TEVENT_NONE) {Data.Value = 0;};

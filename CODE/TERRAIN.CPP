@@ -57,8 +57,8 @@
  *   TerrainClass::~TerrainClass -- Default destructor for terrain class objects.              *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
-#include	"terrain.h"
+#include	"FUNCTION.H"
+#include	"TERRAIN.H"
 
 
 /***********************************************************************************************
@@ -421,11 +421,11 @@ bool TerrainClass::Catch_Fire(void)
 	assert(IsActive);
 
 	if (!IsCrumbling && !IsOnFire && Class->Armor == ARMOR_WOOD) {
-		AnimClass * anim = new AnimClass(ANIM_BURN_BIG, Coord_Add(Sort_Y(), 0xFFB00000L));
+		AnimClass * anim = new AnimClass(ANIM_BURN_BIG, Coord_Add(Sort_Y(), 0xFFB00000));
 		if (anim) {
 			anim->Attach_To(this);
 		}
-		anim = new AnimClass(ANIM_BURN_MED, Coord_Add(Sort_Y(), 0xFF200000L), 15);
+		anim = new AnimClass(ANIM_BURN_MED, Coord_Add(Sort_Y(), 0xFF200000), 15);
 		if (anim) {
 			anim->Attach_To(this);
 		}

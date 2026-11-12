@@ -44,9 +44,9 @@
  * TMC::Message_Handler -- Message handler function for Winsock related messages               *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
-#include	"internet.h"
-#include	"WSPUDP.h"
+#include	"FUNCTION.H"
+#include	"INTERNET.H"
+#include	"WSPUDP.H"
 
 #include	<assert.h>
 #include	<stdio.h>
@@ -197,12 +197,12 @@ bool UDPInterfaceClass::Open_Socket ( SOCKET )
 	** Add all local IP addresses to the list. This list will be used to discard any packets that
 	** we send to ourselves.
 	*/
-	unsigned long **addresses = (unsigned long**) (host_info->h_addr_list);
+	unsigned int **addresses = (unsigned int**) (host_info->h_addr_list);
 
 	for ( ;; ) {
 		if ( !*addresses ) break;
 
-		unsigned long address = **addresses++;
+		unsigned int address = **addresses++;
 		//address = ntohl (address);
 
 		char temp[128];
@@ -210,7 +210,7 @@ bool UDPInterfaceClass::Open_Socket ( SOCKET )
 		OutputDebugString (temp);
 
 		unsigned char *a = new unsigned char [4];
-		* ((unsigned long*) a) = address;
+		* ((unsigned int*) a) = address;
 		LocalAddresses.Add (a);
 	}
 
@@ -307,7 +307,7 @@ void UDPInterfaceClass::Broadcast (void *buffer, int buffer_len)
  * HISTORY:                                                                                    *
  *    3/20/96 3:05PM ST : Created                                                              *
  *=============================================================================================*/
-long UDPInterfaceClass::Message_Handler(HWND, UINT message, UINT, LONG lParam)
+int UDPInterfaceClass::Message_Handler(HWND, UINT message, UINT, LONG lParam)
 {
 	struct 	sockaddr_in addr;
 	int	 	rc;

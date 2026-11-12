@@ -43,8 +43,8 @@
  *   Translucent_Table_Size -- Determines the size of a translucent table.                     *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
-#include	"wwfile.h"
+#include	"FUNCTION.H"
+#include	"WWFILE.H"
 
 
 /***********************************************************************************************
@@ -190,7 +190,7 @@ void File_Fatal(char const * message)
  * HISTORY:                                                                                    *
  *   10/17/1994 JLB : Created.                                                                 *
  *=============================================================================================*/
-long Load_Uncompress(FileClass &file, BuffType &uncomp_buff, BuffType &dest_buff, void * reserved_data)
+int Load_Uncompress(FileClass &file, BuffType &uncomp_buff, BuffType &dest_buff, void * reserved_data)
 {
 	unsigned short	size;
 	void	* sptr = uncomp_buff.Get_Buffer();
@@ -263,7 +263,7 @@ long Load_Uncompress(FileClass &file, BuffType &uncomp_buff, BuffType &dest_buff
 	if (opened) {
 		file.Close();
 	}
-	return((long)size);
+	return((int)size);
 }
 
 
@@ -293,7 +293,7 @@ int Load_Picture(char const * filename, BufferClass& scratchbuf, BufferClass& de
 void * Load_Alloc_Data(FileClass &file)
 {
 	void * ptr = 0;
-	long size = file.Size();
+	int size = file.Size();
 
 	ptr = new char [size];
 	if (ptr) {
@@ -319,9 +319,9 @@ void * Load_Alloc_Data(FileClass &file)
  * HISTORY:                                                                                    *
  *   04/02/1994 JLB : Created.                                                                 *
  *=============================================================================================*/
-long Translucent_Table_Size(int count)
+int Translucent_Table_Size(int count)
 {
-	return(256L + (256L * count));
+	return(256 + (256 * count));
 }
 
 

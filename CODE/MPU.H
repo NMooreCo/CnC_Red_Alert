@@ -57,8 +57,8 @@
  * HISTORY:                                                                                    *
  *   07/17/1996 JLB : Created.                                                                 *
  *=============================================================================================*/
-unsigned long Get_CPU_Clock(unsigned long & high);
-#ifndef __BORLANDC__
+unsigned int Get_CPU_Clock(unsigned int & high);		// RA_PORT: implemented in RAPORT.CPP
+#if !defined(__BORLANDC__) && !defined(RA_PORT)
 #pragma aux Get_CPU_Clock parm [esi] \
 	modify [edx] \
 	value [eax] = \

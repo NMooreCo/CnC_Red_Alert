@@ -49,7 +49,7 @@
  *   SessionClass::Compute_Unique_ID -- computes unique local ID number                        *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include "function.h"
+#include "FUNCTION.H"
 #include <dos.h>			// for station ID computation
 #include <time.h>			// for station ID computation
 
@@ -737,7 +737,7 @@ void SessionClass::Read_MultiPlayer_Settings (void)
 
 	//	Clear the dialing entries
 	for (i = 0; i < PhoneBook.Count(); i++) {
-		delete[] PhoneBook[i];
+		delete PhoneBook[i];
 	}
 	PhoneBook.Clear();
 
@@ -811,7 +811,8 @@ void SessionClass::Read_MultiPlayer_Settings (void)
 		}
 
 		int initcount = ini.Entry_Count("InitStrings");
-		for (int index = 0; index < initcount; index++) {
+		int index;
+		for (index = 0; index < initcount; index++) {
 			entry = new char[ INITSTRBUF_MAX ];
 			entry[0] = 0;
 			ini.Get_String("InitStrings", ini.Get_Entry("InitStrings", index), NULL, entry, INITSTRBUF_MAX);
@@ -1754,10 +1755,10 @@ void SessionClass::Trap_Object(void)
  * HISTORY:                                                                *
  *   12/07/1995 BRR : Created.                                             *
  *=========================================================================*/
-unsigned long SessionClass::Compute_Unique_ID(void)
+unsigned int SessionClass::Compute_Unique_ID(void)
 {
 	time_t tm;
-	unsigned long id;
+	unsigned int id;
 	struct diskfree_t dtable;
 	char *path;
 	int i;
@@ -1766,16 +1767,16 @@ unsigned long SessionClass::Compute_Unique_ID(void)
 	// Start with the seconds since Jan 1, 1970 (system local time)
 	//------------------------------------------------------------------------
 	time(&tm);
-	id = (unsigned long)tm;
+	id = (unsigned int)tm;
 
 	//------------------------------------------------------------------------
 	// Now add in the free space on the hard drive
 	//------------------------------------------------------------------------
 	if (_dos_getdiskfree(3, &dtable) == 0) {
-		Add_CRC(&id, (unsigned long)dtable.avail_clusters);
-		Add_CRC(&id, (unsigned long)dtable.total_clusters);
-		Add_CRC(&id, (unsigned long)dtable.bytes_per_sector);
-		Add_CRC(&id, (unsigned long)dtable.sectors_per_cluster);
+		Add_CRC(&id, (unsigned int)dtable.avail_clusters);
+		Add_CRC(&id, (unsigned int)dtable.total_clusters);
+		Add_CRC(&id, (unsigned int)dtable.bytes_per_sector);
+		Add_CRC(&id, (unsigned int)dtable.sectors_per_cluster);
 	}
 
 	//------------------------------------------------------------------------
@@ -1784,7 +1785,7 @@ unsigned long SessionClass::Compute_Unique_ID(void)
 	path = getenv("PATH");
 	if (path) {
 		for (i = 0; i < strlen(path); i++) {
-			Add_CRC(&id, (unsigned long)path[i]);
+			Add_CRC(&id, (unsigned int)path[i]);
 		}
 	}
 

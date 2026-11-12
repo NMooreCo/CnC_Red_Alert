@@ -59,25 +59,25 @@
  *   Load_Prolog_Page -- Loads the special pre-prolog "please wait" page.                      *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
-#include	"loaddlg.h"
+#include	"FUNCTION.H"
+#include	"LOADDLG.H"
 #ifdef WIN32
 #ifdef WINSOCK_IPX
-#include	"WSProto.h"
-#include	"WSPUDP.h"
-#include	"WSPIPX.h"
-#include	"internet.h"
+#include	"WSPROTO.H"
+#include	"WSPUDP.H"
+#include	"WSPIPX.H"
+#include	"INTERNET.H"
 #else	//WINSOCK_IPX
-#include	"tcpip.h"
+#include	"TCPIP.H"
 #endif	//WINSOCK_IPX
 
 #endif
 #include	<conio.h>
 #include	<dos.h>
 #ifndef WIN32
-#include	<sys\timeb.h>
+#include	<sys/timeb.h>
 #endif
-#include  "ccdde.h"
+#include  "CCDDE.H"
 
 #include <time.h>
 
@@ -86,12 +86,12 @@
 #endif
 
 #ifdef MPEGMOVIE // Denzil 6/25/98
-#include "mpgset.h"
+#include "MPGSET.H"
 #endif
 
 RemapControlType SidebarScheme;
 
-#include "WolDebug.h"
+#include "WOLDEBUG.H"
 
 #ifdef CHEAT_KEYS
 extern bool bNoMovies;
@@ -118,7 +118,7 @@ static void Init_Keys(void);
 extern int UnitBuildPenalty;
 
 extern "C" {
-extern long RandNumb;
+extern int RandNumb;
 }
 #ifndef WIN32
 static int UsePageFaultHandler = 1;				// 1 = install PFH
@@ -134,7 +134,7 @@ bool Save_Recording_Values(CCFileClass & file);
 
 #ifdef WOLAPI_INTEGRATION
 extern int WOL_Main();
-#include "WolapiOb.h"
+#include "WOLAPIOB.H"
 extern WolapiObject* pWolapi;
 #endif
 
@@ -192,7 +192,7 @@ static void Load_Prolog_Page(void)
  * HISTORY:                                                                                    *
  *   10/07/1992 JLB : Created.                                                                 *
  *=============================================================================================*/
-#include	"sha.h"
+#include	"SHA.H"
 //#include    <locale.h>
 bool Init_Game(int , char * [])
 {
@@ -463,7 +463,7 @@ bool Select_Game(bool fade)
 	short iRet = 0;
 	unsigned short iPortNr = 1;  /* automatic port scan enabled */
 	unsigned char cSCodeSER[] = "\x41\x42";
-	unsigned long ulIdRet = 0;
+	unsigned int ulIdRet = 0;
 	unsigned char cBoxName[]= "\x00\x00";
 #endif
 	
@@ -1436,11 +1436,13 @@ bool Select_Game(bool fade)
 //			debugprint( "Non Internet game: NewUnitsEnabled = %i\n", NewUnitsEnabled );
 			break;
 		case GAME_INTERNET:
+#ifdef WOLAPI_INTEGRATION
 			if( !pWolapi )
 			{
 //				debugprint( "pWolapi is null on internet game!" );
 				Fatal( "pWolapi is null on internet game!" );
 			}
+#endif
 			//if( pWolapi->bEnableNewAftermathUnits )
 			if( bAftermathMultiplayer )
 				NewUnitsEnabled = true;
@@ -1752,7 +1754,7 @@ bool Parse_Command_Line(int argc, char * argv[])
 
 	for (int index = 1; index < argc; index++) {
 		char * string;		// Pointer to argument.
-		long code = 0;
+		int code = 0;
 
 		string = strupr(argv[index]);
 
@@ -1770,12 +1772,12 @@ bool Parse_Command_Line(int argc, char * argv[])
 
 
 		bool processed = true;
-		long ob = Obfuscate(string);
+		int ob = Obfuscate(string);
 
 		/*
 		**	Check to see if the parameter is a cheat enabling one.
 		*/
-		long const * optr = &CheatCodes[0];
+		int const * optr = &CheatCodes[0];
 		while (*optr) {
 			if (*optr++ == ob) {
 				Debug_Playtest = true;
@@ -2195,7 +2197,7 @@ bool Parse_Command_Line(int argc, char * argv[])
  * HISTORY:                                                                                    *
  *   08/19/1995 JLB : Created.                                                                 *
  *=============================================================================================*/
-long Obfuscate(char const * string)
+int Obfuscate(char const * string)
 {
 	char buffer[128];
 
@@ -2219,7 +2221,8 @@ long Obfuscate(char const * string)
 	**	Ensure that only visible ASCII characters compose the key phrase. This
 	**	discourages the direct forced illegal character input method of attack.
 	*/
-	for (int index = 0; index < length; index++) {
+	int index;
+	for (index = 0; index < length; index++) {
 		if (!isgraph(buffer[index])) {
 			buffer[index] = 'A' + (index%26);
 		}
@@ -2248,13 +2251,13 @@ long Obfuscate(char const * string)
 	**	Transform the buffer into a number. This transformation is character
 	**	order dependant.
 	*/
-	long code = Calculate_CRC(buffer, length);
+	int code = Calculate_CRC(buffer, length);
 
 	/*
 	**	Record a copy of this initial transformation to be used in a later
 	**	self referential transformation.
 	*/
-	long copy = code;
+	int copy = code;
 
 	/*
 	**	Reverse the character string and combine with the previous transformation.
@@ -2281,7 +2284,7 @@ long Obfuscate(char const * string)
 		unsigned char temp = (unsigned char)code;
 		buffer[index] ^= temp;
 		code >>= 8;
-		code |= (((long)temp)<<24);
+		code |= (((int)temp)<<24);
 	}
 
 	/*
@@ -2373,7 +2376,7 @@ long Obfuscate(char const * string)
  *   03/02/1996 JLB : Created.                                                                 *
  *=============================================================================================*/
 extern "C"  {
-long Calculate_CRC(void * buffer, long len)
+int Calculate_CRC(void * buffer, int len)
 {
 	return(CRCEngine()(buffer, len));
 }
@@ -2565,7 +2568,8 @@ static void Init_Color_Remaps(void)
 			ptr[color] = color;
 		}
 
-		for (int index = 0; index < 16; index++) {
+		int index;
+		for (index = 0; index < 16; index++) {
 			ptr[HidPage.Get_Pixel(index, 0)] = HidPage.Get_Pixel(index, pcolor);
 		}
 		for (index = 0; index < 6; index++) {
@@ -3203,7 +3207,7 @@ static void Bootstrap(void)
 	/*
 	**	Default palette initialization.
 	*/
-	memmove((unsigned char *)&GamePalette[0], (void *)MFCD::Retrieve("TEMPERAT.PAL"), 768L);
+	memmove((unsigned char *)&GamePalette[0], (void *)MFCD::Retrieve("TEMPERAT.PAL"), 768);
 	WhitePalette[0] = BlackPalette[0];
 //	GamePalette.Set();
 
@@ -3325,7 +3329,7 @@ static void Init_Authorization(void)
 #ifdef NEVER
 	while (!ok && counter) {
 		SmartPtr<char const> str = Fetch_Password(TXT_PASSWORD_CAPTION, TXT_PASSWORD_MESSAGE, TXT_OK);
-		SmartPtr<long const> lptr = &CheatCodes[0];
+		SmartPtr<int const> lptr = &CheatCodes[0];
 		while (*lptr) {
 			if (Obfuscate(str) == *lptr++) {
 				ok = true;
@@ -3543,8 +3547,8 @@ void Extract(char* filename, char* outname)
 
 	if (buffer)
 		{
-		unsigned long size = inFile.Size();
-		unsigned long bytes;
+		unsigned int size = inFile.Size();
+		unsigned int bytes;
 
 		while (size > 0)
 			{

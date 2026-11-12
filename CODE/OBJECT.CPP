@@ -100,7 +100,7 @@
  *   ObjectClass::Get_Image_Data -- Fetches the image data to use for this object.             *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include "function.h"
+#include "FUNCTION.H"
 
 /*
 **	Selected objects have a special marking box around them. This is the shapes that are
@@ -1501,7 +1501,7 @@ void ObjectClass::Detach_All(bool all)
  * HISTORY:                                                                                    *
  *   09/24/1994 JLB : Created.                                                                 *
  *=============================================================================================*/
-RadioMessageType ObjectClass::Receive_Message(RadioClass *, RadioMessageType message, long & )
+RadioMessageType ObjectClass::Receive_Message(RadioClass *, RadioMessageType message, int & )
 {
 	assert(this != 0);
 	assert(IsActive);
@@ -1556,7 +1556,7 @@ RadioMessageType ObjectClass::Receive_Message(RadioClass *, RadioMessageType mes
  *   12/27/1994 JLB : Trigger event processing for attacked or destroyed.                      *
  *   01/01/1995 JLB : Reduces damage greatly depending on range.                               *
  *=============================================================================================*/
-ResultType ObjectClass::Take_Damage(int & damage, int distance, WarheadType warhead, TechnoClass * source, int forced)
+ResultType ObjectClass::Take_Damage(int & damage, int distance, WarheadType warhead, TechnoClass * source, bool forced)
 {
 	assert(this != 0);
 	assert(IsActive);
@@ -2196,7 +2196,7 @@ BuildingClass * ObjectTypeClass::Who_Can_Build_Me(bool intheory, bool legal, Hou
 				building->House->Class->House == house &&
 				building->Class->ToBuild == RTTI &&
 				building->Mission != MISSION_DECONSTRUCTION && building->MissionQueue != MISSION_DECONSTRUCTION &&
-				((1L << building->ActLike) & Get_Ownable()) &&
+				((1 << building->ActLike) & Get_Ownable()) &&
 				(!legal || building->House->Can_Build(this, building->ActLike)) &&
 				(intheory || !building->In_Radio_Contact())) {
 

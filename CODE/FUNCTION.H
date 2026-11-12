@@ -121,8 +121,8 @@ UnitTypeClass      ³   BuildingTypeClass      ³  VesselTypeClass
 #endif
 
 
-#include	"watcom.h"
-#include "lint.h"
+#include	"WATCOM.H"
+#include "LINT.H"
 
 
 #ifdef WIN32
@@ -202,41 +202,41 @@ struct NoInitClass {
 #endif
 
 #ifdef WIN32
-#include	"key.h"
+#include	"KEY.H"
 #endif
 
-#include <wwlib32.h>
-#include	"mpu.h"
-#include	"bench.h"
-#include	"rect.h"
-#include	"jshell.h"
-#include	"buff.h"
-#include	"face.h"
-#include	"random.h"
-#include	"crc.h"
-#include "compat.h"
-#include	"fixed.h"
-#include	"base64.h"
-#include	"pipe.h"
-#include	"xpipe.h"
-#include	"ramfile.h"
-#include	"lcw.h"
-#include	"lzw.h"
-#include	"lcwpipe.h"
-#include	"lzwpipe.h"
-#include	"lzopipe.h"
-#include	"crcpipe.h"
-#include	"shapipe.h"
-#include	"b64pipe.h"
-#include	"straw.h"
-#include	"xstraw.h"
-#include	"b64straw.h"
-#include	"lcwstraw.h"
-#include	"lzwstraw.h"
-#include	"lzostraw.h"
-#include	"crcstraw.h"
-#include	"shastraw.h"
-#include	"rndstraw.h"
+#include <WWLIB32.H>
+#include	"MPU.H"
+#include	"BENCH.H"
+#include	"RECT.H"
+#include	"JSHELL.H"
+#include	"BUFF.H"
+#include	"FACE.H"
+#include	"RANDOM.H"
+#include	"CRC.H"
+#include "COMPAT.H"
+#include	"FIXED.H"
+#include	"BASE64.H"
+#include	"PIPE.H"
+#include	"XPIPE.H"
+#include	"RAMFILE.H"
+#include	"LCW.H"
+#include	"LZW.H"
+#include	"LCWPIPE.H"
+#include	"LZWPIPE.H"
+#include	"LZOPIPE.H"
+#include	"CRCPIPE.H"
+#include	"SHAPIPE.H"
+#include	"B64PIPE.H"
+#include	"STRAW.H"
+#include	"XSTRAW.H"
+#include	"B64STRAW.H"
+#include	"LCWSTRAW.H"
+#include	"LZWSTRAW.H"
+#include	"LZOSTRAW.H"
+#include	"CRCSTRAW.H"
+#include	"SHASTRAW.H"
+#include	"RNDSTRAW.H"
 
 // Should be part of WWLIB.H. This is used in JSHELL.CPP.
 typedef struct {
@@ -271,143 +271,146 @@ typedef struct {
 /*
 **	VQ player specific includes.
 */
-#include <vqa32\vqaplay.h>
-#include <vqa32\vqafile.h>
+#include <VQA32/VQAPLAY.H>
+#include <VQA32/VQAFILE.H>
 
 extern bool GameActive;
-extern long LParam;
+extern int LParam;
 
 #include	<assert.h>
-#include	"vector.h"
-#include	"heap.h"
-#include	"ccfile.h"
-#include	"monoc.h"
-#include	"conquer.h"
-#include	"debug.h"
-#include "special.h"
-#include	"defines.h"
-#include	"ccini.h"
-#include	"ccptr.h"
-#include	"bar.h"
+#include	"VECTOR.H"
+#include	"HEAP.H"
+#include	"CCFILE.H"
+#include	"MONOC.H"
+#include	"CONQUER.H"
+#include	"DEBUG.H"
+#include "SPECIAL.H"
+#include	"DEFINES.H"
+#include	"CCINI.H"
+#include	"CCPTR.H"
+#include	"BAR.H"
 
 /*
-**	Greenleaf specific includes.
+**	Greenleaf specific includes (DOS serial/modem library -- not part of the source release
+**	and not needed by the Win32 code path).
 */
+#ifndef WIN32
 #include <modem.h>
 #include <fast.h>
+#endif
 
 
-extern long Frame;
+extern int Frame;
 CELL Coord_Cell(COORDINATE coord);
 
-#include	"utracker.h"
-#include	"crate.h"
-#include	"rules.h"
-#include	"ini.h"
-#include	"int.h"
-#include	"pk.h"
-#include	"pkpipe.h"
-#include	"pkstraw.h"
-#include	"sha.h"
-#include	"blowfish.h"
-#include	"blowpipe.h"
-#include	"blwstraw.h"
-#include	"language.h"
-#include	"hsv.h"
-#include	"rgb.h"
-#include	"palette.h"
-#include "version.h"
-#include	"facing.h"
-#include	"ftimer.h"
-#include	"theme.h"
-#include	"link.h"
-#include	"gadget.h"
-#include	"control.h"
-#include	"toggle.h"
-#include	"checkbox.h"
-#include	"shapebtn.h"
-#include	"textbtn.h"
-#include	"statbtn.h"
-#include	"slider.h"
-#include "list.h"
-#include	"drop.h"
-#include "cheklist.h"
-#include "colrlist.h"
-#include	"edit.h"
-#include	"gauge.h"
-#include	"msgbox.h"
-#include	"dial8.h"
-#include	"txtlabel.h"
-#include "loaddlg.h"
-#include	"super.h"
-#include	"house.h"
-#include	"gscreen.h"
-#include	"map.h"
-#include	"display.h"
-#include	"radar.h"
-#include	"power.h"
-#include	"sidebar.h"
-#include	"tab.h"
-#include	"help.h"
-#include	"mouse.h"
-#include	"help.h"
-#include	"target.h"
-#include	"theme.h"
-#include	"team.h"				// Team objects.
-#include	"warhead.h"
-#include	"weapon.h"
-#include	"trigtype.h"
-#include	"teamtype.h"		// Team type objects.
-#include	"taction.h"
-#include	"tevent.h"
-#include	"trigger.h"			// Trigger event objects.
-#include	"mapedit.h"			// map editor class
-#include	"abstract.h"
-#include "object.h"
-#include "mission.h"
-#include	"door.h"
-#include	"bullet.h"			// Bullet objects.
-#include	"terrain.h"			// Terrain objects.
-#include	"anim.h"				// Animation objects.
-#include	"template.h"		// Icon template objects.
-#include	"overlay.h"			// Overlay objects.
-#include	"smudge.h"			// Stains on the terrain objects.
-#include	"aircraft.h"		// Aircraft objects.
-#include	"unit.h"				// Ground unit objects.
-#include "vessel.h"			// Sea unit objects.
-#include	"infantry.h"		// Infantry objects.
-#include	"credits.h"			// Credit counter class.
-#include	"score.h"			// Scoring system class.
-#include	"factory.h"			// Production manager class.
-#include "intro.h"
-#include "ending.h"
-#include	"logic.h"
-#include	"queue.h"
-#include	"event.h"
-#include "base.h"				// defines the AI's pre-built base
-#include	"carry.h"
-#include	"scenario.h"
-#include "msglist.h"			// Multiplayer chat message system
-#include "session.h"			// Multiplayer session class
-#include "phone.h"			// Phone list manager
-#include "ipxmgr.h"			// IPX connection manager
-#include	"nullmgr.h"			// Modem connection manager
-#include	"readline.h"
-#include	"vortex.h"
-#include "egos.h"
+#include	"UTRACKER.H"
+#include	"CRATE.H"
+#include	"RULES.H"
+#include	"INI.H"
+#include	"INT.H"
+#include	"PK.H"
+#include	"PKPIPE.H"
+#include	"PKSTRAW.H"
+#include	"SHA.H"
+#include	"BLOWFISH.H"
+#include	"BLOWPIPE.H"
+#include	"BLWSTRAW.H"
+#include	"LANGUAGE.H"
+#include	"HSV.H"
+#include	"RGB.H"
+#include	"PALETTE.H"
+#include "VERSION.H"
+#include	"FACING.H"
+#include	"FTIMER.H"
+#include	"THEME.H"
+#include	"LINK.H"
+#include	"GADGET.H"
+#include	"CONTROL.H"
+#include	"TOGGLE.H"
+#include	"CHECKBOX.H"
+#include	"SHAPEBTN.H"
+#include	"TEXTBTN.H"
+#include	"STATBTN.H"
+#include	"SLIDER.H"
+#include "LIST.H"
+#include	"DROP.H"
+#include "CHEKLIST.H"
+#include "COLRLIST.H"
+#include	"EDIT.H"
+#include	"GAUGE.H"
+#include	"MSGBOX.H"
+#include	"DIAL8.H"
+#include	"TXTLABEL.H"
+#include "LOADDLG.H"
+#include	"SUPER.H"
+#include	"HOUSE.H"
+#include	"GSCREEN.H"
+#include	"MAP.H"
+#include	"DISPLAY.H"
+#include	"RADAR.H"
+#include	"POWER.H"
+#include	"SIDEBAR.H"
+#include	"TAB.H"
+#include	"HELP.H"
+#include	"MOUSE.H"
+#include	"HELP.H"
+#include	"TARGET.H"
+#include	"THEME.H"
+#include	"TEAM.H"				// Team objects.
+#include	"WARHEAD.H"
+#include	"WEAPON.H"
+#include	"TRIGTYPE.H"
+#include	"TEAMTYPE.H"		// Team type objects.
+#include	"TACTION.H"
+#include	"TEVENT.H"
+#include	"TRIGGER.H"			// Trigger event objects.
+#include	"MAPEDIT.H"			// map editor class
+#include	"ABSTRACT.H"
+#include "OBJECT.H"
+#include "MISSION.H"
+#include	"DOOR.H"
+#include	"BULLET.H"			// Bullet objects.
+#include	"TERRAIN.H"			// Terrain objects.
+#include	"ANIM.H"				// Animation objects.
+#include	"TEMPLATE.H"		// Icon template objects.
+#include	"OVERLAY.H"			// Overlay objects.
+#include	"SMUDGE.H"			// Stains on the terrain objects.
+#include	"AIRCRAFT.H"		// Aircraft objects.
+#include	"UNIT.H"				// Ground unit objects.
+#include "VESSEL.H"			// Sea unit objects.
+#include	"INFANTRY.H"		// Infantry objects.
+#include	"CREDITS.H"			// Credit counter class.
+#include	"SCORE.H"			// Scoring system class.
+#include	"FACTORY.H"			// Production manager class.
+#include "INTRO.H"
+#include "ENDING.H"
+#include	"LOGIC.H"
+#include	"QUEUE.H"
+#include	"EVENT.H"
+#include "BASE.H"				// defines the AI's pre-built base
+#include	"CARRY.H"
+#include	"SCENARIO.H"
+#include "MSGLIST.H"			// Multiplayer chat message system
+#include "SESSION.H"			// Multiplayer session class
+#include "PHONE.H"			// Phone list manager
+#include "IPXMGR.H"			// IPX connection manager
+#include	"NULLMGR.H"			// Modem connection manager
+#include	"READLINE.H"
+#include	"VORTEX.H"
+#include "EGOS.H"
 #ifdef WIN32
-#include	"pcx.h"
+#include	"PCX.H"
 #endif
 
 #if(TEN)
-#include "tenmgr.h"
+#include "TENMGR.H"
 #endif
 
 #if(MPATH)
 #ifdef WIN32
-#include "mpmgrw.h"
+#include "MPMGRW.H"
 #else
-#include "mpmgrd.h"
+#include "MPMGRD.H"
 #endif
 #endif
 
@@ -417,7 +420,19 @@ bool InitDDraw(void);
 bool PlayMpegMovie(const char* name);
 #endif
 
-#include	"externs.h"
+#include	"EXTERNS.H"
+
+/*
+**	Westwood Online (WOLAPI_INTEGRATION) is not part of the modern port. These replace
+**	tests in common code that would otherwise need the WOL client objects.
+*/
+#ifdef WOLAPI_INTEGRATION
+#define RA_WOL_TOURNAMENT_GAME()		(Session.Type == GAME_INTERNET && pWolapi && pWolapi->GameInfoCurrent.bTournament)
+#define RA_WOL_MULTIPLAYER_GAME()		(Session.Type == GAME_INTERNET && pWolapi && pWolapi->GameInfoCurrent.iPlayerCount > 2)
+#else
+#define RA_WOL_TOURNAMENT_GAME()		(false)
+#define RA_WOL_MULTIPLAYER_GAME()		(false)
+#endif
 
 
 extern int Get_CD_Drive(void);
@@ -533,22 +548,22 @@ void Play_Movie(VQType name, ThemeType theme=THEME_NONE, bool clrscrn=true);
 bool Main_Loop(void);
 TheaterType Theater_From_Name(char const * name);
 void Main_Game(int argc, char * argv[]);
-long VQ_Call_Back(unsigned char * buffer=NULL, long frame=0);
+int VQ_Call_Back(unsigned char * buffer=NULL, int frame=0);
 void Call_Back(void);
 char const *Language_Name(char const * basename);
 SourceType Source_From_Name(char const * name);
 char const *Name_From_Source(SourceType source);
 FacingType KN_To_Facing(int input);
 void const *Get_Radar_Icon(void const * shapefile, int shapenum, int frames, int zoomfactor);
-void CC_Draw_Shape(void const * shapefile, int shapenum, int x, int y, WindowNumberType window, ShapeFlags_Type flags, void const * fadingdata=0, void const * ghostdata=0, DirType rotation=DIR_N, long scale=0x0100);
+void CC_Draw_Shape(void const * shapefile, int shapenum, int x, int y, WindowNumberType window, ShapeFlags_Type flags, void const * fadingdata=0, void const * ghostdata=0, DirType rotation=DIR_N, int scale=0x0100);
 void Go_Editor(bool flag);
-long MixFileHandler(VQAHandle * vqa, long action, void * buffer, long nbytes);
+int MixFileHandler(VQAHandle * vqa, int action, void * buffer, int nbytes);
 char *CC_Get_Shape_Filename(void const * shapeptr );
 void CC_Add_Shape_To_Global(void const * shapeptr, char * filename, char code );
 void Bubba_Print(char * format,...);
 void Heap_Dump_Check(char * string );
 void Dump_Heap_Pointers(void);
-unsigned long Disk_Space_Available(void);
+unsigned int Disk_Space_Available(void);
 void * Hires_Load(char * name);
 void Shake_The_Screen(int shakes);
 
@@ -631,7 +646,7 @@ void Assign_Houses(void);
 /*
 **	INIBIN.CPP
 */
-unsigned long Ini_Binary_Version( void );
+unsigned int Ini_Binary_Version( void );
 bool Read_Scenario_INB( CCFileClass *file, char *root, bool fresh );
 bool Valid_Scenario_INB( CCFileClass *file );
 
@@ -644,7 +659,7 @@ bool Read_Scenario_INI_Write_INB( char *root, bool fresh );
 **	INIT.CPP
 */
 void Load_Title_Page(bool visible=false);
-long Obfuscate(char const * string);
+int Obfuscate(char const * string);
 void Anim_Init(void);
 bool Init_Game(int argc, char *argv[]);
 bool Select_Game(bool fade = false);
@@ -675,8 +690,8 @@ void * Conquer_Build_Fading_Table(PaletteClass const & palette, void *dest, int 
 void * Small_Icon(void const * iconptr, int iconnum);
 void Set_Window(int window, int x, int y, int w, int h);
 void * Load_Alloc_Data(FileClass &file);
-long Load_Uncompress(FileClass &file, BuffType &uncomp_buff, BuffType &dest_buff, void *reserved_data);
-long Translucent_Table_Size(int count);
+int Load_Uncompress(FileClass &file, BuffType &uncomp_buff, BuffType &dest_buff, void *reserved_data);
+int Translucent_Table_Size(int count);
 void *Build_Translucent_Table(PaletteClass const & palette, TLucentType const *control, int count, void *buffer);
 void *Conquer_Build_Translucent_Table(PaletteClass const & palette, TLucentType const *control, int count, void *buffer);
 void * Make_Fading_Table(PaletteClass const & palette, void * dest, int color, int frac);
@@ -685,13 +700,13 @@ void * Make_Fading_Table(PaletteClass const & palette, void * dest, int color, i
 **	KEYFBUFF.ASM
 */
 extern "C" {
-	long __cdecl Buffer_Frame_To_Page(int x, int y, int w, int h, void *Buffer, GraphicViewPortClass &view, int flags, ...);
+	int __cdecl Buffer_Frame_To_Page(int x, int y, int w, int h, void *Buffer, GraphicViewPortClass &view, int flags, ...);
 }
 
 /*
 **	KEYFRAME.CPP
 */
-unsigned long Build_Frame(void const *dataptr, unsigned short framenumber, void *buffptr);
+uintptr_t Build_Frame(void const *dataptr, unsigned short framenumber, void *buffptr);	// Win95: returns a pointer to the frame
 unsigned short Get_Build_Frame_Count(void const *dataptr);
 unsigned short Get_Build_Frame_X(void const *dataptr);
 unsigned short Get_Build_Frame_Y(void const *dataptr);
@@ -708,11 +723,11 @@ int Coord_Spillage_Number(COORDINATE coord, int maxsize);
 /*
 **	MENUS.CPP
 */
-void Setup_Menu(int menu, char const *text[], unsigned long field, int index, int skip);
-int Check_Menu(int menu, char const *text[], char *selection, long field, int index);
+void Setup_Menu(int menu, char const *text[], unsigned int field, int index, int skip);
+int Check_Menu(int menu, char const *text[], char *selection, int field, int index);
 int Do_Menu(char const **strings, bool blue);
 extern int UnknownKey;
-int Main_Menu(unsigned long timeout);
+int Main_Menu(unsigned int timeout);
 
 /*
 ** MPLAYER.CPP
@@ -769,8 +784,8 @@ void Shutdown_Network (void);
 bool Remote_Connect (void);
 void Destroy_Connection(int id, int error);
 bool Process_Global_Packet(GlobalPacketType *packet, IPXAddressClass *address);
-unsigned long Compute_Name_CRC(char *name);
-void Net_Reconnect_Dialog(int reconn, int fresh, int oldest_index, unsigned long timeval);
+unsigned int Compute_Name_CRC(char *name);
+void Net_Reconnect_Dialog(int reconn, int fresh, int oldest_index, unsigned int timeval);
 
 /*
 ** NULLDLG.CPP
@@ -834,7 +849,7 @@ bool Queue_Mission(TargetClass whom, MissionType mission, TARGET target, TARGET 
 bool Queue_Options(void);
 bool Queue_Exit(void);
 void Queue_AI(void);
-void Add_CRC(unsigned long *crc, unsigned long val);
+void Add_CRC(unsigned int *crc, unsigned int val);
 
 /*
 **	RANDOM.CPP
@@ -884,7 +899,7 @@ void Do_Win(void);
 void Do_Restart(void);
 void Fill_In_Data(void);
 bool Restate_Mission(char const * name, int button1, int button2);
-int BGMessageBox(char const *text, int button1, int button2);
+bool BGMessageBox(char const *text, int button1, int button2);
 
 /*
 **	SCORE.CPP
@@ -978,7 +993,7 @@ void Load_Title_Screen(char *name, GraphicViewPortClass *video_page, unsigned ch
 */
 void Show_Who_Was_Responsible (void);
 
-#include	"inline.h"
+#include	"INLINE.H"
 
 /*
 **	These declarations ensure that the templates will be expanded for these specified
@@ -1015,17 +1030,11 @@ extern CCPtr<TemplateTypeClass>	y24;
 extern CCPtr<TerrainTypeClass>	y25;
 extern CCPtr<OverlayTypeClass>	y26;
 extern CCPtr<SmudgeTypeClass>		y27;
-class DynamicVectorClass<CCPtr<TeamTypeClass> >;
 extern DynamicVectorClass<CCPtr<TeamTypeClass> > y002;
-class DynamicVectorClass<CCPtr<TriggerTypeClass> >;
 extern DynamicVectorClass<CCPtr<TriggerTypeClass> > y001;
-class DynamicVectorClass<TeamMissionClass *>;
 extern DynamicVectorClass<TeamMissionClass *> xxx1;
-class DynamicVectorClass<EventChoiceClass *>;
 extern DynamicVectorClass<EventChoiceClass *> xxx2;
-class DynamicVectorClass<ActionChoiceClass *>;
 extern DynamicVectorClass<ActionChoiceClass *> xxx3;
-class DynamicVectorClass<EgoClass *>;
 extern DynamicVectorClass<EgoClass *> whatever;
 
 #endif

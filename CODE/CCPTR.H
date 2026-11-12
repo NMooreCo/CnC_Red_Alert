@@ -76,8 +76,8 @@ class CCPtr
 		bool operator < (CCPtr<T> const & rvalue) const {return (*this != rvalue && rvalue > *this);}
 		bool operator >= (CCPtr<T> const & rvalue) const {return (*this == rvalue || rvalue > *this);}
 
-		long Raw(void) const {return(ID);}
-		void Set_Raw(long value) {ID = value;}
+		int Raw(void) const {return(ID);}
+		void Set_Raw(int value) {ID = value;}
 
 	private:
 

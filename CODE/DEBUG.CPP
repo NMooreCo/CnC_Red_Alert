@@ -39,8 +39,8 @@
  *   Benchmarks -- Display the performance tracking benchmarks.                                *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include "function.h"
-#include "vortex.h"
+#include "FUNCTION.H"
+#include "VORTEX.H"
 #include	<stdarg.h>
 
 
@@ -523,10 +523,10 @@ void Self_Regulate(void)
 #ifdef OBSOLETE
 					mono->Set_Cursor(0, 20);
 					mono->Printf(
-						"Heap size:%10ld \r"
-						"Largest:  %10ld \r"
-						"Ttl Free: %10ld \r"
-						"Frag:     %10ld \r",
+						"Heap size:%10d \r"
+						"Largest:  %10d \r"
+						"Ttl Free: %10d \r"
+						"Frag:     %10d \r",
 						Heap_Size(MEM_NORMAL),
 						Ram_Free(MEM_NORMAL),
 						Total_Ram_Free(MEM_NORMAL),

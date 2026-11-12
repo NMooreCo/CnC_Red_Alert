@@ -34,18 +34,15 @@
  * Functions:                                                              *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#ifndef _WIN32 // Denzil 6/2/98 Watcom 11.0 complains without this check
-#define _WIN32
-#endif // _WIN32
 #define WIN32
 #include <windows.h>
 #include <windowsx.h>
 #include <objbase.h>
 #include "dsound.h"
 #include <mem.h>
-#include "wwmem.h"
-#include "wwstd.h"
-#include "soundint.h"
+#include "WWMEM.H"
+#include "WWSTD.H"
+#include "SOUNDINT.H"
 
 
 
@@ -90,22 +87,22 @@ void Init_Locked_Data(void)
 	** Lock the sound specific c functions that will cause us problems if
 	** they are swapped out during an interrupt.
 	*/
-	DPMI_Lock(&LockedData,							4096L);
-	DPMI_Lock(Simple_Copy, 							4096L);
-	DPMI_Lock(Sample_Copy, 							4096L);
-	DPMI_Lock((void *)maintenance_callback, 	4096L);
-	DPMI_Lock((void *)DigiCallback, 				4096L);
-	DPMI_Lock((void *)HMI_TimerCallback, 		4096L);
-	DPMI_Lock(Audio_Add_Long_To_Pointer,		4096L);
-	DPMI_Lock(DPMI_Unlock,							4096L);
+	DPMI_Lock(&LockedData,							4096);
+	DPMI_Lock(Simple_Copy, 							4096);
+	DPMI_Lock(Sample_Copy, 							4096);
+	DPMI_Lock((void *)maintenance_callback, 	4096);
+	DPMI_Lock((void *)DigiCallback, 				4096);
+	DPMI_Lock((void *)HMI_TimerCallback, 		4096);
+	DPMI_Lock(Audio_Add_Long_To_Pointer,		4096);
+	DPMI_Lock(DPMI_Unlock,							4096);
 
 	/*
 	** Lock the library functions that will cause us problems if they are
 	** swapped out during an interrupt.
 	*/
-	DPMI_Lock(Mem_Copy,								4096L);
-	DPMI_Lock(Audio_Mem_Set,						4096L);
-	DPMI_Lock(__GETDS,								4096L);
+	DPMI_Lock(Mem_Copy,								4096);
+	DPMI_Lock(Audio_Mem_Set,						4096);
+	DPMI_Lock(__GETDS,								4096);
 
 	/*
 	** Finally lock the two assembly modules that need locking.  This can

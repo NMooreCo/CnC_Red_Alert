@@ -35,7 +35,7 @@
 #ifndef PALETTE_H
 #define PALETTE_H
 
-#include <gbuffer.h>
+#include "GBUFFER.H"
 /*
 ********************************* Constants *********************************
 */
@@ -77,7 +77,7 @@ extern BOOL __cdecl Bump_Color(void *palette, int changable, int target);
 #ifdef __cplusplus
 }
 #endif
-extern "C" extern unsigned char  CurrentPalette[];		/* in pal.asm */
+extern "C" unsigned char  CurrentPalette[];		/* in pal.asm */
 
 
 #endif // PALETTE_H

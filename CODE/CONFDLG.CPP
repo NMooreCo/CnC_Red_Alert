@@ -37,8 +37,8 @@
  *   ConfirmationClass::Process -- Handles all the options graphic interface.                  *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
-#include	"confdlg.h"
+#include	"FUNCTION.H"
+#include	"CONFDLG.H"
 
 
 bool ConfirmationClass::Process(int text)
@@ -80,7 +80,7 @@ bool ConfirmationClass::Process(char const * string)
 	**	Set up the window.  Window x-coords are in bytes not pixels.
 	*/
 	strcpy(buffer, string);
-	Fancy_Text_Print(TXT_NONE, 0, 0, TBLACK, TBLACK, TPF_6PT_GRAD | TPF_NOSHADOW);
+	Fancy_Text_Print(TXT_NONE, 0, 0, (RemapControlType *)NULL, TBLACK, TPF_6PT_GRAD | TPF_NOSHADOW);
 	Format_Window_String(buffer, 200, width, height);
 	width += 60;
 	height += 60;

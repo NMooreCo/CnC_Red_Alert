@@ -47,8 +47,8 @@
 #define	UBYTE unsigned char
 #define	WORD  signed short
 #define	UWORD unsigned short
-#define	LONG  signed long
-#define	ULONG unsigned long
+#define	LONG  signed int
+#define	ULONG unsigned int
 
 #endif /* WWTYPES_H */
 

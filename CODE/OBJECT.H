@@ -38,7 +38,7 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
-#include	"abstract.h"
+#include	"ABSTRACT.H"
 
 class ObjectClass;
 class TechnoClass;
@@ -78,7 +78,7 @@ class ObjectClass : public AbstractClass
 		**	flag could be set by many different circumstances. It is automatically cleared
 		**	when the object is rerendered.
 		*/
-		unsigned IsToDisplay:1;
+		mutable unsigned IsToDisplay:1;	// (mutable: changed by the const Render())
 
 		/*
 		**	An object in the game may be valid yet held in a state of "limbo". Units are in such
@@ -229,7 +229,7 @@ class ObjectClass : public AbstractClass
 		*/
 		virtual void Per_Cell_Process(PCPType) {}
 		virtual BuildingClass * Who_Can_Build_Me(bool intheory, bool legal) const;
-		virtual RadioMessageType Receive_Message(RadioClass * from, RadioMessageType message, long & param);
+		virtual RadioMessageType Receive_Message(RadioClass * from, RadioMessageType message, int & param);
 		virtual bool Revealed(HouseClass * house);
 		virtual void Repair(int );
 		virtual void Sell_Back(int );

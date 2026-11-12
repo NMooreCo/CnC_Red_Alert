@@ -48,8 +48,8 @@
 #ifndef SEQCONN_H
 #define SEQCONN_H
 
-#include "connect.h"
-#include "comqueue.h"
+#include "CONNECT.H"
+#include "COMQUEUE.H"
 
 
 /*
@@ -65,8 +65,8 @@ class SequencedConnClass : public ConnectionClass
 		Constructor/destructor.
 		.....................................................................*/
 		SequencedConnClass (int numsend, int numrecieve, int maxlen, 
-			unsigned short magicnum, unsigned long retry_delta,
-			unsigned long max_retries, unsigned long timeout);
+			unsigned short magicnum, unsigned int retry_delta,
+			unsigned int max_retries, unsigned int timeout);
 		virtual ~SequencedConnClass ();
 
 		/*.....................................................................
@@ -100,10 +100,10 @@ class SequencedConnClass : public ConnectionClass
 		Running totals of # of packets we send & receive which require an ACK, 
 		and those that don't.
 		.....................................................................*/
-		unsigned long NumRecNoAck;
-		unsigned long NumRecAck;
-		unsigned long NumSendNoAck;
-		unsigned long NumSendAck;
+		unsigned int NumRecNoAck;
+		unsigned int NumRecAck;
+		unsigned int NumSendNoAck;
+		unsigned int NumSendAck;
 
 };
 

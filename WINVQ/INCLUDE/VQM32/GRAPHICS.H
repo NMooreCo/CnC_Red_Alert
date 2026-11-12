@@ -44,8 +44,8 @@
 extern "C" {
 #endif
 
-void __cdecl Eor_Region(long sx, long sy, long dx, long dy, long color);
-void __cdecl Fill_Rect(long x1, long y1, long x2, long y2, long color);
+void __cdecl Eor_Region(int sx, int sy, int dx, int dy, int color);
+void __cdecl Fill_Rect(int x1, int y1, int x2, int y2, int color);
 
 #ifdef __cplusplus
 }

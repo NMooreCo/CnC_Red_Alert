@@ -63,16 +63,16 @@
 #include <stdlib.h>
 #include <malloc.h>
 #include <mem.h>
-#include <sys\timeb.h>
-#include "vqaplayp.h"
-#include <vqm32\all.h>
+#include <sys/timeb.h>
+#include "VQAPLAYP.H"
+#include <VQM32/ALL.H>
 
 #ifdef __WATCOMC__
 #pragma pack(4);
 #endif
 
 #if(VQAAUDIO_ON)
-#include "sos.h"
+#include "SOS.H"
 #endif
 
 
@@ -83,18 +83,18 @@
 #define USE_WINDOWS_TIME	1
 
 #define HMI_SAMPLE 0x1000
-#define MAKE_LONG(a,b) (((long)(a)<<16)|(long)((b)&0x0000FFFFL))
+#define MAKE_LONG(a,b) (((int)(a)<<16)|(int)((b)&0x0000FFFF))
 
 /*---------------------------------------------------------------------------
  * PROTOTYPES
  *-------------------------------------------------------------------------*/
 
 #if( USE_WINDOWS_TIME )
-	extern unsigned long Get_Game_Time( void );
+	extern unsigned int Get_Game_Time( void );
 #endif
 
 #if(VQAAUDIO_ON)
-long AutoDetect(_SOS_CAPABILITIES *digicaps, long bitsize, long channels);
+int AutoDetect(_SOS_CAPABILITIES *digicaps, int bitsize, int channels);
 void far TimerCallback(void);
 void far cdecl AudioCallback(WORD wDriverHandle, WORD wAction,
 		WORD wSampleID);
@@ -109,15 +109,15 @@ static void EndAddr(void);
  *-------------------------------------------------------------------------*/
 
 static VQAHandleP *VQAP = NULL;
-static long AudioFlags = 0;
-static long TimerSysCount = 0;
-static long TimerIntCount = 0;
+static int AudioFlags = 0;
+static int TimerSysCount = 0;
+static int TimerIntCount = 0;
 static WORD VQATimer = 0;
-static long TimerMethod;
-static long VQATickCount = 0;
+static int TimerMethod;
+static int VQATickCount = 0;
 #endif /* VQAAUDIO_ON */
 
-static long TickOffset = 0;
+static int TickOffset = 0;
 char *HMIDevName = "<none>";
 
 #if(VQAAUDIO_ON)
@@ -154,7 +154,7 @@ static void StartAddr(void)
 *
 ****************************************************************************/
 
-long VQA_StartTimerInt(VQAHandleP *vqap, long init)
+int VQA_StartTimerInt(VQAHandleP *vqap, int init)
 {
 	VQAAudio *audio;
 
@@ -202,7 +202,7 @@ long VQA_StartTimerInt(VQAHandleP *vqap, long init)
 
 	/* Lock the memory occupied by this module. */
 	if ((audio->Flags & VQAAUDF_MODLOCKED) == 0) {
-		DPMI_Lock((void *)&StartAddr, (long)&EndAddr - (long)&StartAddr);
+		DPMI_Lock((void *)&StartAddr, (int)&EndAddr - (int)&StartAddr);
 		audio->Flags |= VQAAUDF_MODLOCKED;
 	}
 
@@ -275,7 +275,7 @@ void VQA_StopTimerInt(VQAHandleP *vqap)
 
 	/* Unlock the memory accupied by this module. */
 	if ((audio->Flags & VQAAUDF_MODLOCKED) == 1) {
-		DPMI_Unlock(&StartAddr, (long)&EndAddr - (long)&StartAddr);
+		DPMI_Unlock(&StartAddr, (int)&EndAddr - (int)&StartAddr);
 		audio->Flags &= ~VQAAUDF_MODLOCKED;
 	}
 }
@@ -332,7 +332,7 @@ void far TimerCallback(void)
 *
 ****************************************************************************/
 
-long VQA_OpenAudio(VQAHandleP *vqap)
+int VQA_OpenAudio(VQAHandleP *vqap)
 {
 	VQAData       *vqabuf;
 	VQAAudio      *audio;
@@ -340,7 +340,7 @@ long VQA_OpenAudio(VQAHandleP *vqap)
 	VQAHeader     *header;
 	unsigned char *driver_path;
 	WORD          port;
-	long          rc;
+	int          rc;
 
 	/* Dereference data memebers for quicker access. */
 	config = &vqap->Config;
@@ -373,7 +373,7 @@ long VQA_OpenAudio(VQAHandleP *vqap)
 	}
 	else if (config->FrameRate != header->FPS) {
 		audio->sSOSInitDriver.wSampleRate = ((audio->SampleRate*config->FrameRate)
-				/ (unsigned long)header->FPS);
+				/ (unsigned int)header->FPS);
 
 		config->AudioRate = audio->sSOSInitDriver.wSampleRate;
 	} else {
@@ -527,7 +527,7 @@ long VQA_OpenAudio(VQAHandleP *vqap)
 	}
 
 	if ((audio->Flags & VQAAUDF_MODLOCKED) == 0) {
-		DPMI_Lock(&StartAddr, (long)&EndAddr - (long)&StartAddr);
+		DPMI_Lock(&StartAddr, (int)&EndAddr - (int)&StartAddr);
 		audio->Flags |= VQAAUDF_MODLOCKED;
 	}
 
@@ -588,7 +588,7 @@ void VQA_CloseAudio(VQAHandleP *vqap)
 
 	/* Unlock the memory accupied by this module. */
 	if ((audio->Flags & VQAAUDF_MODLOCKED) == 1) {
-		DPMI_Unlock(&StartAddr, (long)&EndAddr - (long)&StartAddr);
+		DPMI_Unlock(&StartAddr, (int)&EndAddr - (int)&StartAddr);
 		audio->Flags &= ~VQAAUDF_MODLOCKED;
 	}
 }
@@ -617,12 +617,12 @@ void VQA_CloseAudio(VQAHandleP *vqap)
 *
 ****************************************************************************/
 
-long AutoDetect(_SOS_CAPABILITIES *digicaps, long bitsize, long channels)
+int AutoDetect(_SOS_CAPABILITIES *digicaps, int bitsize, int channels)
 {
-	long device_id = -1;
+	int device_id = -1;
 	WORD port;
-	long i;
-	long rc;
+	int i;
+	int rc;
 
 	/* Search for an 8-bit mono device */
 	if (sosDIGIDetectFindFirst(digicaps, &port)) {
@@ -709,7 +709,7 @@ long AutoDetect(_SOS_CAPABILITIES *digicaps, long bitsize, long channels)
 *
 ****************************************************************************/
 
-long VQA_StartAudio(VQAHandleP *vqap)
+int VQA_StartAudio(VQAHandleP *vqap)
 {
 	VQAConfig *config;
 	VQAAudio  *audio;
@@ -778,8 +778,8 @@ long VQA_StartAudio(VQAHandleP *vqap)
 		ldiv_t result;
 
 		result = ldiv(audio->SampleRate, audio->sSOSInitDriver.wSampleRate);
-		audio->sSOSSampleData.dwSamplePitchAdd = (long)MAKE_LONG((short)result.quot,
-				(short)(((long)result.rem * 0x10000L) / audio->sSOSInitDriver.wSampleRate));
+		audio->sSOSSampleData.dwSamplePitchAdd = (int)MAKE_LONG((short)result.quot,
+				(short)(((int)result.rem * 0x10000) / audio->sSOSInitDriver.wSampleRate));
 		audio->sSOSSampleData.wSampleFlags |= _PITCH_SHIFT;
 	}
 
@@ -859,14 +859,14 @@ void VQA_StopAudio(VQAHandleP *vqap)
 *
 ****************************************************************************/
 
-long CopyAudio(VQAHandleP *vqap)
+int CopyAudio(VQAHandleP *vqap)
 {
 	VQAAudio  *audio;
 	VQAConfig *config;
-	long      startblock;
-	long      endblock;
-	long      len1,len2;
-	long      i;
+	int      startblock;
+	int      endblock;
+	int      len1,len2;
+	int      i;
 
 	/* Dereference commonly used data members for quicker access. */
 	audio = &vqap->VQABuf->Audio;
@@ -1069,9 +1069,9 @@ static void EndAddr(void)
 *
 ****************************************************************************/
 
-void VQA_SetTimer(VQAHandleP *vqap, long time, long method)
+void VQA_SetTimer(VQAHandleP *vqap, int time, int method)
 {
-	unsigned long curtime;
+	unsigned int curtime;
 
 	#if(VQAAUDIO_ON)
 	VQAAudio      *audio;
@@ -1116,7 +1116,7 @@ void VQA_SetTimer(VQAHandleP *vqap, long time, long method)
 	method = method;
 	#endif
 
-	TickOffset = 0L;
+	TickOffset = 0;
 	curtime = VQA_GetTime(vqap);
 	TickOffset = (time - curtime);
 }
@@ -1179,20 +1179,20 @@ void VQA_SetTimer(VQAHandleP *vqap, long time, long method)
 *
 ****************************************************************************/
 
-unsigned long VQA_GetTime(VQAHandleP *vqap)
+unsigned int VQA_GetTime(VQAHandleP *vqap)
 {
 	#if(VQAAUDIO_ON)
 	VQAAudio      *audio;
 	VQAConfig     *config;
-	unsigned long fillcount;
-	unsigned long lastfill;
-	unsigned long dma_diff;
-	unsigned long totalbytes;
-	unsigned long samples;
+	unsigned int fillcount;
+	unsigned int lastfill;
+	unsigned int dma_diff;
+	unsigned int totalbytes;
+	unsigned int samples;
 	#endif
 
 	// MEG 09.25.95 - changed from long to unsigned long
-	unsigned long ticks;
+	unsigned int ticks;
 
 	#if(VQAAUDIO_ON)
 	switch (TimerMethod) {
@@ -1211,7 +1211,7 @@ unsigned long VQA_GetTime(VQAHandleP *vqap)
 			 * position of the DMA fill handler, this should tell us exactly
 			 * where we are in the audio track.
 			 */
-			fillcount = (unsigned long)(*_lpSOSDMAFillCount[audio->DigiHandle]);
+			fillcount = (unsigned int)(*_lpSOSDMAFillCount[audio->DigiHandle]);
 			lastfill = _lpSOSSampleList[audio->DigiHandle][audio->SampleHandle]->sampleLastFill;
 			totalbytes = _lpSOSSampleList[audio->DigiHandle][audio->SampleHandle]->sampleTotalBytes;
 
@@ -1241,7 +1241,7 @@ unsigned long VQA_GetTime(VQAHandleP *vqap)
 			 * processed times the tick resolution per second divided by the
 			 * sample rate.
 			 */
-			ticks = (long)((samples * VQA_TIMETICKS) / audio->SampleRate);
+			ticks = (int)((samples * VQA_TIMETICKS) / audio->SampleRate);
 			ticks += TickOffset;
 			break;
 
@@ -1257,8 +1257,8 @@ unsigned long VQA_GetTime(VQAHandleP *vqap)
 			struct timeb mytime;
 
 			ftime(&mytime);
- 			ticks = (unsigned long)mytime.time*1000L+(unsigned long)mytime.millitm;
-			ticks = ((ticks * VQA_TIMETICKS) / 1000L);
+ 			ticks = (unsigned int)mytime.time*1000+(unsigned int)mytime.millitm;
+			ticks = ((ticks * VQA_TIMETICKS) / 1000);
 			ticks += TickOffset;
 			}
 			break;
@@ -1271,7 +1271,7 @@ unsigned long VQA_GetTime(VQAHandleP *vqap)
 	struct timeb mytime;
 
 	ftime(&mytime);
-	ticks = (unsigned long)mytime.time*1000L+(unsigned long)mytime.millitm;
+	ticks = (unsigned int)mytime.time*1000+(unsigned int)mytime.millitm;
 
 #else
 
@@ -1285,7 +1285,7 @@ unsigned long VQA_GetTime(VQAHandleP *vqap)
 	// 60 and dividing by 1000.  The reason for this is that multiplying by
 	// 60 causes an overflow pretty quickly if the value from Get_Game_Time
 	// is high.
-	ticks = ((ticks * 3L) / 50L);
+	ticks = ((ticks * 3) / 50);
 
 	ticks += TickOffset;
 	}
@@ -1316,7 +1316,7 @@ unsigned long VQA_GetTime(VQAHandleP *vqap)
 *
 ****************************************************************************/
 
-long VQA_TimerMethod(void)
+int VQA_TimerMethod(void)
 {
 	#if(VQAAUDIO_ON)
 	return (TimerMethod);
@@ -1328,5 +1328,3 @@ long VQA_TimerMethod(void)
 #ifdef __WATCOMC__
 #pragma pack(1);
 #endif
-
-

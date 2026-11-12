@@ -38,7 +38,7 @@
 #define VIDEO_H
 
 #ifndef WWSTD_H
-#include "wwstd.h"
+#include "WWSTD.H"
 #endif
 
 /*=========================================================================*/
@@ -70,7 +70,7 @@
 /*=========================================================================*/
 /* Define the maximum number of bank entries											*/
 /*=========================================================================*/
-#define	MAX_BANK_ENTRIES		((1280L*1024L)/65536L)
+#define	MAX_BANK_ENTRIES		((1280*1024)/65536)
 
 
 /*=========================================================================*
@@ -90,7 +90,7 @@ typedef struct {
 	char    Signature[4];
 	short   Version;
 	REALPTR OEMString;
-	long    Capabilities;
+	int    Capabilities;
 	REALPTR AvailModes;
 	short   TotalMemory;
 	char    Reserved[236];
@@ -178,12 +178,12 @@ extern REALPTR	 VesaFunc;
 
 extern "C" {
 extern	int	GraphicMode;
-extern	long	XRes;
-extern	long	YRes;
+extern	int	XRes;
+extern	int	YRes;
 
-extern long		 BankTable [];
-extern unsigned long RMVesaVector ;
-extern unsigned long RMVesaRegs ;
+extern int		 BankTable [];
+extern unsigned int RMVesaVector ;
+extern unsigned int RMVesaRegs ;
 }
 
 /*=========================================================================*/
@@ -194,7 +194,7 @@ extern "C" int Set_Video_Mode(int mode);
 int Get_Video_Mode(void);
 void Update_Video_Mode (void) ;
 void Vesa_Info(void);
-void Vesa_Set_Window(long grain_num);
+void Vesa_Set_Window(int grain_num);
 int Get_Original_Video_Mode(void);
 void Set_Original_Video_Mode(int mode);
 

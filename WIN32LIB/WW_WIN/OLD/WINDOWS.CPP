@@ -50,11 +50,11 @@
 #include <string.h>
 #include	<stdio.h>
 #include	<stdarg.h>
-#include <wwstd.h>
+#include <WWSTD.H>
 #include "windows.h"
-#include <keyboard.h>
-#include	<font.h>
-#include <dipthong.h>
+#include <KEYBOARD.H>
+#include	<FONT.H>
+#include <DIPTHONG.H>
 
 PRIVATE void Scroll_Window(void);
 PRIVATE void Flush_Line(void);
@@ -519,7 +519,7 @@ void Window_Print(char const string[], ...)
 				Flush_Line();
 				WinCy = Fetch_Char();
 				//WinCy = MAX(0, WinCy);
-				WinCy = MIN((long)WindowLines-1, (long)WinCy);
+				WinCy = MIN((int)WindowLines-1, (int)WinCy);
 				break;
 
 			/*
@@ -970,4 +970,3 @@ PRIVATE char Fetch_Char(void)
 
 	return (c);
 }
-

@@ -65,21 +65,21 @@ class CRCEngine {
 	public:
 
 		// Constructor for CRC engine (it can have an override initial CRC value).
-		CRCEngine(long initial=0) : CRC(initial), Index(0) {
+		CRCEngine(int initial=0) : CRC(initial), Index(0) {
 			StagingBuffer.Composite = 0;
 		};
 
 		// Fetches CRC value.
-		long operator() (void) const {return(Value());};
+		int operator() (void) const {return(Value());};
 
 		// Submits one byte sized datum to the CRC accumulator.
 		void operator() (char datum);
 
 		// Submits an arbitrary buffer to the CRC accumulator.
-		long operator() (void const * buffer, int length);
+		int operator() (void const * buffer, int length);
 
 		// Implicit conversion operator so this object appears like a 'long integer'.
-		operator long(void) const {return(Value());};
+		operator int(void) const {return(Value());};
 
 	protected:
 
@@ -87,7 +87,7 @@ class CRCEngine {
 			return(Index != 0);
 		};
 
-		long Value(void) const {
+		int Value(void) const {
 			if (Buffer_Needs_Data()) {
 				return(_lrotl(CRC, 1) + StagingBuffer.Composite);
 			}
@@ -98,7 +98,7 @@ class CRCEngine {
 		**	Current accumulator of the CRC value. This value doesn't take into
 		**	consideration any pending data in the staging buffer.
 		*/
-		long CRC;
+		int CRC;
 
 		/*
 		**	This is the sub index into the staging buffer used to keep track of
@@ -112,8 +112,8 @@ class CRCEngine {
 		**	in preparation for additional data.
 		*/
 		union {
-			long Composite;
-			char Buffer[sizeof(long)];
+			int Composite;
+			char Buffer[sizeof(int)];
 		} StagingBuffer;
 };
 

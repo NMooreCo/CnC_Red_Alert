@@ -58,41 +58,41 @@
 #include <stdlib.h>
 #include <string.h>
 #include <conio.h>
-#include <sys\timeb.h>
+#include <sys/timeb.h>
 #include <mem.h>
 #include <io.h>
 #include <ctype.h>
 #include <process.h>
 #include <dos.h>
 
-#include <vqa32\vqaplay.h>
-#include <vqa32\vqafile.h>
-#include <vqm32\all.h>
+#include <VQA32/VQAPLAY.H>
+#include <VQA32/VQAFILE.H>
+#include <VQM32/ALL.H>
 
 #if(CAPTIONS)
-#include <vqm32\font.h>
+#include <VQM32/FONT.H>
 #endif
 
 /*---------------------------------------------------------------------------
  * PRIVATE DECLARATIONS
  *-------------------------------------------------------------------------*/
 
-long OutputStats = 0;
-long OutputTime = 0;
-long LastKey;
+int OutputStats = 0;
+int OutputTime = 0;
+int LastKey;
 
 /* Embedded version string */
 char VerTag[] = {"$VER$VQAPlay 2.6 (07/07/95) 32Bit"};
 char ReqTag[] = {"$REQ$VQA32 Version 2.37 & VQM32 Version 2.11 or better."};
 
 /* Prototypes */
-void main(long argc, char **argv);
-static void Usage(long showall);
-static void Options(long argc, char *argv[], VQAConfig *config);
-static char *Find_File_Name(long argc, char *argv[], char *desired_ext);
+void main(int argc, char **argv);
+static void Usage(int showall);
+static void Options(int argc, char *argv[], VQAConfig *config);
+static char *Find_File_Name(int argc, char *argv[], char *desired_ext);
 static char *GetFilePart(char *path);
 void Print_Play_Stats(VQAConfig *config, VQAStatistics *stats);
-long VQCallback(unsigned char *screen, long framenum);
+int VQCallback(unsigned char *screen, int framenum);
 
 #ifdef __cplusplus
 extern "C" {
@@ -137,13 +137,13 @@ int __far HardErr_Handler(unsigned deverror, unsigned errcode,
 *
 ****************************************************************************/
 
-void main(long argc, char **argv)
+void main(int argc, char **argv)
 {
 	VQAConfig     myconfig;
 	VQAStatistics stats;
 	VQAHandle     *vqa;
 	char          *name;
-	long          i;
+	int          i;
 
 	/* Parse command-line */
 	if (argc < 2) {
@@ -222,9 +222,9 @@ void main(long argc, char **argv)
 			}
 			#else
 			{
-			long done = 0;
-			long mode = VQAMODE_WALK;
-			long key;
+			int done = 0;
+			int mode = VQAMODE_WALK;
+			int key;
 
 			do {
 				switch (VQA_Play(vqa, mode)) {
@@ -312,7 +312,7 @@ void main(long argc, char **argv)
 *
 ****************************************************************************/
 
-static void Usage(long showall)
+static void Usage(int showall)
 {
 	printf("\n%s Copyright (c) 1995 Westwood Studios.\n", &VerTag[5]);
 	printf("Playback library: %s\n", VQA_IDString());
@@ -395,10 +395,10 @@ static void Usage(long showall)
 *
 ****************************************************************************/
 
-static void Options(long argc, char *argv[], VQAConfig *config)
+static void Options(int argc, char *argv[], VQAConfig *config)
 {
-	long l;
-	long i;
+	int l;
+	int i;
 
 	/* Scan arguments for any options ( / or - followed by a letter) */
 	for (l = 0; l < argc; l++) {
@@ -587,9 +587,9 @@ static void Options(long argc, char *argv[], VQAConfig *config)
 *
 ****************************************************************************/
 
-static char *Find_File_Name(long argc, char *argv[], char *desired_ext)
+static char *Find_File_Name(int argc, char *argv[], char *desired_ext)
 {
-	long        opt = 1;
+	int        opt = 1;
 	static char drive[_MAX_DRIVE] = {0};
 	static char dir[_MAX_DIR] = {0};
 	static char fname[_MAX_FNAME] = {0};
@@ -641,8 +641,8 @@ static char *Find_File_Name(long argc, char *argv[], char *desired_ext)
 
 void Print_Play_Stats(VQAConfig *config, VQAStatistics *stats)
 {
-	long tim1,tim2;
-	long fps1,fps2;
+	int tim1,tim2;
+	int fps1,fps2;
 
 	/* Video mode name */
 	printf("Video Mode: ");
@@ -698,7 +698,7 @@ void Print_Play_Stats(VQAConfig *config, VQAStatistics *stats)
 		puts("UNKNOWN");
 	}
 
-	printf("%lu bytes used.\n", stats->MemUsed);
+	printf("%u bytes used.\n", stats->MemUsed);
 
 	tim1 = ((stats->EndTime - stats->StartTime) / VQA_TIMETICKS);
 	tim2 = (((stats->EndTime - stats->StartTime) * 10) / VQA_TIMETICKS);
@@ -722,7 +722,7 @@ void Print_Play_Stats(VQAConfig *config, VQAStatistics *stats)
 	printf("Draw rate: %d.%d FPS\n", fps1, fps2 - (fps1 * 10));
 
 	/* Audio */
-	printf("Audio samples played: %lu\n", stats->SamplesPlayed);
+	printf("Audio samples played: %u\n", stats->SamplesPlayed);
 }
 
 

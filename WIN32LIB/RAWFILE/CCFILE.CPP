@@ -47,7 +47,7 @@
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 
-#include	"function.h"
+#include	"FUNCTION.H"
 #include	<direct.h>
 #include	<fcntl.h>
 #include	<io.h>
@@ -156,7 +156,7 @@ CCFileClass::CCFileClass(void) : CDFileClass()
  * HISTORY:                                                                                    *
  *   08/08/1994 JLB : Created.                                                                 *
  *=============================================================================================*/
-long CCFileClass::Write(void const *buffer, long size)
+int CCFileClass::Write(void const *buffer, int size)
 {
 
 	/*
@@ -189,7 +189,7 @@ long CCFileClass::Write(void const *buffer, long size)
  * HISTORY:                                                                                    *
  *   08/08/1994 JLB : Created.                                                                 *
  *=============================================================================================*/
-long CCFileClass::Read(void *buffer, long size)
+int CCFileClass::Read(void *buffer, int size)
 {
 	int opened = false;
 
@@ -204,7 +204,7 @@ long CCFileClass::Read(void *buffer, long size)
 	**	all that is required for the read.
 	*/
 	if (Pointer) {
-		long	maximum = Length - Position;
+		int	maximum = Length - Position;
 
 		size = MIN(maximum, size);
 		if (size) {
@@ -220,7 +220,7 @@ long CCFileClass::Read(void *buffer, long size)
 	**	on disk, then a special read operation is necessary.
 	*/
 	if (FromDisk) {
-		long	maximum = Length - Position;
+		int	maximum = Length - Position;
 
 		size = MIN(maximum, size);
 		if (size > 0) {
@@ -232,7 +232,7 @@ long CCFileClass::Read(void *buffer, long size)
 		return(size);
 	}
 
-	long s = CDFileClass::Read(buffer, size);
+	int s = CDFileClass::Read(buffer, size);
 	if (opened) Close();
 	return(s);
 }
@@ -258,7 +258,7 @@ long CCFileClass::Read(void *buffer, long size)
  * HISTORY:                                                                                    *
  *   08/08/1994 JLB : Created.                                                                 *
  *=============================================================================================*/
-long CCFileClass::Seek(long pos, int dir)
+int CCFileClass::Seek(int pos, int dir)
 {
 	if (Pointer || FromDisk) {
 		switch (dir) {
@@ -299,7 +299,7 @@ long CCFileClass::Seek(long pos, int dir)
  * HISTORY:                                                                                    *
  *   08/08/1994 JLB : Created.                                                                 *
  *=============================================================================================*/
-long CCFileClass::Size(void)
+int CCFileClass::Size(void)
 {
 	if (Pointer || FromDisk) return(Length);
 
@@ -428,8 +428,8 @@ int CCFileClass::Open(int rights)
 		**	the mixfile, but think it is reading from a solitary file.
 		*/
 		if (!Pointer) {
-			long	start = Start;
-			long	length = Length;
+			int	start = Start;
+			int	length = Length;
 
 			/*
 			**	This is a legitimate open to the file. All access to the file through this

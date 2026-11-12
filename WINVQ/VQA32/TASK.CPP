@@ -63,10 +63,10 @@
 #include <dos.h>
 #include <mem.h>
 #include <conio.h>
-#include <sys\timeb.h>
-#include <vqm32\all.h>
-#include "vqaplayp.h"
-#include <vqm32\font.h>
+#include <sys/timeb.h>
+#include <VQM32/ALL.H>
+#include "VQAPLAYP.H"
+#include <VQM32/FONT.H>
 
 /*---------------------------------------------------------------------------
  * PRIVATE DECLARATIONS
@@ -171,8 +171,8 @@ void VQA_Free(VQAHandle *vqa)
 *
 ****************************************************************************/
 
-void VQA_Init(VQAHandle *vqa, long(*iohandler)(VQAHandle *vqa, long action,
-		void *buffer, long nbytes))
+void VQA_Init(VQAHandle *vqa, int(*iohandler)(VQAHandle *vqa, int action,
+		void *buffer, int nbytes))
 {
 	((VQAHandleP *)vqa)->IOHandler = iohandler;
 }
@@ -239,19 +239,19 @@ int	VQAMovieDone;
 *
 ****************************************************************************/
 
-long VQA_Play(VQAHandle *vqa, long mode)
+int VQA_Play(VQAHandle *vqa, int mode)
 {
 	VQAData   *vqabuf;
 	VQAConfig *config;
 	VQADrawer *drawer;
-	long      rc;
-	long      i;
-	long      key;
+	int      rc;
+	int      i;
+	int      key;
 
 #ifdef WIN32
 	unsigned char *pal;
-	long          palsize;
-	long          slowpal;
+	int          palsize;
+	int          slowpal;
 	VQAFrameNode *curframe;
 	int			setpalette;
 #endif	//WIN32
@@ -410,7 +410,7 @@ long VQA_Play(VQAHandle *vqa, long mode)
 					}
 				} else {
 					vqabuf->Flags |= VQADATF_DDONE;
-					drawer->CurFrame->Flags = 0L;
+					drawer->CurFrame->Flags = 0;
 					drawer->CurFrame = drawer->CurFrame->Next;
 				}
 
@@ -504,9 +504,9 @@ long VQA_Play(VQAHandle *vqa, long mode)
 *
 ****************************************************************************/
 
-long VQA_SetStop(VQAHandle *vqa, long stop)
+int VQA_SetStop(VQAHandle *vqa, int stop)
 {
-	long      oldstop = -1;
+	int      oldstop = -1;
 	VQAHeader *header;
 
 	/* Get a local pointer to the header. */
@@ -676,10 +676,10 @@ char *VQA_IDString(void)
 *
 ****************************************************************************/
 
-long User_Update(VQAHandle *vqa)
+int User_Update(VQAHandle *vqa)
 {
 	VQAData *vqabuf;
-	long    rc = 0;
+	int    rc = 0;
 
 	/* Dereference data members for quicker access. */
 	vqabuf = ((VQAHandleP *)vqa)->VQABuf;
@@ -693,7 +693,7 @@ long User_Update(VQAHandle *vqa)
 		vqabuf->Flipper.LastFrameNum = vqabuf->Flipper.CurFrame->FrameNum;
 
 		/* Mark the frame as loadable */
-		vqabuf->Flipper.CurFrame->Flags = 0L;
+		vqabuf->Flipper.CurFrame->Flags = 0;
 		vqabuf->Flags &= (~VQADATF_UPDATE);
 	}
 

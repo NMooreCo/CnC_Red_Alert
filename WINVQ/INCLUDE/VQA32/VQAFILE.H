@@ -41,9 +41,9 @@
 *
 ****************************************************************************/
 
-#include <vqm32\iff.h>
+#include <VQM32/IFF.H>
 
-#ifdef __WATCOMC__
+#if defined(__WATCOMC__) || defined(RA_PORT)
 #pragma pack(1);
 #endif
 
@@ -121,13 +121,13 @@ typedef struct _VQAHeader {
 #define VQAFINB_KEY  31
 #define VQAFINB_PAL  30
 #define VQAFINB_SYNC 29
-#define VQAFINF_KEY  (1L<<VQAFINB_KEY)
-#define VQAFINF_PAL  (1L<<VQAFINB_PAL)
-#define VQAFINF_SYNC (1L<<VQAFINB_SYNC)
+#define VQAFINF_KEY  (1<<VQAFINB_KEY)
+#define VQAFINF_PAL  (1<<VQAFINB_PAL)
+#define VQAFINF_SYNC (1<<VQAFINB_SYNC)
 
 /* FINF related defines and macros. */
-#define VQAFINF_OFFSET 0x0FFFFFFFL
-#define VQAFINF_FLAGS  0xF0000000L
+#define VQAFINF_OFFSET 0x0FFFFFFF
+#define VQAFINF_FLAGS  0xF0000000
 #define VQAFRAME_OFFSET(a) (((a & VQAFINF_OFFSET)<<1))
 
 /* VQ vector pointer codes. */
@@ -189,8 +189,8 @@ typedef struct _VQAHeader {
 #define ID_CAP0 MAKE_ID('C','A','P','0') /* Caption text */
 #define ID_EVA0 MAKE_ID('E','V','A','0') /* EVA text */
 
-#ifdef __WATCOMC__
-#pragma pack();
+#if defined(__WATCOMC__) || defined(RA_PORT)
+#pragma pack(1)		/* RA_PORT: Watcom "pack()" restored the /zp1 default. */
 #endif
 
 #endif /* VQAFILE_H */

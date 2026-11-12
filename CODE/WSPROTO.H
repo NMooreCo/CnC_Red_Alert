@@ -37,7 +37,7 @@
 #ifndef WSPROTO_H
 #define WSPROTO_H
 
-#include	"_WSProto.h"
+#include	"_WSPROTO.H"
 
 /*
 ** Include standard Winsock 1.0 header file.
@@ -117,7 +117,7 @@ class WinsockInterfaceClass {
 			return (false);
 		};
 
-	 	virtual long Message_Handler(HWND, UINT, UINT, LONG) {
+	 	virtual int Message_Handler(HWND, UINT, UINT, LONG) {
 			return (1);
 		}
 

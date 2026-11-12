@@ -38,10 +38,10 @@
 *
 ****************************************************************************/
 
-#ifndef __WATCOMC__
+#if !defined(__WATCOMC__) && !defined(RA_PORT)
 #include <pharlap.h>
 #else
-#include "realmode.h"
+#include "REALMODE.H"
 #endif
 
 /*---------------------------------------------------------------------------
@@ -91,7 +91,7 @@ typedef struct _VESAInfo {
 	char           Signature[4];
 	unsigned short Version;
 	REALPTR        OEMString;
-	unsigned long  Capabilities;
+	unsigned int  Capabilities;
 	REALPTR        AvailModes;
 	unsigned short TotalMemory;
 	unsigned char  Reserved[236];
@@ -172,11 +172,11 @@ typedef struct _VESAModeInfo {
  * Function prototypes
  *-------------------------------------------------------------------------*/
 
-long InitVESA(void);
+int InitVESA(void);
 void UninitVESA(void);
-VESAModeInfo *SetVESAMode(long mode);
-VESAModeInfo *ReadVESAModeInfo(long mode);
-void SetVESAWindow(long grain_num);
+VESAModeInfo *SetVESAMode(int mode);
+VESAModeInfo *ReadVESAModeInfo(int mode);
+void SetVESAWindow(int grain_num);
 
 #endif /* VQMVESAVID_H */
 

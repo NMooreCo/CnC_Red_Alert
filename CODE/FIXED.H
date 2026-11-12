@@ -216,7 +216,7 @@ class fixed
 	private:
 		union {
 			struct {
-#ifdef BIG_ENDIAN
+#ifdef RA_BIG_ENDIAN
 				unsigned char Whole;
 				unsigned char Fraction;
 #else

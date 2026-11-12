@@ -55,17 +55,17 @@ typedef int bool;
 #endif
 
 
-#include	"straw.h"
+#include	"STRAW.H"
 #include	<stdlib.h>
 
 extern unsigned short primeTable[3511];
 
 
-#define	digit	unsigned long
-#define	signeddigit	signed long
+#define	digit	unsigned int
+#define	signeddigit	signed int
 #define	LOG_UNITSIZE			5
 #define	UNITSIZE					32
-#define	UPPER_MOST_BIT			0x80000000L
+#define	UPPER_MOST_BIT			0x80000000
 #define	SEMI_UPPER_MOST_BIT	0x8000
 #define	SEMI_MASK				((unsigned short)~0)
 #define	MAX_BIT_PRECISION		2048
@@ -121,7 +121,7 @@ void XMP_Randomize(digit * result, Straw & rng, int nbits, int precision);
 void XMP_Randomize(digit * result, Straw & rng, digit const * min, digit const * max, int precision);
 bool XMP_Is_Prime(digit const * prime, int precision);
 bool XMP_Rabin_Miller_Test(Straw & rng, digit const * w, int rounds, int precision);
-int XMP_DER_Length_Encode(unsigned long length, unsigned char * output);
+int XMP_DER_Length_Encode(unsigned int length, unsigned char * output);
 int XMP_DER_Encode(digit const * from, unsigned char * output, int precision);
 void XMP_DER_Decode(digit * result, unsigned char const * input, int precision);
 

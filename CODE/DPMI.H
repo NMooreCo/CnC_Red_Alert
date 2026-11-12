@@ -67,7 +67,7 @@ class DOSSegmentClass {
 	public:
 		DOSSegmentClass(void);
 		~DOSSegmentClass(void);
-		DOSSegmentClass(unsigned short segment, long size=(1024L*64L));
+		DOSSegmentClass(unsigned short segment, int size=(1024*64));
 
 		unsigned int Get_Selector(void);
 
@@ -78,7 +78,7 @@ class DOSSegmentClass {
 		**	is used to update the selector and the size can be any length.
 		** In Watcom flat mode, it sets Selector == segment<<4
 		*/
-		void Assign(unsigned short segment, long size=(1024L*64L));
+		void Assign(unsigned short segment, int size=(1024*64));
 
 		/*
 		**	These routines will move the data to/from regular memory and the segment/descriptor
@@ -88,10 +88,10 @@ class DOSSegmentClass {
 		void Copy_From(void *dest, int source, int size);
 		void Copy_Word_To(short data, int dest);
 		void Copy_Byte_To(char data, int dest);
-		void Copy_DWord_To(long data, int dest);
+		void Copy_DWord_To(int data, int dest);
 		short Copy_Word_From(int source);
 		char Copy_Byte_From(int source);
-		long Copy_DWord_From(int source);
+		int Copy_DWord_From(int source);
 
 		/*
 		**	These routines move data around between sections of segmented (descriptor) memory.
@@ -122,17 +122,17 @@ inline void DOSSegmentClass::Copy_Byte_To(char data, int dest)
 	*(char *)(Selector+dest) = data;
 }
 
-inline void DOSSegmentClass::Copy_DWord_To(long data, int dest)
+inline void DOSSegmentClass::Copy_DWord_To(int data, int dest)
 {
-	*(long *)(Selector+dest) = data;
+	*(int *)(Selector+dest) = data;
 }
 
-inline void DOSSegmentClass::Assign(unsigned short segment, long)
+inline void DOSSegmentClass::Assign(unsigned short segment, int)
 {
-	Selector = (long)(segment)<<4L;
+	Selector = (int)(segment)<<4;
 }
 
-inline DOSSegmentClass::DOSSegmentClass(unsigned short segment, long)
+inline DOSSegmentClass::DOSSegmentClass(unsigned short segment, int)
 {
 	Assign(segment);
 }
@@ -161,9 +161,9 @@ inline char DOSSegmentClass::Copy_Byte_From(int source)
 	return *(char*)(Selector+source);
 }
 
-inline long DOSSegmentClass::Copy_DWord_From(int source)
+inline int DOSSegmentClass::Copy_DWord_From(int source)
 {
-	return *(long*)(Selector+source);
+	return *(int*)(Selector+source);
 }
 
 inline unsigned int DOSSegmentClass::Get_Selector(void)

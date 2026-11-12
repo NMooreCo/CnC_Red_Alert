@@ -52,9 +52,9 @@
 
 #ifdef WIN32
 
-#include "function.h"
-#include "tcpip.h"
-#include "ccdde.h"
+#include "FUNCTION.H"
+#include "TCPIP.H"
+#include "CCDDE.H"
 
 
 extern bool SpawnedFromWChat;
@@ -75,10 +75,10 @@ extern bool Is_Mission_Counterstrike (char *file_name);
 char PlanetWestwoodHandle[] = {"Handle"};				//Planet WW user name
 char PlanetWestwoodPassword[] = {"Password"};			//Planet WW password
 char PlanetWestwoodIPAddress[IP_ADDRESS_MAX] = {"206.154.108.87"};	//IP of server or other player
-long PlanetWestwoodPortNumber = 1234;					//Port number to send to
+int PlanetWestwoodPortNumber = 1234;					//Port number to send to
 bool PlanetWestwoodIsHost = false;						//Flag true if player has control of game options
-unsigned long PlanetWestwoodGameID;						//Game ID
-unsigned long PlanetWestwoodStartTime;					//Time that game was started
+unsigned int PlanetWestwoodGameID;						//Game ID
+unsigned int PlanetWestwoodStartTime;					//Time that game was started
 HWND	WChatHWND = 0;											//Handle to Wchat window.
 bool	GameStatisticsPacketSent;							//Flag that game stats have been sent to wchat
 bool	ConnectionLost;										//Flag that the connection to the other player was lost
@@ -322,7 +322,8 @@ int Read_Game_Options(char *name)
 	//WWDebugString ("\n");
 
 	Session.Options.ScenarioIndex = -1;
-	for (int i = 0; i < Session.Scenarios.Count(); i++) {
+	int i;
+	for (i = 0; i < Session.Scenarios.Count(); i++) {
 		if (!strcmp (Session.Scenarios[i]->Description(), Session.Options.ScenarioDescription) ){
 			Session.Options.ScenarioIndex = i;
 			break;
@@ -489,9 +490,9 @@ bool Is_User_WChat_Registered(char *buffer, int buffer_len)
 		key = Get_Registry_Sub_Key (key, "Nick1", TRUE);
 		if (key){
 
-			if (RegQueryValue(key, "Nick", user_handle, (long*)&user_handle_size) == ERROR_SUCCESS){
+			if (RegQueryValue(key, "Nick", user_handle, (int*)&user_handle_size) == ERROR_SUCCESS){
 
-				if (RegQueryValue(key, "Pass", user_pword, (long*)&user_pword_size) == ERROR_SUCCESS){
+				if (RegQueryValue(key, "Pass", user_pword, (int*)&user_pword_size) == ERROR_SUCCESS){
 
 					/*
 					** If the first char of the users name is non-numberic and there is a password

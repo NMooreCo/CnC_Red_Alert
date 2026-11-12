@@ -94,7 +94,7 @@
  *   _Counts_As_Civ_Evac -- Is the specified object a candidate for civilian evac logic?       *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
+#include	"FUNCTION.H"
 
 
 /***********************************************************************************************
@@ -298,8 +298,8 @@ bool AircraftClass::Unlimbo(COORDINATE coord, DirType dir)
 		**	Ensure that the owning house knows about the
 		**	new object.
 		*/
-		House->AScan |= (1L << Class->Type);
-		House->ActiveAScan |= (1L << Class->Type);
+		House->AScan |= (1 << Class->Type);
+		House->ActiveAScan |= (1 << Class->Type);
 
 		/*
 		**	Hack it so that aircraft that are both passenger and cargo carrying
@@ -581,7 +581,7 @@ void AircraftClass::Read_INI(CCINIClass & ini)
 					if (token) {
 						coord = Cell_Coord((CELL)atoi(token));
 					} else {
-						coord = 0xFFFFFFFFL;
+						coord = 0xFFFFFFFF;
 					}
 
 					token = strtok(NULL, ",");
@@ -1285,7 +1285,7 @@ COORDINATE AircraftClass::Sort_Y(void) const
 	assert(Aircraft.ID(this) == ID);
 	assert(IsActive);
 
-	return(Coord_Add(Coord, 0x00800000L));
+	return(Coord_Add(Coord, 0x00800000));
 }
 
 
@@ -1397,7 +1397,8 @@ int AircraftClass::Exit_Object(TechnoClass * unit)
 	/*
 	**	Find a free cell to drop the unit off at.
 	*/
-	for (FacingType face = FACING_N; face < FACING_COUNT; face++) {
+	FacingType face;
+	for (face = FACING_N; face < FACING_COUNT; face++) {
 		cell = Adjacent_Cell(Coord_Cell(Coord), _toface[face]);
 		if (unit->Can_Enter_Cell(cell) == MOVE_OK) break;
 	}
@@ -1552,7 +1553,7 @@ BulletClass * AircraftClass::Fire_At(TARGET target, int which)
  * HISTORY:                                                                                    *
  *   05/26/1995 JLB : Created.                                                                 *
  *=============================================================================================*/
-ResultType AircraftClass::Take_Damage(int & damage, int distance, WarheadType warhead, TechnoClass * source, int forced)
+ResultType AircraftClass::Take_Damage(int & damage, int distance, WarheadType warhead, TechnoClass * source, bool forced)
 {
 	assert(Aircraft.ID(this) == ID);
 	assert(IsActive);
@@ -2670,7 +2671,7 @@ TARGET AircraftClass::New_LZ(TARGET oldlz) const
  * HISTORY:                                                                                    *
  *   06/19/1995 JLB : Created.                                                                 *
  *=============================================================================================*/
-RadioMessageType AircraftClass::Receive_Message(RadioClass * from, RadioMessageType message, long & param)
+RadioMessageType AircraftClass::Receive_Message(RadioClass * from, RadioMessageType message, int & param)
 {
 	assert(Aircraft.ID(this) == ID);
 	assert(IsActive);
@@ -2776,7 +2777,7 @@ RadioMessageType AircraftClass::Receive_Message(RadioClass * from, RadioMessageT
 						if (cell == 0) {
 							Transmit_Message(RADIO_OVER_OUT, from);
 						} else {
-							param = (long)::As_Target(cell);
+							param = (int)::As_Target(cell);
 
 							/*
 							**	Tell the potential passenger where it should go. If the passenger is
@@ -2784,7 +2785,7 @@ RadioMessageType AircraftClass::Receive_Message(RadioClass * from, RadioMessageT
 							**	directly.
 							*/
 							if (Transmit_Message(RADIO_MOVE_HERE, param, from) == RADIO_YEA_NOW_WHAT) {
-								param = (long)As_Target();
+								param = (int)As_Target();
 								Transmit_Message(RADIO_TETHER);
 								if (Transmit_Message(RADIO_MOVE_HERE, param, from) != RADIO_ROGER) {
 									Transmit_Message(RADIO_OVER_OUT, from);

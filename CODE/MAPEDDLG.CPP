@@ -45,7 +45,7 @@
  *   MapEditClass::Size_Map -- lets user set size & location of map        *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
+#include	"FUNCTION.H"
 
 #ifdef SCENARIO_EDITOR
 
@@ -1938,7 +1938,7 @@ int MapEditClass::Scenario_Dialog(void)
 		MFCD::Retrieve("EBTN-DN.SHP"));
 	for (h = HOUSE_FIRST; h < HOUSE_COUNT; h++) {
 		allies.Add_Item(HouseTypeClass::As_Reference(h).IniName);
-		if (hdata[house].Allies & (1L << h)) {
+		if (hdata[house].Allies & (1 << h)) {
 			allies.Check_Item(h, true);
 		}
 	}
@@ -2032,7 +2032,7 @@ int MapEditClass::Scenario_Dialog(void)
 			sourcebtn.Set_Selected_Index(hstatic->Edge);
 			maxunit.Set_Value(hstatic->MaxUnit + hstatic->MaxInfantry);
 			for (h = HOUSE_FIRST; h < HOUSE_COUNT; h++) {
-				allies.Check_Item(h, hstatic->Allies & (1L << h));
+				allies.Check_Item(h, hstatic->Allies & (1 << h));
 			}
 			smarties.Set_Value(hstatic->IQ);
 
@@ -2226,9 +2226,9 @@ int MapEditClass::Scenario_Dialog(void)
 			hstatic->IQ = smarties.Get_Value();
 			for (h = HOUSE_FIRST; h < HOUSE_COUNT; h++) {
 				if (allies.Is_Checked(h)) {
-					hstatic->Allies |= (1L << h);
+					hstatic->Allies |= (1 << h);
 				} else {
-					hstatic->Allies &= ~(1L << h);
+					hstatic->Allies &= ~(1 << h);
 				}
 			}
 		}

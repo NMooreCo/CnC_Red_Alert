@@ -38,9 +38,9 @@
  *   WWKeyboardClass::WWKeyBoardClass -- Construction for Westwood Keyboard* 
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include <misc.h>
+#include <MISC.H>
 #include <stdio.h>
-#include "keyboard.h"
+#include "KEYBOARD.H"
 
 #define	NAME			"DRAWBUFF test"
 #define	TITLE			"DRAWBUFF library test"
@@ -812,7 +812,7 @@ static short   cxChar, cxCaps, cyChar;
  *    9/27/95 1:39PM ST : Pilfered                                                             *
  *=============================================================================================*/
 
-long FAR PASCAL _export WndProc (HWND hwnd, UINT message, UINT wParam, LONG lParam)
+int FAR PASCAL _export WndProc (HWND hwnd, UINT message, UINT wParam, LONG lParam)
 {
 	HDC				hdc;
 	PAINTSTRUCT		ps;

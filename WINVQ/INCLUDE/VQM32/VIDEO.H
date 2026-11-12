@@ -38,7 +38,7 @@
 *
 ****************************************************************************/
 
-#include <vqm32\vesavid.h>
+#include <VQM32/VESAVID.H>
 
 /*---------------------------------------------------------------------------
  * VGA video modes
@@ -69,10 +69,10 @@
  * Extended - Pointer to mode specific data structure.
  */
 typedef struct _DisplayInfo {
-	long Mode;
-	long XRes;
-	long YRes;
-	long VBIbit;
+	int Mode;
+	int XRes;
+	int YRes;
+	int VBIbit;
 	void *Extended;
 } DisplayInfo;
 
@@ -80,16 +80,16 @@ typedef struct _DisplayInfo {
  * Function prototypes
  *-------------------------------------------------------------------------*/
 
-DisplayInfo *SetVideoMode(long mode);
+DisplayInfo *SetVideoMode(int mode);
 DisplayInfo *GetDisplayInfo(void);
-long TestVBIBit(void);
-long GetVBIBit(void);
+int TestVBIBit(void);
+int GetVBIBit(void);
 
 void SetupXPaging(void);
 void FlipXPage(void);
 unsigned char *GetXHidPage(void);
 unsigned char *GetXSeenPage(void);
-void DisplayXPage(long page);
+void DisplayXPage(int page);
 
 #ifdef __cplusplus
 extern "C" {
@@ -98,14 +98,14 @@ extern "C" {
 void __cdecl WaitNoVB(short vbibit);
 void __cdecl WaitVB(short vbibit);
 void __cdecl ClearVRAM(void);
-long __cdecl SetXMode(long mode);
+int __cdecl SetXMode(int mode);
 void __cdecl ClearXMode(void);
-void __cdecl ShowXPage(unsigned long StartOffset);
+void __cdecl ShowXPage(unsigned int StartOffset);
 void __cdecl Xmode_BufferCopy_320x200(void *buff, void *screen);
-void __cdecl Xmode_Blit(void *buffer, void *screen, long imgwidth, long imgheight);
+void __cdecl Xmode_Blit(void *buffer, void *screen, int imgwidth, int imgheight);
 void __cdecl MCGA_BufferCopy(unsigned char *buffer, unsigned char *dummy);
 void __cdecl MCGA_Blit(unsigned char *buffer, unsigned char *screen,
-		long imgwidth, long imgheight);
+		int imgwidth, int imgheight);
 
 #ifdef __cplusplus
 }

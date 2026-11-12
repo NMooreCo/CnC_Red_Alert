@@ -42,7 +42,7 @@
 #define __PACKET_H
 
 
-#include "field.h"
+#include "FIELD.H"
 
 class PacketClass {
 	public:
@@ -69,8 +69,8 @@ class PacketClass {
 		void Add_Field(char *field, unsigned char data) {Add_Field(new FieldClass(field, data));};
 		void Add_Field(char *field, short data) {Add_Field(new FieldClass(field, data));};
 		void Add_Field(char *field, unsigned short data) {Add_Field(new FieldClass(field, data));};
-		void Add_Field(char *field, long data) {Add_Field(new FieldClass(field, data));};
-		void Add_Field(char *field, unsigned long data) {Add_Field(new FieldClass(field, data));};
+		void Add_Field(char *field, int data) {Add_Field(new FieldClass(field, data));};
+		void Add_Field(char *field, unsigned int data) {Add_Field(new FieldClass(field, data));};
 		void Add_Field(char *field, char *data) {Add_Field(new FieldClass(field, data));};
 		void Add_Field(char *field, void *data, int length) {Add_Field(new FieldClass(field, data, length));};
 
@@ -83,8 +83,8 @@ class PacketClass {
 		bool Get_Field(char *id, unsigned char &data);
 		bool Get_Field(char *id, short &data);
 		bool Get_Field(char *id, unsigned short &data);
-		bool Get_Field(char *id, long &data);
-		bool Get_Field(char *id, unsigned long &data);
+		bool Get_Field(char *id, int &data);
+		bool Get_Field(char *id, unsigned int &data);
 		bool Get_Field(char *id, char *data);
 		bool Get_Field(char *id, void *data, int &length);
 

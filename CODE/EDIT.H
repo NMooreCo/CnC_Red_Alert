@@ -99,9 +99,8 @@ class EditClass : public ControlClass
 	private:
 		int IsReadOnly;
 };
-
-inline EditClass::EditStyle operator |(EditClass::EditStyle, EditClass::EditStyle);
-inline EditClass::EditStyle operator &(EditClass::EditStyle, EditClass::EditStyle);
-inline EditClass::EditStyle operator ~(EditClass::EditStyle);
+//inline EditClass::EditStyle operator |(EditClass::EditStyle, EditClass::EditStyle);	// (pre-standard guiding declaration; the JSHELL.H template is used)
+//inline EditClass::EditStyle operator &(EditClass::EditStyle, EditClass::EditStyle);	// (pre-standard guiding declaration; the JSHELL.H template is used)
+//inline EditClass::EditStyle operator ~(EditClass::EditStyle);	// (pre-standard guiding declaration; the JSHELL.H template is used)
 
 #endif

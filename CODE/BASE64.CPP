@@ -38,7 +38,7 @@
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 
-#include "base64.h"
+#include "BASE64.H"
 #include	<stddef.h>
 
 /*
@@ -88,7 +88,7 @@ int const PacketChars = 4;
 */
 typedef union {
 	struct {
-#ifdef BIG_ENDIAN
+#ifdef RA_BIG_ENDIAN
 		unsigned char C1;
 		unsigned char C2;
 		unsigned char C3;
@@ -100,7 +100,7 @@ typedef union {
 		unsigned char pad;
 	} Char;
 	struct {
-#ifdef BIG_ENDIAN
+#ifdef RA_BIG_ENDIAN
 		unsigned O1:6;
 		unsigned O2:6;
 		unsigned O3:6;

@@ -41,6 +41,14 @@
 class PaletteClass;
 class HSVClass;
 
+#ifdef RA_PORT
+#ifndef OUTPORTB
+#define OUTPORTB
+inline void outportb(int , unsigned char ) {}		// VGA register access: not used by the port.
+inline void outport(int , unsigned short ) {}
+#endif
+inline void outrgb(unsigned char , unsigned char , unsigned char ) {}
+#else
 #ifndef OUTPORTB
 #define OUTPORTB
 extern void outportb(int port, unsigned char data);
@@ -70,6 +78,8 @@ extern void outrgb(unsigned char red, unsigned char green, unsigned char blue);
 		"out	dx,al"		\
 		"jmp	e3"			\
 		"e3:"
+
+#endif	// RA_PORT
 
 /*
 **	Each color entry is represented by this class. It holds the values for the color

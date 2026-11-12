@@ -55,8 +55,8 @@
  * WIC::Set_Socket_Options -- Sets default socket options for Winsock buffer sizes             *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
-#include	"WSProto.h"
+#include	"FUNCTION.H"
+#include	"WSPROTO.H"
 
 #include	<stdio.h>
 
@@ -533,7 +533,7 @@ void WinsockInterfaceClass::Broadcast (void *buffer, int buffer_len)
  *=============================================================================================*/
 void WinsockInterfaceClass::Clear_Socket_Error(SOCKET socket)
 {
-	unsigned long error_code;
+	unsigned int error_code;
 	int length = 4;
 
 	getsockopt (socket, SOL_SOCKET, SO_ERROR, (char*)&error_code, &length);

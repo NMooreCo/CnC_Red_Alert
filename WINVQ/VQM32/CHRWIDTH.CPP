@@ -41,7 +41,7 @@
 *
 ****************************************************************************/
 
-#include "font.h"
+#include "FONT.H"
 
 
 /****************************************************************************
@@ -66,10 +66,10 @@
 ****************************************************************************/
 
 #ifdef __WATCOMC__
-long __cdecl __saveregs Char_Pixel_Width(char chr)
+int __cdecl __saveregs Char_Pixel_Width(char chr)
 #else
 #pragma saveregs
-long __cdecl Char_Pixel_Width(char chr)
+int __cdecl Char_Pixel_Width(char chr)
 #endif
 {
 	return (*(FontWidthBlockPtr + chr) + FontXSpacing);

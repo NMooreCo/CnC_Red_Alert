@@ -60,7 +60,7 @@
 #include	<share.h>
 #include	<stddef.h>
 
-#include	"rawfile.h"
+#include	"RAWFILE.H"
 
 #ifndef WIN32
 #include	<fcntl.h>
@@ -528,9 +528,9 @@ void RawFileClass::Close(void)
  * HISTORY:                                                                                    *
  *   10/18/1994 JLB : Created.                                                                 *
  *=============================================================================================*/
-long RawFileClass::Read(void * buffer, long size)
+int RawFileClass::Read(void * buffer, int size)
 {
-	long	bytesread = 0;			// Running count of the number of bytes read into the buffer.
+	int	bytesread = 0;			// Running count of the number of bytes read into the buffer.
 	int	opened = false;		// Was the file opened by this routine?
 
 	/*
@@ -558,12 +558,12 @@ long RawFileClass::Read(void * buffer, long size)
 	}
 
 #ifdef WIN32
-	long total = 0;
+	int total = 0;
 	while (size > 0) {
 		bytesread = 0;
 
 		SetErrorMode(SEM_FAILCRITICALERRORS);
-		if (!ReadFile(Handle, buffer, size, &(unsigned long&)bytesread, NULL)) {
+		if (!ReadFile(Handle, buffer, size, &(unsigned int&)bytesread, NULL)) {
 			size -= bytesread;
 			total += bytesread;
 			Error(GetLastError(), true, Filename);
@@ -596,7 +596,7 @@ long RawFileClass::Read(void * buffer, long size)
 		**	Break the read request into chunks no bigger than the low level DOS read
 		**	can handle.
 		*/
-		desired = size < 32000L ? size : 32000L;
+		desired = size < 32000 ? size : 32000;
 
 		Hard_Error_Occured = 0;
 		readresult = _dos_read(Handle, buffer, desired, &actual);
@@ -659,9 +659,9 @@ long RawFileClass::Read(void * buffer, long size)
  * HISTORY:                                                                                    *
  *   10/18/1994 JLB : Created.                                                                 *
  *=============================================================================================*/
-long RawFileClass::Write(void const * buffer, long size)
+int RawFileClass::Write(void const * buffer, int size)
 {
-	long	bytesread = 0;
+	int	bytesread = 0;
 	int	opened = false;		// Was the file manually opened?
 
 	/*
@@ -677,7 +677,7 @@ long RawFileClass::Write(void const * buffer, long size)
 	}
 
 #ifdef WIN32
-	if (!WriteFile(Handle, buffer, size, &(unsigned long&)bytesread, NULL)) {
+	if (!WriteFile(Handle, buffer, size, &(unsigned int&)bytesread, NULL)) {
 		Error(GetLastError(), false, Filename);
 	}
 
@@ -779,7 +779,7 @@ long RawFileClass::Write(void const * buffer, long size)
  * HISTORY:                                                                                    *
  *   10/18/1994 JLB : Created.                                                                 *
  *=============================================================================================*/
-long RawFileClass::Seek(long pos, int dir)
+int RawFileClass::Seek(int pos, int dir)
 {
 
 	/*
@@ -810,7 +810,7 @@ long RawFileClass::Seek(long pos, int dir)
 		/*
 		**	Perform the modified raw seek into the file.
 		*/
-		long newpos = Raw_Seek(pos, dir) - BiasStart;
+		int newpos = Raw_Seek(pos, dir) - BiasStart;
 
 		/*
 		**	Perform a final double check to make sure the file position fits with the bias range.
@@ -848,9 +848,9 @@ long RawFileClass::Seek(long pos, int dir)
  * HISTORY:                                                                                    *
  *   10/18/1994 JLB : Created.                                                                 *
  *=============================================================================================*/
-long RawFileClass::Size(void)
+int RawFileClass::Size(void)
 {
-	long	size = 0;
+	int	size = 0;
 
 	/*
 	**	A biased file already has its length determined.
@@ -1065,7 +1065,7 @@ int RawFileClass::Delete(void)
  *   11/14/1995 DRD : Created.                                                                 *
  *   07/13/1996 JLB : Handles win32 method.                                                    *
  *=============================================================================================*/
-unsigned long RawFileClass::Get_Date_Time(void)
+unsigned int RawFileClass::Get_Date_Time(void)
 {
 #ifdef WIN32
 	BY_HANDLE_FILE_INFORMATION info;
@@ -1080,7 +1080,7 @@ unsigned long RawFileClass::Get_Date_Time(void)
 #else
 	unsigned short time;
 	unsigned short date;
-	unsigned long datetime = 0;
+	unsigned int datetime = 0;
 
 
 	//
@@ -1143,7 +1143,7 @@ unsigned long RawFileClass::Get_Date_Time(void)
  *   11/14/1995 DRD : Created.                                                                 *
  *   07/13/1996 JLB : Handles win 32 method                                                    *
  *=============================================================================================*/
-bool RawFileClass::Set_Date_Time(unsigned long datetime)
+bool RawFileClass::Set_Date_Time(unsigned int datetime)
 {
 #ifdef WIN32
 	if (RawFileClass::Is_Open()) {
@@ -1274,7 +1274,7 @@ void RawFileClass::Bias(int start, int length)
  * HISTORY:                                                                                    *
  *   08/04/1996 JLB : Created.                                                                 *
  *=============================================================================================*/
-long RawFileClass::Raw_Seek(long pos, int dir)
+int RawFileClass::Raw_Seek(int pos, int dir)
 {
 	/*
 	**	If the file isn't opened, then this is a fatal error condition.

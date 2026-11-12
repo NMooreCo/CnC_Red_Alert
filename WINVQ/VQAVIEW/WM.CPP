@@ -42,13 +42,13 @@
 
 #include <westwood.h>
 #include <wm.h>
-#include <gbuffer.h>
+#include <GBUFFER.H>
 #include <main.h>
 #include <mainwind.h>
 #include <menus.rh>
 
 #include <movies.h>
-#include <vq.h>
+#include <VQ.H>
 
 
 //==========================================================================
@@ -70,7 +70,7 @@ void Menu_Exit_Game( void );
  * HISTORY:                                                                *
  *    11/20/95 MG : Created                                                *
  *=========================================================================*/
-long WM_Command_Func(
+int WM_Command_Func(
 	WindowHandle window_handle,
 	unsigned int message,
 	WPARAM w_param,
@@ -109,7 +109,7 @@ long WM_Command_Func(
  * HISTORY: see PVCS log                                                   *
  *=========================================================================*/
 #pragma argsused
-long WM_Sys_Command_Func(
+int WM_Sys_Command_Func(
 	WindowHandle window_handle,
 	unsigned int message,
 	WPARAM w_param,
@@ -150,11 +150,11 @@ long WM_Sys_Command_Func(
  * HISTORY: see PVCS log                                                   *
  *=========================================================================*/
 #pragma argsused
-long WM_Paint_Func(
+int WM_Paint_Func(
 	WindowHandle window_handle,
 	unsigned int message,
 	unsigned int w_param,
-	long l_param )
+	int l_param )
 {
 	return( 0 );
 }
@@ -171,11 +171,11 @@ long WM_Paint_Func(
  *                                                                         *
  * HISTORY: see PVCS log                                                   *
  *=========================================================================*/
-long WM_Destroy_Func(
+int WM_Destroy_Func(
 	WindowHandle window_handle,
 	unsigned int message,
 	unsigned int w_param,
-	long l_param )
+	int l_param )
 {
 	if ( Screen_Buffer ) {
 		delete( Screen_Buffer );
@@ -183,7 +183,7 @@ long WM_Destroy_Func(
 
 	PostQuitMessage( w_param );
 
-	return( 0L );
+	return( 0 );
 }
 
 
@@ -198,11 +198,11 @@ long WM_Destroy_Func(
  *                                                                         *
  * HISTORY: see PVCS log                                                   *
  *=========================================================================*/
-long WM_Mouse_Button_Func(
+int WM_Mouse_Button_Func(
 	WindowHandle window_handle,
 	unsigned int message,
 	unsigned int w_param,
-	long l_param )
+	int l_param )
 {
 	int x_pix;
 	int y_pix;
@@ -235,11 +235,11 @@ long WM_Mouse_Button_Func(
  *                                                                         *
  * HISTORY: see PVCS log                                                   *
  *=========================================================================*/
-long WM_ActivateApp_Func(
+int WM_ActivateApp_Func(
 	WindowHandle window_handle,
 	unsigned int message,
 	unsigned int w_param,
-	long l_param )
+	int l_param )
 {
 	return( 0 );
 }
@@ -248,7 +248,7 @@ long WM_ActivateApp_Func(
 
 void Menu_Exit_Game( void )
 {
-	PostMessage( Main_Window.Get_Window_Handle(), WM_CLOSE, 0, 0L );
+	PostMessage( Main_Window.Get_Window_Handle(), WM_CLOSE, 0, 0 );
 }
 
 

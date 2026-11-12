@@ -46,7 +46,7 @@
  * child1 - Child node 1
  */
 typedef struct _TreeNode {
- 	unsigned long  count;
+ 	unsigned int  count;
 	unsigned short child0;
 	unsigned short child1;
 } TreeNode;
@@ -72,24 +72,24 @@ typedef struct _HuffCode {
 extern "C" {
 #endif
 
-long __cdecl HuffCompress(unsigned char *data, unsigned char *buffer,
-		long length, char *work);
+int __cdecl HuffCompress(unsigned char *data, unsigned char *buffer,
+		int length, char *work);
 
-long __cdecl HuffDecompress(unsigned char *data, unsigned char *buffer,
-		long length, char *work);
+int __cdecl HuffDecompress(unsigned char *data, unsigned char *buffer,
+		int length, char *work);
 
-void __cdecl HuffCount(unsigned char *data, TreeNode *nodes, long length,
-		long zero);
+void __cdecl HuffCount(unsigned char *data, TreeNode *nodes, int length,
+		int zero);
 
 void __cdecl HuffScaleCounts(TreeNode *nodes);
-long __cdecl RLEHuffCounts(TreeNode *nodes, unsigned char *buffer);
-long __cdecl BuildHuffTree(TreeNode *nodes);
+int __cdecl RLEHuffCounts(TreeNode *nodes, unsigned char *buffer);
+int __cdecl BuildHuffTree(TreeNode *nodes);
 
 void __cdecl ConvertToCodes(TreeNode *nodes, HuffCode *codes,
 		unsigned short code, short bits, short node);
 
-long __cdecl HuffEncode(unsigned char *data, unsigned char *buffer,
-		HuffCode *codes, long length);
+int __cdecl HuffEncode(unsigned char *data, unsigned char *buffer,
+		HuffCode *codes, int length);
 
 #ifdef __cplusplus
 }

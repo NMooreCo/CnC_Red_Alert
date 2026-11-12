@@ -35,7 +35,7 @@
 #define SHAPE_H
 
 #ifndef GBUFFER_H
-#include "gbuffer.h"
+#include "GBUFFER.H"
 #endif
 /*
 *********************************** Types ***********************************
@@ -94,7 +94,7 @@ typedef struct {
 */
 typedef struct {
 	unsigned short		NumShapes;			// number of shapes in the block
-	long		Offsets[];			// array of offsets to shape data
+	int		Offsets[];			// array of offsets to shape data
 										//  (offsets within the shape block, with
 										//  0 being the first offset value, not the
 										//  start of the shape block)
@@ -112,7 +112,7 @@ typedef struct {
 extern "C" {
 extern void  *MaskPage;
 extern void  *BackGroundPage;
-extern long  _ShapeBufferSize;
+extern int  _ShapeBufferSize;
 extern char  *_ShapeBuffer;
 }
 
@@ -163,5 +163,3 @@ int  __cdecl Get_Shape_Scaled_Height(void const *shape, int scale);
 #endif // SHAPE_H
 
 /****************************** End of shape.h *****************************/
-
-

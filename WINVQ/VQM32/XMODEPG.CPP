@@ -47,7 +47,7 @@
 ****************************************************************************/
 
 #include <dos.h>
-#include "video.h"
+#include "VIDEO.H"
 
 /*---------------------------------------------------------------------------
  * PRIVATE DECLARATIONS
@@ -57,13 +57,13 @@
 #define PAGE1_START_OFFSET ((320 * 240) / 4)
 
 /* PageFlip page values. */
-static unsigned long PageStartOffsets[2] = {
+static unsigned int PageStartOffsets[2] = {
 	PAGE0_START_OFFSET,
 	PAGE1_START_OFFSET
 };
 
-static long DisplayedPage;
-static long NonDisplayedPage;
+static int DisplayedPage;
+static int NonDisplayedPage;
 
 /****************************************************************************
 *
@@ -140,7 +140,7 @@ void FlipXPage(void)
 *
 ****************************************************************************/
 
-void DisplayXPage(long page)
+void DisplayXPage(int page)
 {
 	ShowXPage(PageStartOffsets[page & 1]);
 	DisplayedPage = page;

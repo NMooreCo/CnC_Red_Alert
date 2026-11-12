@@ -66,10 +66,10 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <io.h>
-#include <mem.h>
+#include <MEM.H>
 #include <string.h>
-#include "mixfile.h"
-#include "crc.h"
+#include "MIXFILE.H"
+#include "CRC.H"
 
 /*---------------------------------------------------------------------------
  * PRIVATE DECLARATIONS
@@ -103,9 +103,9 @@ MIXHandle *OpenMix(char *name)
 {
   MIXHeader mfhdr;
 	MIXHandle *mix = NULL;
-	long      fh;
-	long      sbsize;
-	long      size;
+	int      fh;
+	int      sbsize;
+	int      size;
 
 	/* Open mix file and read in header. */
 	if ((fh = open(name, (O_RDONLY|O_BINARY))) != -1) {
@@ -186,11 +186,11 @@ void CloseMix(MIXHandle *mix)
 *
 ****************************************************************************/
 
-long OpenMixEntry(MIXHandle *mix, char *name)
+int OpenMixEntry(MIXHandle *mix, char *name)
 {
 	MIXSubBlock key;
 	MIXSubBlock *block;
-	long        fh;
+	int        fh;
 
 	/* Search for the specified file in the mix file. */
 	key.CRC = Calculate_CRC(name, strlen(name));

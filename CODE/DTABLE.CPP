@@ -17,7 +17,7 @@
 */
 
 
-long DiffTable[] = {
+int DiffTable[] = {
 	0,	// Index = 0, Token = 0
 	1,	// Index = 0, Token = 1
 	3,	// Index = 0, Token = 2

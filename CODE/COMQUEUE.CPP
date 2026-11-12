@@ -53,7 +53,7 @@
  *   CommQueueClass::~CommQueueClass -- class destructor                   *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include "function.h"
+#include "FUNCTION.H"
 
 
 /***************************************************************************
@@ -162,13 +162,13 @@ void CommQueueClass::Init(void)
 	/*
 	**	Init data members
 	*/
-	SendTotal = 0L;
-	ReceiveTotal = 0L;
+	SendTotal = 0;
+	ReceiveTotal = 0;
 
-	DelaySum = 0L;
-	NumDelay = 0L;
-	MeanDelay = 0L;
-	MaxDelay = 0L;
+	DelaySum = 0;
+	NumDelay = 0;
+	MeanDelay = 0;
+	MaxDelay = 0;
 
 	SendCount = 0;
 	SendNext = 0;
@@ -184,9 +184,9 @@ void CommQueueClass::Init(void)
 	for (i = 0; i < MaxSend; i++) {
 		SendQueue[i].IsActive = 0;
 		SendQueue[i].IsACK = 0;
-		SendQueue[i].FirstTime = 0L;
-		SendQueue[i].LastTime = 0L;
-		SendQueue[i].SendCount = 0L;
+		SendQueue[i].FirstTime = 0;
+		SendQueue[i].LastTime = 0;
+		SendQueue[i].SendCount = 0;
 		ReceiveQueue[i].BufLen = 0;
 	}
 	for (i = 0; i < MaxReceive; i++) {
@@ -236,9 +236,9 @@ int CommQueueClass::Queue_Send(void *buf, int buflen)
 	*/
 	SendQueue[SendEmpty].IsActive = 1;			// entry is now active
 	SendQueue[SendEmpty].IsACK = 0;				// entry hasn't been ACK'd
-	SendQueue[SendEmpty].FirstTime = 0L;		// filled in by Manager when sent
-	SendQueue[SendEmpty].LastTime = 0L;			// filled in by Manager when sent
-	SendQueue[SendEmpty].SendCount = 0L;		// filled in by Manager when sent
+	SendQueue[SendEmpty].FirstTime = 0;		// filled in by Manager when sent
+	SendQueue[SendEmpty].LastTime = 0;			// filled in by Manager when sent
+	SendQueue[SendEmpty].SendCount = 0;		// filled in by Manager when sent
 	SendQueue[SendEmpty].BufLen = buflen;		// save buffer size
 
 	/*
@@ -299,9 +299,9 @@ int CommQueueClass::UnQueue_Send(void *buf, int *buflen)
 	*/
 	SendQueue[SendNext].IsActive = 0;
 	SendQueue[SendNext].IsACK = 0;
-	SendQueue[SendNext].FirstTime = 0L;
-	SendQueue[SendNext].LastTime = 0L;
-	SendQueue[SendNext].SendCount = 0L;
+	SendQueue[SendNext].FirstTime = 0;
+	SendQueue[SendNext].LastTime = 0;
+	SendQueue[SendNext].SendCount = 0;
 	SendQueue[SendNext].BufLen = 0;
 	SendCount--;
 	SendNext++;
@@ -564,7 +564,7 @@ ReceiveQueueType * CommQueueClass::Get_Receive(int index)
  * HISTORY:                                                                *
  *   01/19/1995 BR : Created.                                              *
  *=========================================================================*/
-void CommQueueClass::Add_Delay(unsigned long delay)
+void CommQueueClass::Add_Delay(unsigned int delay)
 {
 	int roundoff = 0;
 
@@ -602,7 +602,7 @@ void CommQueueClass::Add_Delay(unsigned long delay)
  * HISTORY:                                                                *
  *   01/19/1995 BR : Created.                                              *
  *=========================================================================*/
-unsigned long CommQueueClass::Avg_Response_Time(void)
+unsigned int CommQueueClass::Avg_Response_Time(void)
 {
 	return(MeanDelay);
 }
@@ -623,7 +623,7 @@ unsigned long CommQueueClass::Avg_Response_Time(void)
  * HISTORY:                                                                *
  *   01/19/1995 BR : Created.                                              *
  *=========================================================================*/
-unsigned long CommQueueClass::Max_Response_Time(void)
+unsigned int CommQueueClass::Max_Response_Time(void)
 {
 	return(MaxDelay);
 }
@@ -646,10 +646,10 @@ unsigned long CommQueueClass::Max_Response_Time(void)
  *=========================================================================*/
 void CommQueueClass::Reset_Response_Time(void)
 {
-	DelaySum = 0L;
-	NumDelay = 0L;
-	MeanDelay = 0L;
-	MaxDelay = 0L;
+	DelaySum = 0;
+	NumDelay = 0;
+	MeanDelay = 0;
+	MaxDelay = 0;
 }
 
 
@@ -716,7 +716,7 @@ void CommQueueClass::Mono_Debug_Print(int refresh)
 	struct CommHdr {									// this mirrors the CommHeaderType
 		unsigned short MagicNumber;
 		unsigned char Code;
-		unsigned long PacketID;
+		unsigned int PacketID;
 	} *hdr;
 
 	/*
@@ -850,7 +850,7 @@ void CommQueueClass::Mono_Debug_Print2(int refresh)
 	struct CommHdr {									// this mirrors the CommHeaderType
 		unsigned short MagicNumber;
 		unsigned char Code;
-		unsigned long PacketID;
+		unsigned int PacketID;
 	} *hdr;
 
 	/*

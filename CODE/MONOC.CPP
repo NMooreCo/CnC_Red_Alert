@@ -60,9 +60,9 @@
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 //#include	"watcom.h"
-#include	"monoc.h"
+#include	"MONOC.H"
 
-#include	"function.h"
+#include	"FUNCTION.H"
 
 #include	<stdlib.h>
 #include	<stdio.h>
@@ -73,12 +73,16 @@
 
 
 
+#ifdef RA_PORT
+static inline void output(short , short ) {}	// There is no monochrome monitor.
+#else
 extern void output(short port, short data);
 #pragma aux output parm [dx] [ax] =		\
 		"out	dx,al"		\
 		"inc	dx"			\
 		"mov	al,ah"		\
 		"out	dx,al"
+#endif
 
 
 bool MonoClass::Enabled = 0;

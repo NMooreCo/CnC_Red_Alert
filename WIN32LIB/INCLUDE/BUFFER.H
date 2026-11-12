@@ -47,7 +47,7 @@
 /*		load it.																					*/
 /*=========================================================================*/
 #ifndef WWSTD_H
-#include "wwstd.h"
+#include "WWSTD.H"
 #endif
 
 class GraphicViewPortClass;
@@ -61,22 +61,22 @@ class BufferClass {
 		/*===================================================================*/
 		/* Define the base constructor and destructors for the class			*/
 		/*===================================================================*/
-		BufferClass(void *ptr, long size);
-		BufferClass(long size);
+		BufferClass(void *ptr, int size);
+		BufferClass(int size);
 		BufferClass();
 		~BufferClass();
 		/*===================================================================*/
 		/* Define functions which work with the buffer class.						*/
 		/*===================================================================*/
-		long To_Page(GraphicViewPortClass &view);
-		long To_Page(int w, int h, GraphicViewPortClass &view);
-		long To_Page(int x, int y, int w, int h, GraphicViewPortClass &view);
+		int To_Page(GraphicViewPortClass &view);
+		int To_Page(int w, int h, GraphicViewPortClass &view);
+		int To_Page(int x, int y, int w, int h, GraphicViewPortClass &view);
 
 		/*===================================================================*/
 		/* define functions to get at the protected data members					*/
 		/*===================================================================*/
 		void	*Get_Buffer(void);
-		long	Get_Size(void);
+		int	Get_Size(void);
 
 	private:
 		/*===================================================================*/
@@ -90,7 +90,7 @@ class BufferClass {
 
 	protected:
 		void	*Buffer;
-		long	Size;
+		int	Size;
 		BOOL	Allocated;
 };
 /***************************************************************************
@@ -103,7 +103,7 @@ class BufferClass {
  * HISTORY:                                                                *
  *   06/01/1994 PWG : Created.                                             *
  *=========================================================================*/
-inline long BufferClass::Get_Size(void)
+inline int BufferClass::Get_Size(void)
 {
 	return(Size);
 }

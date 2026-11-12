@@ -58,7 +58,7 @@
  *   MapEditClass::Verify_House -- sees if given house can own given obj   *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
+#include	"FUNCTION.H"
 
 #ifdef SCENARIO_EDITOR
 
@@ -1396,7 +1396,7 @@ void MapEditClass::Draw_It(bool forced)
 	/*
 	**	Display the total value of all Tiberium on the map.
 	*/
-	Fancy_Text_Print("Tiberium=%ld   ", 0, 0, GadgetClass::Get_Color_Scheme(),
+	Fancy_Text_Print("Tiberium=%d   ", 0, 0, GadgetClass::Get_Color_Scheme(),
 		BLACK, TPF_EFNT | TPF_NOSHADOW, TotalValue);
 
 	/*
@@ -2169,5 +2169,5 @@ void MapEditClass::Write_INI(CCINIClass & ini)
 
 #endif
 
-#include	"mapedsel.cpp"
+#include	"MAPEDSEL.CPP"
 

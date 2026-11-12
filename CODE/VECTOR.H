@@ -65,8 +65,7 @@
 #include	<stdlib.h>
 #include	<stddef.h>
 
-inline void * operator new(size_t , void * pointer) {return(pointer);}
-inline void * operator new[](size_t , void * pointer) {return(pointer);}
+// Placement new is provided by <new> (included by portable.h).
 
 
 /**************************************************************************

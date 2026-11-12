@@ -40,9 +40,9 @@
 
 //#include	<wwlib32.h>
 #include	<limits.h>
-#include	"mixfile.h"
-#include	"cdfile.h"
-#include	"buff.h"
+#include	"MIXFILE.H"
+#include	"CDFILE.H"
+#include	"BUFF.H"
 
 
 /*
@@ -64,13 +64,13 @@ class CCFileClass : public CDFileClass
 		virtual int Is_Open(void) const;
 		virtual int Open(char const * filename, int rights=READ) {Set_Name(filename);return Open(rights);};
 		virtual int Open(int rights=READ);
-		virtual long Read(void * buffer, long size);
-		virtual long Seek(long pos, int dir=SEEK_CUR);
-		virtual long Size(void);
-		virtual long Write(void const * buffer, long size);
+		virtual int Read(void * buffer, int size);
+		virtual int Seek(int pos, int dir=SEEK_CUR);
+		virtual int Size(void);
+		virtual int Write(void const * buffer, int size);
 		virtual void Close(void);
-		virtual unsigned long Get_Date_Time(void);
-		virtual bool Set_Date_Time(unsigned long datetime);
+		virtual unsigned int Get_Date_Time(void);
+		virtual bool Set_Date_Time(unsigned int datetime);
 		virtual void Error(int error, int canretry = false, char const * filename=NULL);
 
 	private:
@@ -95,7 +95,7 @@ class CCFileClass : public CDFileClass
 		**	part of a mixfile since the DOS seek position is not accurate. This value will
 		**	range from zero to the size of the file in bytes.
 		*/
-		long Position;
+		int Position;
 
 		// Force these to never be invoked.
 		CCFileClass const & operator = (CCFileClass const & c);

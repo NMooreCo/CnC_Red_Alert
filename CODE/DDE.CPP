@@ -46,7 +46,7 @@
 
 #ifdef WIN32
 #include	<windows.h>
-#include	"dde.h"
+#include	"DDE.H"
 
 /***************************************************************************
  * These are static members of Instance_Class
@@ -58,7 +58,7 @@ static char 	Instance_Class::ascii_name[32];	// name of server
 
 static BOOL CALLBACK	(*Instance_Class::callback) (
 			LPBYTE pointer,		// pointer to received data
-			long	length			// length of received data or advisory flag
+			int	length			// length of received data or advisory flag
 			) = NULL;
 
 /***************************************************************************
@@ -186,10 +186,10 @@ BOOL	Instance_Class::Enable_Callback( BOOL flag )		// enable or disable callback
  *   6/1/1996 SW : Created.                                                *
  *=========================================================================*/
 
-BOOL	Instance_Class::Register_Server( BOOL CALLBACK ( *callback_fnc) (LPBYTE, long) )
+BOOL	Instance_Class::Register_Server( BOOL CALLBACK ( *callback_fnc) (LPBYTE, int) )
 {
 
-	if (DdeNameService( id_inst, local_name,	0L, DNS_REGISTER ) != 0L) {
+	if (DdeNameService( id_inst, local_name,	0, DNS_REGISTER ) != 0) {
 		callback = callback_fnc;
 		return ( TRUE );
 	} else {

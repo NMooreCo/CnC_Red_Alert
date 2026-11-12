@@ -43,9 +43,6 @@
 
 #ifndef WIN32
 #define WIN32 1
-#ifndef _WIN32 // Denzil 6/2/98 Watcom 11.0 complains without this check
-#define _WIN32
-#endif // _WIN32
 #endif
 #include <windows.h>
 
@@ -54,7 +51,7 @@
 #include	<errno.h>
 #include	<windows.h>
 //#include	<algo.h>
-#include	"wwfile.h"
+#include	"WWFILE.H"
 
 #ifdef NEVER
 	/*
@@ -150,10 +147,10 @@ class RawFileClass : public FileClass
 		virtual int Is_Open(void) const;
 		virtual int Open(char const *filename, int rights=READ);
 		virtual int Open(int rights=READ);
-		virtual long Read(void *buffer, long size);
-		virtual long Seek(long pos, int dir=SEEK_CUR);
-		virtual long Size(void);
-		virtual long Write(void const *buffer, long size);
+		virtual int Read(void *buffer, int size);
+		virtual int Seek(int pos, int dir=SEEK_CUR);
+		virtual int Size(void);
+		virtual int Write(void const *buffer, int size);
 		virtual void Close(void);
 		virtual void Error(int error, int canretry = false, char const * filename=NULL);
 		virtual void Set_Buffer_Size(int size);
@@ -165,7 +162,7 @@ class RawFileClass : public FileClass
 		**	This function returns the largest size a low level DOS read or write may
 		**	perform. Larger file transfers are performed in chunks of this size or less.
 		*/
-		long Transfer_Block_Size(void) {return (long)((unsigned)UINT_MAX)-16L;};
+		int Transfer_Block_Size(void) {return (int)((unsigned)UINT_MAX)-16;};
 
 	private:
 

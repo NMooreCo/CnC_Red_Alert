@@ -74,7 +74,7 @@ typedef struct _CaptionText {
 #define CTF_FLASH   (1<<4)  /* Flash text. */
 
 /* Function prototypes. */
-long BuildCaptions(char *name, char *buffer);
+int BuildCaptions(char *name, char *buffer);
 
 #endif /* VQMCAPTOKEN_H */
 

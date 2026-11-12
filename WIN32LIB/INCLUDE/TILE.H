@@ -40,9 +40,9 @@
 /*=========================================================================*/
 /* The following prototypes are for the file: ICONSET.CPP						*/
 /*=========================================================================*/
-void * Load_Icon_Set(char const *filename, void *iconsetptr, long buffsize);
+void * Load_Icon_Set(char const *filename, void *iconsetptr, int buffsize);
 void Free_Icon_Set(void const *iconset);
-long Get_Icon_Set_Size(void const *iconset);
+int Get_Icon_Set_Size(void const *iconset);
 int Get_Icon_Set_Width(void const *iconset);
 int Get_Icon_Set_Height(void const *iconset);
 void * Get_Icon_Set_Icondata(void const *iconset);
@@ -62,11 +62,11 @@ typedef struct {
 	short	Count;			// Number of (logical) icons in this set.
 //	BOOL	Allocated;		// Was this iconset allocated?
 	short	Allocated;		// Was this iconset allocated?
-	long	Size;				// Size of entire iconset memory block.
+	int	Size;				// Size of entire iconset memory block.
 	unsigned char *Icons;			// Offset from buffer start to icon data.
-	long	Palettes;		// Offset from buffer start to palette data.
-	long	Remaps;			// Offset from buffer start to remap index data.
-	long	TransFlag;		// Offset for transparency flag table.
+	int	Palettes;		// Offset from buffer start to palette data.
+	int	Remaps;			// Offset from buffer start to remap index data.
+	int	TransFlag;		// Offset for transparency flag table.
 	unsigned char *Map;				// Icon map offset (if present).
 } IControl_Type;
 #endif	//(0)
@@ -78,14 +78,14 @@ typedef struct {
 	short	Allocated;		// Was this iconset allocated?
 	short MapWidth;		// Width of map (in icons).
 	short MapHeight;		// Height of map (in icons).
-	long	Size;				// Size of entire iconset memory block.
-	long	Icons;			// Offset from buffer start to icon data.
+	int	Size;				// Size of entire iconset memory block.
+	int	Icons;			// Offset from buffer start to icon data.
 //	unsigned char * Icons;	// Offset from buffer start to icon data.
-	long	Palettes;		// Offset from buffer start to palette data.
-	long	Remaps;			// Offset from buffer start to remap index data.
-	long	TransFlag;		// Offset for transparency flag table.
-	long	ColorMap;		// Offset for color control value table.
-	long	Map;				// Icon map offset (if present).
+	int	Palettes;		// Offset from buffer start to palette data.
+	int	Remaps;			// Offset from buffer start to remap index data.
+	int	TransFlag;		// Offset for transparency flag table.
+	int	ColorMap;		// Offset for color control value table.
+	int	Map;				// Icon map offset (if present).
 //	unsigned char * Map;				// Icon map offset (if present).
 } IControl_Type;
 

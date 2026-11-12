@@ -50,10 +50,10 @@
  *   NullModemClass::Hangup_Modem -- hangs up the modem                    *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include "function.h"
+#include "FUNCTION.H"
 #ifdef WIN32
-#include "wincomm.h"
-#include "modemreg.h"
+#include "WINCOMM.H"
+#include "MODEMREG.H"
 extern ModemRegistryEntryClass *ModemRegistry;
 #endif	//WIN32
 #include "i86.h"
@@ -830,8 +830,8 @@ void NullModemClass::Shutdown ( void )
  * HISTORY:                                                                *
  *   08/07/1995 DRD : Created.                                             *
  *=========================================================================*/
-void NullModemClass::Set_Timing (unsigned long retrydelta,
-	unsigned long maxretries, unsigned long timeout)
+void NullModemClass::Set_Timing (unsigned int retrydelta,
+	unsigned int maxretries, unsigned int timeout)
 {
 	RetryDelta = retrydelta;
 	MaxRetries = maxretries;
@@ -954,7 +954,7 @@ int NullModemClass::Service (void)
 #else	//WIN32
 
 	int status;
-	static unsigned long last_time = 0;
+	static unsigned int last_time = 0;
 
 	/*------------------------------------------------------------------------
 	First, copy all the bytes we can from the Greenleaf RX buffer to our
@@ -1226,7 +1226,7 @@ int NullModemClass::Num_Receive(void)
  * HISTORY:                                                                *
  *   05/01/1995 BRR : Created.                                             *
  *=========================================================================*/
-unsigned long NullModemClass::Response_Time(void)
+unsigned int NullModemClass::Response_Time(void)
 {
 	if (Connection)
 		return( Connection->Queue->Avg_Response_Time() );
@@ -1428,7 +1428,7 @@ int NullModemClass::Detect_Modem( SerialSettingsType *settings, bool reconnect )
 	------------------------------------------------------------------------*/
 	strcpy( buffer, Text_String( TXT_INITIALIZING_MODEM ) );
 
-	Fancy_Text_Print(TXT_NONE, 0, 0, TBLACK, TBLACK, TPF_TEXT);
+	Fancy_Text_Print(TXT_NONE, 0, 0, (RemapControlType *)NULL, TBLACK, TPF_TEXT);
 	int lines = Format_Window_String(buffer, SeenBuff.Get_Height(), width, height);
 
 	width = max(width, 90 * RESFACTOR);
@@ -1709,7 +1709,7 @@ DialStatusType NullModemClass::Dial_Modem( char *string, DialMethodType method, 
 		strcpy( buffer, Text_String( TXT_DIALING ) );
 	}
 
-	Fancy_Text_Print(TXT_NONE,0,0,TBLACK,TBLACK,TPF_TEXT);
+	Fancy_Text_Print(TXT_NONE,0,0,(RemapControlType *)NULL,TBLACK,TPF_TEXT);
 	Format_Window_String(buffer, SeenBuff.Get_Height(), width, height);
 
 	int text_width = width;
@@ -1914,7 +1914,7 @@ DialStatusType NullModemClass::Answer_Modem( bool reconnect )
 		strcpy( text_buffer, Text_String( TXT_WAITING_FOR_CALL ) );
 	}
 
-	Fancy_Text_Print(TXT_NONE, 0, 0, TBLACK, TBLACK, TPF_TEXT);
+	Fancy_Text_Print(TXT_NONE, 0, 0, (RemapControlType *)NULL, TBLACK, TPF_TEXT);
 	Format_Window_String(text_buffer, SeenBuff.Get_Height(), width, height);
 
 	text_width = width;
@@ -2026,7 +2026,7 @@ DialStatusType NullModemClass::Answer_Modem( bool reconnect )
 
 				strcpy( text_buffer, Text_String( TXT_ANSWERING ) );
 
-				Fancy_Text_Print(TXT_NONE,0,0,TBLACK,TBLACK,TPF_TEXT);
+				Fancy_Text_Print(TXT_NONE,0,0,(RemapControlType *)NULL,TBLACK,TPF_TEXT);
 				Format_Window_String(text_buffer, SeenBuff.Get_Height(), width, height);
 
 				text_width = width;

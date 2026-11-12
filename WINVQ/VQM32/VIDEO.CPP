@@ -51,10 +51,10 @@
 #include <pharlap.h>
 #include <pldos32.h>
 #else
-#include "realmode.h"
+#include "REALMODE.H"
 #endif
 
-#include "video.h"
+#include "VIDEO.H"
 
 /*---------------------------------------------------------------------------
  * PRIVATE DECLARATIONS
@@ -84,7 +84,7 @@ static DisplayInfo _Display = {-1,0,0,0,NULL};
 *
 ****************************************************************************/
 
-DisplayInfo *SetVideoMode(long mode)
+DisplayInfo *SetVideoMode(int mode)
 {
 	#ifdef __WATCOMC__
 	union REGS   regs;
@@ -95,7 +95,7 @@ DisplayInfo *SetVideoMode(long mode)
 
 	DisplayInfo  *di = NULL;
 	VESAModeInfo *vminfo;
-	long         error;
+	int         error;
 
 	/* Initialize the video manager on the first invocation of
 	 * SetVideoMode()
@@ -192,8 +192,8 @@ DisplayInfo *SetVideoMode(long mode)
 
 				if ((vminfo = SetVESAMode(mode)) != NULL) {
 					_Display.Mode = mode;
-					_Display.XRes = (long)vminfo->XRes;
-					_Display.YRes = (long)vminfo->YRes;
+					_Display.XRes = (int)vminfo->XRes;
+					_Display.YRes = (int)vminfo->YRes;
 					_Display.Extended = vminfo;
 					di = &_Display;
 				}
@@ -275,7 +275,7 @@ DisplayInfo *GetDisplayInfo(void)
 *
 ****************************************************************************/
 
-long GetVBIBit(void)
+int GetVBIBit(void)
 {
 	return (_Display.VBIbit);
 }

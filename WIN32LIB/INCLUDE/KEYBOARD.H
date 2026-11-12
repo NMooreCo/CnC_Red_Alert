@@ -35,7 +35,7 @@
 #ifndef KEYBOARD_H
 #define KEYBOARD_H
  
-#include <WWSTD.H>
+#include "WWSTD.H"
 
 typedef enum {
 	WWKEY_SHIFT_BIT	= 0x100,
@@ -110,8 +110,8 @@ class WWKeyboardClass
 		unsigned char	AsciiRemap[2048];	// remap for shft/ctrl/alt key combos
 		unsigned short Buffer[256];		// buffer which holds actual keypresses
 		unsigned char  ToggleKeys[256];	// determines toggles which affect key
-		long				Head;					// the head position in keyboard buffer
-		long				Tail;					// the tail position in keyboard buffer
+		int				Head;					// the head position in keyboard buffer
+		int				Tail;					// the tail position in keyboard buffer
 		int				MState;
 		int				Conditional;
 		HANDLE			CurrentCursor;

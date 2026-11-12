@@ -38,7 +38,7 @@
 #ifndef DRIVE_H
 #define DRIVE_H
 
-#include	"foot.h"
+#include	"FOOT.H"
 
 /****************************************************************************
 **	Movable objects are handled by this class definition. Moveable objects
@@ -202,10 +202,9 @@ class DriveClass : public FootClass
 		static TrackType const Track2[];
 		static TrackType const Track1[24];
 };
-
-inline DriveClass::TrackControlType operator |(DriveClass::TrackControlType, DriveClass::TrackControlType);
-inline DriveClass::TrackControlType operator &(DriveClass::TrackControlType, DriveClass::TrackControlType);
-inline DriveClass::TrackControlType operator ~(DriveClass::TrackControlType);
+//inline DriveClass::TrackControlType operator |(DriveClass::TrackControlType, DriveClass::TrackControlType);	// (pre-standard guiding declaration; the JSHELL.H template is used)
+//inline DriveClass::TrackControlType operator &(DriveClass::TrackControlType, DriveClass::TrackControlType);	// (pre-standard guiding declaration; the JSHELL.H template is used)
+//inline DriveClass::TrackControlType operator ~(DriveClass::TrackControlType);	// (pre-standard guiding declaration; the JSHELL.H template is used)
 
 
 #endif

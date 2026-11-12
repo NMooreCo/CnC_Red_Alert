@@ -40,7 +40,7 @@
  *   SpecialClass::Init -- Initialize the special class of options.                            *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
+#include	"FUNCTION.H"
 
 #ifdef WIN32
 #define	OPTION_WIDTH	236*2
@@ -118,7 +118,8 @@ void Special_Dialog(bool simple)
 	buttons = &ok;
 	cancel.Add(*buttons);
 
-	for (int index = 0; index < sizeof(_options)/sizeof(_options[0]); index++) {
+	int index;
+	for (index = 0; index < sizeof(_options)/sizeof(_options[0]); index++) {
 		_options[index].Button = new CheckBoxClass(100+index, OPTION_X+17*RESFACTOR, OPTION_Y+20*RESFACTOR+(index*10*RESFACTOR));
 		if (_options[index].Button) {
 			_options[index].Button->Add(*buttons);
@@ -319,7 +320,7 @@ char const * Fetch_Password(int caption, int message, int btext)
 
 	if (btext == TXT_NONE) btext = TXT_OK;
 
-	Fancy_Text_Print(TXT_NONE, 0, 0, TBLACK, TBLACK, TPF_6PT_GRAD|TPF_NOSHADOW);
+	Fancy_Text_Print(TXT_NONE, 0, 0, (RemapControlType *)NULL, TBLACK, TPF_6PT_GRAD|TPF_NOSHADOW);
 
 	/*
 	**	Examine the optional button parameters. Fetch the width and starting
@@ -339,7 +340,7 @@ char const * Fetch_Password(int caption, int message, int btext)
 	*/
 	buffer[BUFFSIZE-1] = 0;
 	strncpy(buffer, Text_String(message), BUFFSIZE-1);
-	Fancy_Text_Print(TXT_NONE, 0, 0, TBLACK, TBLACK, TPF_6PT_GRAD|TPF_NOSHADOW);
+	Fancy_Text_Print(TXT_NONE, 0, 0, (RemapControlType *)NULL, TBLACK, TPF_6PT_GRAD|TPF_NOSHADOW);
 	int width;
 	int height;
 	Format_Window_String(buffer, 255, width, height);
@@ -493,7 +494,7 @@ int Fetch_Difficulty(void)
 		}
 	}
 #endif
-	Fancy_Text_Print(TXT_NONE, 0, 0, TBLACK, TBLACK, TPF_6PT_GRAD|TPF_NOSHADOW);
+	Fancy_Text_Print(TXT_NONE, 0, 0, (RemapControlType *)NULL, TBLACK, TPF_6PT_GRAD|TPF_NOSHADOW);
 	int width;
 	int height;
 	Format_Window_String(buffer, w-60*RESFACTOR, width, height);

@@ -35,7 +35,7 @@
  *   Exit -- Exit routine with message.                                    *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include "misc.h"
+#include "MISC.H"
 
 #include <stdio.h>
 
@@ -84,7 +84,7 @@ void randomize	( void )
 }
 
 #if(0)
-unsigned long	random ( unsigned long mod )
+unsigned int	random ( unsigned int mod )
 {
   return rand () * mod / RAND_MAX ;
 }

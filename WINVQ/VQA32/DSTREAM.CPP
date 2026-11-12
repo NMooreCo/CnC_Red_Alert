@@ -49,14 +49,14 @@
 
 #include <fcntl.h>
 #include <io.h>
-#include "vqaplayp.h"
+#include "VQAPLAYP.H"
 
 /*---------------------------------------------------------------------------
  * PRIVATE DECLARATIONS
  *-------------------------------------------------------------------------*/
 
-static long VQADOSHandler(VQAHandle *vqa, long action, void *buffer,
-		long nbytes);
+static int VQADOSHandler(VQAHandle *vqa, int action, void *buffer,
+		int nbytes);
 
 
 /****************************************************************************
@@ -110,11 +110,11 @@ void VQA_InitAsDOS(VQAHandle *vqa)
 *
 ****************************************************************************/
 
-static long VQADOSHandler(VQAHandle *vqa, long action, void *buffer,
-		long nbytes)
+static int VQADOSHandler(VQAHandle *vqa, int action, void *buffer,
+		int nbytes)
 {
-	long fh;
-	long error;
+	int fh;
+	int error;
 
 	fh = vqa->VQAio;
 
@@ -149,7 +149,7 @@ static long VQADOSHandler(VQAHandle *vqa, long action, void *buffer,
 		 * VQAERR_SEEK.
 		 */
 		case VQACMD_SEEK:
-			error = (lseek(fh, nbytes, (long)buffer) == -1);
+			error = (lseek(fh, nbytes, (int)buffer) == -1);
 			break;
 
 		/* VQACMD_OPEN asks that you open the file for access. */

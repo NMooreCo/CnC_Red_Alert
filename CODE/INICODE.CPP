@@ -35,7 +35,7 @@
  * Functions:                                                              *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
+#include	"FUNCTION.H"
 
 
 #ifdef TOFIX
@@ -152,7 +152,7 @@ bool Read_Scenario_INI_Write_INB( char *root, bool fresh)
 	len = strlen(buffer);
 	for (int i = 0; i < len; i++) {
 		val = (unsigned char)buffer[i];
-		Add_CRC(&ScenarioCRC, (unsigned long)val);
+		Add_CRC(&ScenarioCRC, (unsigned int)val);
 	}
 
 	sprintf(fname,"%s.INB",root);
@@ -160,7 +160,7 @@ bool Read_Scenario_INI_Write_INB( char *root, bool fresh)
 	file.Cache(16384);
 	file.Open(WRITE);
 
-	unsigned long crc = Ini_Binary_Version();
+	unsigned int crc = Ini_Binary_Version();
 
 	file.Write( (char *)&crc, sizeof(crc) );
 

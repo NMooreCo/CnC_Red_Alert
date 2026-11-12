@@ -38,11 +38,11 @@
 #ifndef UNIT_H
 #define UNIT_H
 
-#include "drive.h"
-#include "radio.h"
-#include "cargo.h"
-#include "mission.h"
-#include	"target.h"
+#include "DRIVE.H"
+#include "RADIO.H"
+#include "CARGO.H"
+#include "MISSION.H"
+#include	"TARGET.H"
 
 
 /****************************************************************************
@@ -94,7 +94,7 @@ class UnitClass :	public DriveClass
 		** This is the area where a mobile gap generator stores the previously-held
 		** shroud values for the cells surrounding itself.
 		*/
-		unsigned long ShroudBits;
+		unsigned int ShroudBits;
 
 		/*
 		** This is the center coordinate for the mobile gap generator, as to
@@ -201,7 +201,7 @@ class UnitClass :	public DriveClass
 		*/
 		virtual TARGET Greatest_Threat(ThreatType threat) const;
 		virtual DirType Desired_Load_Dir(ObjectClass * passenger, CELL & moveto) const;
-		virtual RadioMessageType Receive_Message(RadioClass * from, RadioMessageType message, long & param);
+		virtual RadioMessageType Receive_Message(RadioClass * from, RadioMessageType message, int & param);
 		virtual void AI(void);
 		virtual int Mission_Guard_Area(void);
 		virtual int Mission_Unload(void);

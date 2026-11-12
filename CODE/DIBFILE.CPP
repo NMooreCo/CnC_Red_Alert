@@ -53,8 +53,8 @@
 #include <io.h>
 #include <direct.h>
 #include <stdlib.h>
-#include "dibutil.h"
-#include "dibapi.h"
+#include "DIBUTIL.H"
+#include "DIBAPI.H"
 
 //#include "WolDebug.h"
 
@@ -429,7 +429,7 @@ HANDLE ReadDIBFile(int hFile)
    // directly following the color table in the file.  Use the value in
    // bfOffBits to seek the bits.
 
-   if (bmfHeader.bfOffBits != 0L)
+   if (bmfHeader.bfOffBits != 0)
       _llseek(hFile, bmfHeader.bfOffBits, SEEK_SET);
    
    if (MyRead(hFile, (LPSTR)lpbi + offBits, lpbi->biSizeImage))
@@ -664,7 +664,7 @@ HDIB LoadDIB_FromMemory( const unsigned char* pData, DWORD dwBitsSize )
 	// directly following the color table in the file.  Use the value in
 	// bfOffBits to seek the bits.
 
-	if (bmfHeader.bfOffBits != 0L)
+	if (bmfHeader.bfOffBits != 0)
 //		_llseek(hFile, bmfHeader.bfOffBits, SEEK_SET);
 		pData = pDataStart + bmfHeader.bfOffBits;
 

@@ -107,7 +107,7 @@
  *   BuildingClass::~BuildingClass -- Destructor for building type objects.                    *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
+#include	"FUNCTION.H"
 
 
 enum SAMState {
@@ -120,17 +120,17 @@ enum SAMState {
 **	Center of building offset table.
 */
 COORDINATE const BuildingClass::CenterOffset[BSIZE_COUNT] = {
-	0x00800080L,
-	0x008000FFL,
-	0x00FF0080L,
-	0x00FF00FFL,
-	0x018000FFL,
-	0x00FF0180L,
-	0x01800180L,
+	0x00800080,
+	0x008000FF,
+	0x00FF0080,
+	0x00FF00FF,
+	0x018000FF,
+	0x00FF0180,
+	0x01800180,
 
-	0x00FF0200L,
+	0x00FF0200,
 
-	0x02800280L,
+	0x02800280,
 };
 
 
@@ -158,7 +158,7 @@ COORDINATE const BuildingClass::CenterOffset[BSIZE_COUNT] = {
  *   06/26/1995 JLB : Forces refinery load anim to start immediately.                          *
  *   08/13/1995 JLB : Uses ScenarioInit for special loose "CAN_LOAD" check.                    *
  *=============================================================================================*/
-RadioMessageType BuildingClass::Receive_Message(RadioClass * from, RadioMessageType message, long & param)
+RadioMessageType BuildingClass::Receive_Message(RadioClass * from, RadioMessageType message, int & param)
 {
 	assert(Buildings.ID(this) == ID);
 	assert(IsActive);
@@ -1115,8 +1115,8 @@ bool BuildingClass::Unlimbo(COORDINATE coord, DirType dir)
 		**	Ensure that the owning house knows about the
 		**	new object.
 		*/
-		House->BScan |= (1L << Class->Type);
-		House->ActiveBScan |= (1L << Class->Type);
+		House->BScan |= (1 << Class->Type);
+		House->ActiveBScan |= (1 << Class->Type);
 
 		/*
 		**	Recalculate the center point of the house's base.
@@ -1191,7 +1191,7 @@ bool BuildingClass::Unlimbo(COORDINATE coord, DirType dir)
  *   11/22/1994 JLB : Shares base damage handler for techno objects.                           *
  *   07/15/1995 JLB : Power ratio gets adjusted.                                               *
  *=============================================================================================*/
-ResultType BuildingClass::Take_Damage(int & damage, int distance, WarheadType warhead, TechnoClass * source, int forced)
+ResultType BuildingClass::Take_Damage(int & damage, int distance, WarheadType warhead, TechnoClass * source, bool forced)
 {
 	assert(Buildings.ID(this) == ID);
 	assert(IsActive);
@@ -1371,7 +1371,7 @@ ResultType BuildingClass::Take_Damage(int & damage, int distance, WarheadType wa
 
 			case RESULT_HALF:
 				if (*this == STRUCT_PUMP) {
-					AnimClass * anim = new AnimClass(ANIM_OILFIELD_BURN, Coord_Add(Coord, 0x00400130L), 1);
+					AnimClass * anim = new AnimClass(ANIM_OILFIELD_BURN, Coord_Add(Coord, 0x00400130), 1);
 					if (anim) {
 						anim->Attach_To(this);
 					}

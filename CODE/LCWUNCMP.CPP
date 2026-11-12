@@ -70,7 +70,7 @@ extern "C" {
  * HISTORY:                                                                *
  *    03/20/1995 IML : Created.                                            *
  *=========================================================================*/
-unsigned long __cdecl LCW_Uncompress (void * source, void * dest, unsigned long )
+unsigned int __cdecl LCW_Uncompress (void * source, void * dest, unsigned int )
 //unsigned long LCW_Uncompress (void * source, void * dest, unsigned long length)
 {
 	unsigned char * source_ptr, * dest_ptr, * copy_ptr, op_code, data;
@@ -100,7 +100,7 @@ unsigned long __cdecl LCW_Uncompress (void * source, void * dest, unsigned long 
 				if (op_code == 0x80) {
 
 					/* Return # of destination bytes written. */
-					return ((unsigned long) (dest_ptr - (unsigned char*) dest));
+					return ((unsigned int) (dest_ptr - (unsigned char*) dest));
 
 				} else {
 

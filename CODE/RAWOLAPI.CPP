@@ -22,15 +22,15 @@
 //	Definitions for RAChatEventSink, RADownloadEventSink, RANetUtilEventSink.
 //	ajw 07/10/98
 
-#include "RAWolapi.h"
+#include "RAWOLAPI.H"
 #define IID_DEFINED
-#include "wolapi\wolapi_i.c"
-#include "WolapiOb.h"
-#include "WolStrng.h"
-#include "Wol_gsup.h"
-#include "wolapi\netutildefs.h"
+#include "WOLAPI/WOLAPI_I.C"
+#include "WOLAPIOB.H"
+#include "WOLSTRNG.H"
+#include "WOL_GSUP.H"
+#include "WOLAPI/NETUTILDEFS.H"
 
-#include "WolDebug.h"
+#include "WOLDEBUG.H"
 
 bool operator<( const User& u1, const User& u2 );
 
@@ -1323,7 +1323,7 @@ STDMETHODIMP RAChatEventSink::OnGameStart( HRESULT hRes, Channel*, User* pUserIn
 }
 
 //***********************************************************************************************
-unsigned long RAChatEventSink::GetPlayerGameIP( const char* szPlayerName ) const
+unsigned int RAChatEventSink::GetPlayerGameIP( const char* szPlayerName ) const
 {
 	//	Returns ipaddr value of player if found in pGameUserList, else 0.
 	User* pUser = pGameUserList;
@@ -1450,7 +1450,7 @@ void RAChatEventSink::DeleteUserIPList()
 }
 
 //***********************************************************************************************
-unsigned long RAChatEventSink::GetUserIP( const char* szName ) const
+unsigned int RAChatEventSink::GetUserIP( const char* szName ) const
 {
 	//	Looks in pUserIPList for the ipaddr of user with name szName.
 	//	This is used only while in game channels.
@@ -1752,7 +1752,7 @@ STDMETHODIMP RANetUtilEventSink::OnGameresSent( HRESULT hRes )
 }
 
 //***********************************************************************************************
-STDMETHODIMP RANetUtilEventSink::OnLadderList( HRESULT hRes, Ladder* pLadderListIn, int /*totalCount*/, long /*timeStamp*/, int /*keyRung*/ )
+STDMETHODIMP RANetUtilEventSink::OnLadderList( HRESULT hRes, Ladder* pLadderListIn, int /*totalCount*/, int /*timeStamp*/, int /*keyRung*/ )
 {
 	//	Maintenance of ladders list is like that for channels list above.
 	//	DeleteLadderList();		-> This is done once, before a set of RequestLadderList() calls are made.
@@ -1824,7 +1824,7 @@ STDMETHODIMP RANetUtilEventSink::OnLadderList( HRESULT hRes, Ladder* pLadderList
 }
 
 //***********************************************************************************************
-STDMETHODIMP RANetUtilEventSink::OnPing( HRESULT hRes, int time, unsigned long ip, int /*handle*/ )
+STDMETHODIMP RANetUtilEventSink::OnPing( HRESULT hRes, int time, unsigned int ip, int /*handle*/ )
 {
 	if( pOwner->bDoingDisconnectPinging )
 	{

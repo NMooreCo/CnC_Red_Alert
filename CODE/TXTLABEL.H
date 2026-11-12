@@ -60,8 +60,8 @@ class TextLabelClass : public GadgetClass
 		/*
 		** General-purpose data fields
 		*/
-		unsigned long UserData1;
-		unsigned long UserData2;
+		unsigned int UserData1;
+		unsigned int UserData2;
 		TextPrintType Style;
 		char *Text;
 		RemapControlType * Color;

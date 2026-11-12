@@ -50,7 +50,7 @@
  *   Normal_Move_Point -- Moves point with tilt compensation.                                  *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
+#include	"FUNCTION.H"
 
 
 /***********************************************************************************************
@@ -402,6 +402,22 @@ COORDINATE Coord_Scatter(COORDINATE coord, unsigned distance, bool lock)
 	return(newcoord);
 }
 
+#ifdef RA_PORT
+/*
+**	(value * distance * 2) / 256 using 16x16->32 bit signed math, result truncated to 16
+**	bits and sign extended -- as the original "imul bx / shl / rcl / cwd" sequence.
+*/
+static inline int calcx(signed short value, short distance)
+{
+	int product = ((int)value * (int)distance) << 1;
+	return((short)(product >> 8));
+}
+
+static inline int calcy(signed short value, short distance)
+{
+	return(-calcx(value, distance));
+}
+#else
 extern int calcx(signed short, short distance);
 #pragma aux calcx parm [ax] [bx] \
 	modify [eax dx] \
@@ -426,6 +442,8 @@ extern int calcy(signed short, short distance);
 	"cwd"								\
 	"neg	eax";
 //	"and	eax,0FFFFh"				\
+
+#endif	// RA_PORT
 
 void Move_Point(short &x, short &y, register DirType dir, unsigned short distance)
 {

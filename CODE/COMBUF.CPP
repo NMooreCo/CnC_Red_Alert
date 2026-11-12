@@ -51,12 +51,12 @@
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 
-#include	"function.h"
+#include	"FUNCTION.H"
 #include <stdio.h>
 #include <mem.h>
-#include "combuf.h"
-#include "connect.h"	// for command names for debug output
-#include "wwlib32.h"	// to enable mono output
+#include "COMBUF.H"
+#include "CONNECT.H"	// for command names for debug output
+#include "WWLIB32.H"	// to enable mono output
 
 
 /***************************************************************************
@@ -194,13 +194,13 @@ void CommBufferClass::Init(void)
 	//------------------------------------------------------------------------
 	//	Init data members
 	//------------------------------------------------------------------------
-	SendTotal = 0L;
-	ReceiveTotal = 0L;
+	SendTotal = 0;
+	ReceiveTotal = 0;
 
-	DelaySum = 0L;
-	NumDelay = 0L;
-	MeanDelay = 0L;
-	MaxDelay = 0L;
+	DelaySum = 0;
+	NumDelay = 0;
+	MeanDelay = 0;
+	MaxDelay = 0;
 
 	SendCount = 0;
 
@@ -212,9 +212,9 @@ void CommBufferClass::Init(void)
 	for (i = 0; i < MaxSend; i++) {
 		SendQueue[i].IsActive = 0;
 		SendQueue[i].IsACK = 0;
-		SendQueue[i].FirstTime = 0L;
-		SendQueue[i].LastTime = 0L;
-		SendQueue[i].SendCount = 0L;
+		SendQueue[i].FirstTime = 0;
+		SendQueue[i].LastTime = 0;
+		SendQueue[i].SendCount = 0;
 		SendQueue[i].BufLen = 0;
 		SendQueue[i].ExtraLen = 0;
 
@@ -272,9 +272,9 @@ void CommBufferClass::Init_Send_Queue(void)
 	for (i = 0; i < MaxSend; i++) {
 		SendQueue[i].IsActive = 0;
 		SendQueue[i].IsACK = 0;
-		SendQueue[i].FirstTime = 0L;
-		SendQueue[i].LastTime = 0L;
-		SendQueue[i].SendCount = 0L;
+		SendQueue[i].FirstTime = 0;
+		SendQueue[i].LastTime = 0;
+		SendQueue[i].SendCount = 0;
 		SendQueue[i].BufLen = 0;
 		SendQueue[i].ExtraLen = 0;
 
@@ -332,9 +332,9 @@ int CommBufferClass::Queue_Send(void *buf, int buflen, void *extrabuf,
 	//------------------------------------------------------------------------
 	SendQueue[index].IsActive = 1;			// entry is now active
 	SendQueue[index].IsACK = 0;				// entry hasn't been ACK'd
-	SendQueue[index].FirstTime = 0L;			// filled in by Manager when sent
-	SendQueue[index].LastTime = 0L;			// filled in by Manager when sent
-	SendQueue[index].SendCount = 0L;			// filled in by Manager when sent
+	SendQueue[index].FirstTime = 0;			// filled in by Manager when sent
+	SendQueue[index].LastTime = 0;			// filled in by Manager when sent
+	SendQueue[index].SendCount = 0;			// filled in by Manager when sent
 	SendQueue[index].BufLen = buflen;		// save buffer size
 
 	//------------------------------------------------------------------------
@@ -427,9 +427,9 @@ int CommBufferClass::UnQueue_Send(void *buf, int *buflen, int index,
 	//------------------------------------------------------------------------
 	SendQueue[SendIndex[index]].IsActive = 0;
 	SendQueue[SendIndex[index]].IsACK = 0;
-	SendQueue[SendIndex[index]].FirstTime = 0L;
-	SendQueue[SendIndex[index]].LastTime = 0L;
-	SendQueue[SendIndex[index]].SendCount = 0L;
+	SendQueue[SendIndex[index]].FirstTime = 0;
+	SendQueue[SendIndex[index]].LastTime = 0;
+	SendQueue[SendIndex[index]].SendCount = 0;
 	SendQueue[SendIndex[index]].BufLen = 0;
 	SendQueue[SendIndex[index]].ExtraLen = 0;
 
@@ -694,7 +694,7 @@ ReceiveQueueType * CommBufferClass::Get_Receive(int index)
  * HISTORY:                                                                *
  *   01/19/1995 BR : Created.                                              *
  *=========================================================================*/
-void CommBufferClass::Add_Delay(unsigned long delay)
+void CommBufferClass::Add_Delay(unsigned int delay)
 {
 	int roundoff = 0;
 
@@ -733,7 +733,7 @@ void CommBufferClass::Add_Delay(unsigned long delay)
  * HISTORY:                                                                *
  *   01/19/1995 BR : Created.                                              *
  *=========================================================================*/
-unsigned long CommBufferClass::Avg_Response_Time(void)
+unsigned int CommBufferClass::Avg_Response_Time(void)
 {
 	return(MeanDelay);
 
@@ -755,7 +755,7 @@ unsigned long CommBufferClass::Avg_Response_Time(void)
  * HISTORY:                                                                *
  *   01/19/1995 BR : Created.                                              *
  *=========================================================================*/
-unsigned long CommBufferClass::Max_Response_Time(void)
+unsigned int CommBufferClass::Max_Response_Time(void)
 {
 	return(MaxDelay);
 
@@ -779,10 +779,10 @@ unsigned long CommBufferClass::Max_Response_Time(void)
  *=========================================================================*/
 void CommBufferClass::Reset_Response_Time(void)
 {
-	DelaySum = 0L;
-	NumDelay = 0L;
-	MeanDelay = 0L;
-	MaxDelay = 0L;
+	DelaySum = 0;
+	NumDelay = 0;
+	MeanDelay = 0;
+	MaxDelay = 0;
 
 }	/* end of Reset_Response_Time */
 
@@ -852,7 +852,7 @@ void CommBufferClass::Mono_Debug_Print(int refresh)
 	struct CommHdr {									// this mirrors the CommHeaderType
 		unsigned short MagicNumber;
 		unsigned char Code;
-		unsigned long PacketID;
+		unsigned int PacketID;
 	} *hdr;
 
 	//------------------------------------------------------------------------
@@ -990,7 +990,7 @@ void CommBufferClass::Mono_Debug_Print2(int refresh)
 	struct CommHdr {									// this mirrors the CommHeaderType
 		unsigned short MagicNumber;
 		unsigned char Code;
-		unsigned long PacketID;
+		unsigned int PacketID;
 	} *hdr;
 
 	//------------------------------------------------------------------------

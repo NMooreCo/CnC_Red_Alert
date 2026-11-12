@@ -49,8 +49,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "vqaplayp.h"
-#include <vqm32\all.h>
+#include "VQAPLAYP.H"
+#include <VQM32/ALL.H>
 
 /*---------------------------------------------------------------------------
  * PRIVATE DECLARATIONS
@@ -158,9 +158,9 @@ static VQAConfig _defaultconfig = {
 
 	/* HMIBufSize: Size of HMIs internal buffer. */
 #if (VQADIRECT_SOUND)
-	8192L,
+	8192,
 #else
-	2048L,
+	2048,
 #endif
 	/* DigiHandle: Handle to an initialized HMI sound driver. A value of -1
 	 * tells the player it must initialize the HMI sound driver itself.
@@ -228,7 +228,7 @@ enum VMTAGS {
 
 typedef struct _VideoModeTag {
 	char const *token;
-	long       id;
+	int       id;
 } VideoModeTag;
 
 VideoModeTag VideoModeTags[] = {
@@ -285,7 +285,7 @@ void VQA_INIConfig(VQAConfig *config)
 {
 	char *ininame;
 	char buf[80];
-	long i;
+	int i;
 
 	/* Set all Config entries to 0. */
 	memset(config, 0, sizeof(VQAConfig));

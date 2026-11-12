@@ -48,14 +48,14 @@
  * and the associated macros are identical to that of the PHARLAP "pltypes.h"
  * definitions for easy of conversion to WATCOM/4GW.
  */
-typedef unsigned long REALPTR;
+typedef unsigned int REALPTR;
 
-#define RP_OFF(rp) ((unsigned short)(((unsigned long)(rp)) & 0xFFFF))
-#define RP_SEG(rp) ((unsigned short)(((unsigned long)(rp)) >> 16))
-#define RP_SET(rp, off, seg) (rp = ((unsigned long)(seg) << 16) + (off))
-#define RP_INCR(rp, incr) (rp += ((unsigned long)(incr)) & 0xFFFF)
+#define RP_OFF(rp) ((unsigned short)(((unsigned int)(rp)) & 0xFFFF))
+#define RP_SEG(rp) ((unsigned short)(((unsigned int)(rp)) >> 16))
+#define RP_SET(rp, off, seg) (rp = ((unsigned int)(seg) << 16) + (off))
+#define RP_INCR(rp, incr) (rp += ((unsigned int)(incr)) & 0xFFFF)
 
-#define MK_PTR(off, seg) (void *)((((unsigned long)seg&0xFFFF)<<4)+off)
+#define MK_PTR(off, seg) (void *)((((unsigned int)seg&0xFFFF)<<4)+off)
 
 /* RMInfo: Real-mode interrupt call structure.
  *
@@ -66,14 +66,14 @@ typedef unsigned long REALPTR;
  * to real-mode and then execute the interrupt in real-mode.
  */
 typedef struct _RMInfo {
-	long  edi;
-	long  esi;
-	long  ebp;
-	long  reservedbysystem;
-	long  ebx;
-	long  edx;
-	long  ecx;
-	long  eax;
+	int  edi;
+	int  esi;
+	int  ebp;
+	int  reservedbysystem;
+	int  ebx;
+	int  edx;
+	int  ecx;
+	int  eax;
 	short flags;
 	short es,ds,fs,gs,ip,cs,sp,ss;
 } RMInfo;

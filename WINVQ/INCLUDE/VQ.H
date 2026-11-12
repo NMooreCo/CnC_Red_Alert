@@ -86,7 +86,7 @@
  * pad[5]          - Pad out to 40 bytes total
  */
 typedef struct _VQHeader {
-	unsigned long  ImageSize;
+	unsigned int  ImageSize;
 	unsigned short ImageWidth;
 	unsigned short ImageHeight;
 	unsigned short BlockWidth;

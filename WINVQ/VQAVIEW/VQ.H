@@ -38,12 +38,12 @@
 // INCLUDES
 //==========================================================================
 
-#include <vqa32\vqaplay.h>
+#include <VQA32/VQAPLAY.H>
 #include <vidmode.h>
 #define bool BOOL
 #define true 1
 #define false 0
-#include <rawfile.h>
+#include <RAWFILE.H>
 
 //==========================================================================
 // PUBLIC FUNCTIONS
@@ -134,11 +134,11 @@ class VQAClass {
 		int VQAClass::Play_Generic_VQA( int last_frame_to_play );
 
 	public:
-		VQAClass( char *filename, char *buffer, short media_src, long (*callback) (unsigned char *, long) );
+		VQAClass( char *filename, char *buffer, short media_src, int (*callback) (unsigned char *, int) );
 		~VQAClass (void);
 		BOOL VQAClass::Update_Palette( unsigned char *newpalette );
 		BOOL Open_And_Load_Buffers( void );
-		void Seek_To_Frame( unsigned long frame );
+		void Seek_To_Frame( unsigned int frame );
 		int Play_VQA( int last_frame_to_play );
 		void Play_VQA_Frame( int frame_number );
 		void Pause_VQA( void );
@@ -153,8 +153,8 @@ class VQAClass {
 //==========================================================================
 
 typedef struct {
-	unsigned long	file_offset;
-	unsigned long	file_size;
+	unsigned int	file_offset;
+	unsigned int	file_size;
 } VQACacheHeader;
 
 

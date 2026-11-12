@@ -62,10 +62,10 @@
  *   ScenarioClass::Do_Fade_AI -- Process the palette fading effect.                           *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
+#include	"FUNCTION.H"
 #ifdef WIN32
-#include "tcpip.h"
-#include "ccdde.h"
+#include "TCPIP.H"
+#include "CCDDE.H"
 
 extern bool SpawnedFromWChat;
 #endif
@@ -74,7 +74,7 @@ extern int PreserveVQAScreen;
 //#include "WolDebug.h"
 
 #ifdef FIXIT_VERSION_3		//	Stalemate games.
-#include "WolStrng.h"
+#include "WOLSTRNG.H"
 #endif
 
 static void Remove_AI_Players(void);
@@ -524,7 +524,8 @@ void Fill_In_Data(void)
 	*/
 	ScenarioInit++;
 
-	for (int index = 0; index < Buildings.Count(); index++) {
+	int index;
+	for (index = 0; index < Buildings.Count(); index++) {
 		Buildings.Ptr(index)->Update_Buildables();
 	}
 
@@ -2208,7 +2209,7 @@ bool Read_Scenario_INI(char * fname, bool )
 	len = strlen(buffer);
 	for (int i = 0; i < len; i++) {
 		val = (unsigned char)buffer[i];
-		Add_CRC(&ScenarioCRC, (unsigned long)val);
+		Add_CRC(&ScenarioCRC, (unsigned int)val);
 	}
 #endif
 

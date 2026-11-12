@@ -56,16 +56,13 @@
 
 #pragma pack(4)
 #define WIN32
-#ifndef _WIN32 // Denzil 6/2/98 Watcom 11.0 complains without this check
-#define _WIN32
-#endif // _WIN32
 #include	<windows.h>
 #include	<windowsx.h>
 #include	"dsound.h"
-#include	<wwstd.h>
-#include "soundint.h"
-#include "memflag.h"
-#include "audio.h"
+#include	<WWSTD.H>
+#include "SOUNDINT.H"
+#include "MEMFLAG.H"
+#include "AUDIO.H"
 
 extern	DebugBuffer[];
 
@@ -90,11 +87,11 @@ extern	DebugBuffer[];
  * HISTORY:                                                                *
  *   06/23/1995 PWG : Created.                                             *
  *=========================================================================*/
-long Simple_Copy(void ** source, long * ssize, void ** alternate, long * altsize, void **dest, long size)
+int Simple_Copy(void ** source, int * ssize, void ** alternate, int * altsize, void **dest, int size)
 {
 
 
-	long	out = 0;		// Number of bytes copied to the destination.
+	int	out = 0;		// Number of bytes copied to the destination.
 
 	/*
 	**	It could happen that entering this routine, the source buffer
@@ -109,7 +106,7 @@ long Simple_Copy(void ** source, long * ssize, void ** alternate, long * altsize
 	}
 
 	if (*source && *ssize) {
-		long	s;				// Scratch length var.
+		int	s;				// Scratch length var.
 
 		/*
 		**	Copy as much as possible from the primary source, but no
@@ -162,11 +159,11 @@ long Simple_Copy(void ** source, long * ssize, void ** alternate, long * altsize
  *   09/04/1994 JLB : Revamped entirely.                                                       *
  *=============================================================================================*/
 #pragma argsused
-long Sample_Copy(SampleTrackerType *st, void ** source, long * ssize, void ** alternate, long * altsize, void * dest, long size, SCompressType scomp, void * , short int *)
+int Sample_Copy(SampleTrackerType *st, void ** source, int * ssize, void ** alternate, int * altsize, void * dest, int size, SCompressType scomp, void * , short int *)
 {
 
-	long	s;
-	long	datasize = 0;		// Output bytes.
+	int	s;
+	int	datasize = 0;		// Output bytes.
 
 	switch (scomp) {
 		default:
@@ -184,7 +181,7 @@ long Sample_Copy(SampleTrackerType *st, void ** source, long * ssize, void ** al
 				**	a staging area before it can be decompressed.
 				*/
 				{
-					long magic;
+					int magic;
 					unsigned short fsize;
 					unsigned short dsize;
 					void *fptr;
@@ -407,7 +404,7 @@ VOID far __cdecl maintenance_callback(VOID)
 							st->DestPtr = Audio_Add_Long_To_Pointer (st->DestPtr,bytes_copied);
 
 							if ( (unsigned)st->DestPtr >= (unsigned)SECONDARY_BUFFER_SIZE ){
-								st->DestPtr = Audio_Add_Long_To_Pointer (st->DestPtr,(long)-SECONDARY_BUFFER_SIZE);
+								st->DestPtr = Audio_Add_Long_To_Pointer (st->DestPtr,(int)-SECONDARY_BUFFER_SIZE);
 							}
 
 
@@ -445,7 +442,7 @@ VOID far __cdecl maintenance_callback(VOID)
 			**	This allows for delays in calling the Sound_Callback function.
 			*/
 			if (!st->DontTouch && !st->QueueBuffer && st->FilePending) {
-				st->QueueBuffer = Audio_Add_Long_To_Pointer(st->FileBuffer, (long)(st->Odd%LockedData.StreamBufferCount)*(long)LockedData.StreamBufferSize);
+				st->QueueBuffer = Audio_Add_Long_To_Pointer(st->FileBuffer, (int)(st->Odd%LockedData.StreamBufferCount)*(int)LockedData.StreamBufferSize);
 				st->FilePending--;
 				st->Odd++;
 				if (!st->FilePending) {
@@ -512,7 +509,7 @@ VOID far __cdecl maintenance_callback(VOID)
  *   06/23/1995 PWG : Created.                                             *
  *=========================================================================*/
 
-void *Audio_Add_Long_To_Pointer(void const *ptr, long size)
+void *Audio_Add_Long_To_Pointer(void const *ptr, int size)
 {
 	return ((void *) ( (char const *) ptr + size));
 }
@@ -529,7 +526,7 @@ void *Audio_Add_Long_To_Pointer(void const *ptr, long size)
  * HISTORY:                                                                *
  *   06/28/1995 PWG : Created.                                             *
  *=========================================================================*/
-void Audio_Mem_Set(void const *ptr, unsigned char value, long size)
+void Audio_Mem_Set(void const *ptr, unsigned char value, int size)
 {
 	unsigned char *temp = (unsigned char *)ptr;
 	for (int lp = 0; lp < size; lp ++) {

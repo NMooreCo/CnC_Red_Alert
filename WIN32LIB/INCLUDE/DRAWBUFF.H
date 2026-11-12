@@ -22,7 +22,7 @@
 
 
 #ifndef WWSTD_H
-#include "wwstd.h"
+#include "WWSTD.H"
 #endif
 
 class GraphicViewPortClass;
@@ -36,13 +36,13 @@ extern "C" {
 	/* Externs for all of the common functions between the video buffer		*/
 	/*		class and the graphic buffer class.											*/
 	/*======================================================================*/
-	 long __cdecl Buffer_Size_Of_Region(void *thisptr, int w, int h);
+	 int __cdecl Buffer_Size_Of_Region(void *thisptr, int w, int h);
 
 	 void	__cdecl Buffer_Put_Pixel(void * thisptr, int x, int y, unsigned char color);
 	 int	__cdecl Buffer_Get_Pixel(void * thisptr, int x, int y);
 	 void	__cdecl Buffer_Clear(void *thisptr, unsigned char color);
-	 long	__cdecl Buffer_To_Buffer(void *thisptr, int x, int y, int w, int h, void *buff, long size);
-	 long __cdecl Buffer_To_Page(int x, int y, int w, int h, void *Buffer, void *view);
+	 int	__cdecl Buffer_To_Buffer(void *thisptr, int x, int y, int w, int h, void *buff, int size);
+	 int __cdecl Buffer_To_Page(int x, int y, int w, int h, void *Buffer, void *view);
 	 BOOL	__cdecl Linear_Blit_To_Linear(	void *thisptr, void * dest, int x_pixel, int y_pixel, int dx_pixel,
 			 										int dy_pixel, int pixel_width, int pixel_height, BOOL trans);
 	 BOOL __cdecl Linear_Scale_To_Linear(	void *, void *, int, int, int, int, int, int, int, int, BOOL, char *);

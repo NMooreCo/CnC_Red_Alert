@@ -40,7 +40,7 @@
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 
-#include "function.h"
+#include "FUNCTION.H"
 
 #define SUBFRAMEOFFS			7	// 3 1/2 frame offsets loaded (2 offsets/frame)
 
@@ -89,7 +89,7 @@ static int Length;
 void * Get_Shape_Header_Data(void * ptr)
 {
 	if (UseBigShapeBuffer) {
-		return((void *)(((ShapeHeaderType *)ptr)->shape_data+(long)BigShapeBufferStart));
+		return((void *)(((ShapeHeaderType *)ptr)->shape_data+(int)BigShapeBufferStart));
 	} else {
 		return (ptr);
 	}
@@ -129,19 +129,19 @@ void Check_Use_Compressed_Shapes (void)
 #endif
 
 
-unsigned long Build_Frame(void const * dataptr, unsigned short framenumber, void * buffptr)
+unsigned int Build_Frame(void const * dataptr, unsigned short framenumber, void * buffptr)
 {
 #ifdef FIXIT_SCORE_CRASH
 	char * ptr;
-	unsigned long offcurr, offdiff;
+	unsigned int offcurr, offdiff;
 #else
 	char * ptr, * lockptr;
-	unsigned long offcurr, off16, offdiff;
+	unsigned int offcurr, off16, offdiff;
 #endif
-	unsigned long offset[SUBFRAMEOFFS];
+	unsigned int offset[SUBFRAMEOFFS];
 	KeyFrameHeaderType * keyfr;
 	unsigned short buffsize, currframe, subframe;
-	unsigned long length = 0;
+	unsigned int length = 0;
 	char frameflags;
 
 	//
@@ -165,16 +165,16 @@ unsigned long Build_Frame(void const * dataptr, unsigned short framenumber, void
 	buffsize = keyfr->width * keyfr->height;
 
 	// get offset into data
-	ptr = (char *)dataptr + (((unsigned long)framenumber << 3) + sizeof(KeyFrameHeaderType));
-	Mem_Copy( ptr, &offset[0], 12L );
+	ptr = (char *)dataptr + (((unsigned int)framenumber << 3) + sizeof(KeyFrameHeaderType));
+	Mem_Copy( ptr, &offset[0], 12 );
 	frameflags = (char)(offset[0] >> 24);
 
 	if ( (frameflags & KF_KEYFRAME) ) {
 
-		ptr = (char *)Add_Long_To_Pointer( dataptr, (offset[0] & 0x00FFFFFFL) );
+		ptr = (char *)Add_Long_To_Pointer( dataptr, (offset[0] & 0x00FFFFFF) );
 
 		if (keyfr->flags & 1 ) {
-			ptr = (char *)Add_Long_To_Pointer( ptr, 768L );
+			ptr = (char *)Add_Long_To_Pointer( ptr, 768 );
 		}
 
 		length = LCW_Uncompress( ptr, buffptr, buffsize );
@@ -183,24 +183,24 @@ unsigned long Build_Frame(void const * dataptr, unsigned short framenumber, void
 		if ( (frameflags & KF_DELTA) ) {
 			currframe = (unsigned short)offset[1];
 
-			ptr = (char *)Add_Long_To_Pointer( dataptr, (((unsigned long)currframe << 3) + sizeof(KeyFrameHeaderType)) );
-			Mem_Copy( ptr, &offset[0], (long)(SUBFRAMEOFFS * sizeof(unsigned long)) );
+			ptr = (char *)Add_Long_To_Pointer( dataptr, (((unsigned int)currframe << 3) + sizeof(KeyFrameHeaderType)) );
+			Mem_Copy( ptr, &offset[0], (int)(SUBFRAMEOFFS * sizeof(unsigned int)) );
 		}
 
 		// key frame
-		offcurr = offset[1] & 0x00FFFFFFL;
+		offcurr = offset[1] & 0x00FFFFFF;
 
 		// key delta
-		offdiff = (offset[0] & 0x00FFFFFFL) - offcurr;
+		offdiff = (offset[0] & 0x00FFFFFF) - offcurr;
 
 		ptr = (char *)Add_Long_To_Pointer( dataptr, offcurr );
 
 		if (keyfr->flags & 1 ) {
-			ptr = (char *)Add_Long_To_Pointer( ptr, 768L );
+			ptr = (char *)Add_Long_To_Pointer( ptr, 768 );
 		}
 
 #ifndef FIXIT_SCORE_CRASH
-		off16 = (unsigned long)lockptr & 0x00003FFFL;
+		off16 = (unsigned int)lockptr & 0x00003FFF;
 #endif
 
 		length = LCW_Uncompress( ptr, buffptr, buffsize );
@@ -210,10 +210,10 @@ unsigned long Build_Frame(void const * dataptr, unsigned short framenumber, void
 		}
 
 #ifndef FIXIT_SCORE_CRASH
-		if ( ((offset[2] & 0x00FFFFFFL) - offcurr) >= (0x00010000L - off16) ) {
+		if ( ((offset[2] & 0x00FFFFFF) - offcurr) >= (0x00010000 - off16) ) {
 
 			ptr = (char *)Add_Long_To_Pointer( ptr, offdiff );
-			off16 = (unsigned long)ptr & 0x00003FFFL;
+			off16 = (unsigned int)ptr & 0x00003FFF;
 
 			offcurr += offdiff;
 			offdiff = 0;
@@ -241,13 +241,13 @@ unsigned long Build_Frame(void const * dataptr, unsigned short framenumber, void
 			subframe = 2;
 
 			while (currframe <= framenumber) {
-				offdiff = (offset[subframe] & 0x00FFFFFFL) - offcurr;
+				offdiff = (offset[subframe] & 0x00FFFFFF) - offcurr;
 
 #ifndef FIXIT_SCORE_CRASH
-				if ( ((offset[subframe+2] & 0x00FFFFFFL) - offcurr) >= (0x00010000L - off16) ) {
+				if ( ((offset[subframe+2] & 0x00FFFFFF) - offcurr) >= (0x00010000 - off16) ) {
 
 					ptr = (char *)Add_Long_To_Pointer( ptr, offdiff );
-					off16 = (unsigned long)lockptr & 0x00003FFFL;
+					off16 = (unsigned int)lockptr & 0x00003FFF;
 
 					offcurr += offdiff;
 					offdiff = 0;
@@ -274,9 +274,9 @@ unsigned long Build_Frame(void const * dataptr, unsigned short framenumber, void
 				if ( subframe >= (SUBFRAMEOFFS - 1) &&
 					currframe <= framenumber ) {
 					Mem_Copy( Add_Long_To_Pointer( dataptr,
-									(((unsigned long)currframe << 3) +
+									(((unsigned int)currframe << 3) +
 									sizeof(KeyFrameHeaderType)) ),
-						&offset[0], (long)(SUBFRAMEOFFS * sizeof(unsigned long)) );
+						&offset[0], (int)(SUBFRAMEOFFS * sizeof(unsigned int)) );
 					subframe = 0;
 				}
 			}
@@ -379,11 +379,11 @@ bool Get_Build_Frame_Palette(void const * dataptr, void * palette)
 {
 	if (dataptr && (((KeyFrameHeaderType const *)dataptr)->flags & 1)) {
 		char const * ptr = (char const *)Add_Long_To_Pointer( dataptr,
-							( (( (long)sizeof(unsigned long) << 1) *
+							( (( (int)sizeof(unsigned int) << 1) *
 								((KeyFrameHeaderType *) dataptr)->frames ) +
 							16 + sizeof(KeyFrameHeaderType) ) );
 
-		memcpy(palette, ptr, 768L);
+		memcpy(palette, ptr, 768);
 		return(true);
 	}
 	return(false);

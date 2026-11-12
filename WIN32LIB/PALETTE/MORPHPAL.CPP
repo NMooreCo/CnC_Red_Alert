@@ -38,14 +38,14 @@
 /*
 ********************************* Includes **********************************
 */
-#include "wwstd.h"
-#include "palette.h"
-#include "timer.h"
+#include "WWSTD.H"
+#include "PALETTE.H"
+#include "TIMER.H"
 
 /*
 ********************************* Constants *********************************
 */
-#define SCALE(a,b,c) (((((long)(a)<<8) / (long)(b) ) * (unsigned long)(c)) >>8)
+#define SCALE(a,b,c) (((((int)(a)<<8) / (int)(b) ) * (unsigned int)(c)) >>8)
 
 
 /*
@@ -56,7 +56,7 @@
 ******************************** Prototypes *********************************
 */
 
-PRIVATE int __cdecl Palette_To_Palette(void *src_palette, void *dst_palette, unsigned long current_time, unsigned long delay);
+PRIVATE int __cdecl Palette_To_Palette(void *src_palette, void *dst_palette, unsigned int current_time, unsigned int delay);
 
 
 /***************************************************************************
@@ -80,7 +80,7 @@ void cdecl Morph_Palette (void *src_pal, void *dst_pal, unsigned int delay,
 	void (*callback) (void) )
 {
 	int	result;
-	unsigned long	pal_start = TickCount.Time();
+	unsigned int	pal_start = TickCount.Time();
 	extern void   (*cb_ptr) ( void ) ;	// callback function pointer
 
 //	(void *)cb_ptr = callback;
@@ -93,7 +93,7 @@ void cdecl Morph_Palette (void *src_pal, void *dst_pal, unsigned int delay,
 	while (1) {
 		if (src_pal && dst_pal) {
 			result = Palette_To_Palette (src_pal, dst_pal,
-				(TickCount.Time() - pal_start), (unsigned long)delay);
+				(TickCount.Time() - pal_start), (unsigned int)delay);
 			if (!result)
 				break;
 
@@ -131,7 +131,7 @@ void cdecl Morph_Palette (void *src_pal, void *dst_pal, unsigned int delay,
  *   05/24/1993  MC : Created.                                             *
  *=========================================================================*/
 PRIVATE int cdecl Palette_To_Palette(void *src_palette, void *dst_palette,
-	unsigned long current_time, unsigned long delay)
+	unsigned int current_time, unsigned int delay)
 {
 	char	colour;
 	char	diff;
@@ -172,5 +172,3 @@ PRIVATE int cdecl Palette_To_Palette(void *src_palette, void *dst_palette,
 
 
 /*************************** End of morphpal.cpp ***************************/
-
-

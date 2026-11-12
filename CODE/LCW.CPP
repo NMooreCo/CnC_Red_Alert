@@ -69,7 +69,7 @@
  * HISTORY:                                                                *
  *    03/20/1995 IML : Created.                                            *
  *=========================================================================*/
-int LCW_Uncomp(void const * source, void * dest, unsigned long )
+int LCW_Uncomp(void const * source, void * dest, unsigned int )
 {
 	unsigned char * source_ptr, * dest_ptr, * copy_ptr, op_code, data;
 	unsigned	  count, * word_dest_ptr, word_data;
@@ -98,7 +98,7 @@ int LCW_Uncomp(void const * source, void * dest, unsigned long )
 				if (op_code == 0x80) {
 
 					/* Return # of destination bytes written. */
-					return ((unsigned long) (dest_ptr - (unsigned char*) dest));
+					return ((unsigned int) (dest_ptr - (unsigned char*) dest));
 
 				} else {
 

@@ -34,10 +34,10 @@
  *---------------------------------------------------------------------------------------------*
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include "function.h"
+#include "FUNCTION.H"
 
 bool IsVQ640 = false;
-unsigned long GameVersion = 0;
+unsigned int GameVersion = 0;
 bool Debug_MotionCapture = false;
 bool Debug_Rotate = false;				// Rotation algorithm control.
 bool Debug_Quiet = false;
@@ -100,34 +100,34 @@ TFixedIHeapClass<SmudgeTypeClass>	SmudgeTypes;
 **	for that type are not allowed. For every case of a TFixedIHeap manager of
 **	game objects, then a CCPtr can be instantiated for it.
 */
-template<class T> FixedIHeapClass * CCPtr<AircraftClass>::Heap = &Aircraft;
-template<class T> FixedIHeapClass * CCPtr<AnimClass>::Heap = &Anims;
-template<class T> FixedIHeapClass * CCPtr<BuildingClass>::Heap = &Buildings;
-template<class T> FixedIHeapClass * CCPtr<BulletClass>::Heap = &Bullets;
-template<class T> FixedIHeapClass * CCPtr<FactoryClass>::Heap = &Factories;
-template<class T> FixedIHeapClass * CCPtr<HouseClass>::Heap = &Houses;
-template<class T> FixedIHeapClass * CCPtr<InfantryClass>::Heap = &Infantry;
-template<class T> FixedIHeapClass * CCPtr<OverlayClass>::Heap = &Overlays;
-template<class T> FixedIHeapClass * CCPtr<SmudgeClass>::Heap = &Smudges;
-template<class T> FixedIHeapClass * CCPtr<TeamClass>::Heap = &Teams;
-template<class T> FixedIHeapClass * CCPtr<TeamTypeClass>::Heap = &TeamTypes;
-template<class T> FixedIHeapClass * CCPtr<TemplateClass>::Heap = &Templates;
-template<class T> FixedIHeapClass * CCPtr<TerrainClass>::Heap = &Terrains;
-template<class T> FixedIHeapClass * CCPtr<TriggerClass>::Heap = &Triggers;
-template<class T> FixedIHeapClass * CCPtr<TriggerTypeClass>::Heap = &TriggerTypes;
+template<> FixedIHeapClass * CCPtr<AircraftClass>::Heap = &Aircraft;
+template<> FixedIHeapClass * CCPtr<AnimClass>::Heap = &Anims;
+template<> FixedIHeapClass * CCPtr<BuildingClass>::Heap = &Buildings;
+template<> FixedIHeapClass * CCPtr<BulletClass>::Heap = &Bullets;
+template<> FixedIHeapClass * CCPtr<FactoryClass>::Heap = &Factories;
+template<> FixedIHeapClass * CCPtr<HouseClass>::Heap = &Houses;
+template<> FixedIHeapClass * CCPtr<InfantryClass>::Heap = &Infantry;
+template<> FixedIHeapClass * CCPtr<OverlayClass>::Heap = &Overlays;
+template<> FixedIHeapClass * CCPtr<SmudgeClass>::Heap = &Smudges;
+template<> FixedIHeapClass * CCPtr<TeamClass>::Heap = &Teams;
+template<> FixedIHeapClass * CCPtr<TeamTypeClass>::Heap = &TeamTypes;
+template<> FixedIHeapClass * CCPtr<TemplateClass>::Heap = &Templates;
+template<> FixedIHeapClass * CCPtr<TerrainClass>::Heap = &Terrains;
+template<> FixedIHeapClass * CCPtr<TriggerClass>::Heap = &Triggers;
+template<> FixedIHeapClass * CCPtr<TriggerTypeClass>::Heap = &TriggerTypes;
 
-template<class T> FixedIHeapClass * CCPtr<HouseTypeClass>::Heap = &HouseTypes;
-template<class T> FixedIHeapClass * CCPtr<BuildingTypeClass>::Heap = &BuildingTypes;
-template<class T> FixedIHeapClass * CCPtr<AircraftTypeClass>::Heap = &AircraftTypes;
-template<class T> FixedIHeapClass * CCPtr<InfantryTypeClass>::Heap = &InfantryTypes;
-template<class T> FixedIHeapClass * CCPtr<BulletTypeClass>::Heap = &BulletTypes;
-template<class T> FixedIHeapClass * CCPtr<AnimTypeClass>::Heap = &AnimTypes;
-template<class T> FixedIHeapClass * CCPtr<UnitTypeClass>::Heap = &UnitTypes;
-template<class T> FixedIHeapClass * CCPtr<VesselTypeClass>::Heap = &VesselTypes;
-template<class T> FixedIHeapClass * CCPtr<TemplateTypeClass>::Heap = &TemplateTypes;
-template<class T> FixedIHeapClass * CCPtr<TerrainTypeClass>::Heap = &TerrainTypes;
-template<class T> FixedIHeapClass * CCPtr<OverlayTypeClass>::Heap = &OverlayTypes;
-template<class T> FixedIHeapClass * CCPtr<SmudgeTypeClass>::Heap = &SmudgeTypes;
+template<> FixedIHeapClass * CCPtr<HouseTypeClass>::Heap = &HouseTypes;
+template<> FixedIHeapClass * CCPtr<BuildingTypeClass>::Heap = &BuildingTypes;
+template<> FixedIHeapClass * CCPtr<AircraftTypeClass>::Heap = &AircraftTypes;
+template<> FixedIHeapClass * CCPtr<InfantryTypeClass>::Heap = &InfantryTypes;
+template<> FixedIHeapClass * CCPtr<BulletTypeClass>::Heap = &BulletTypes;
+template<> FixedIHeapClass * CCPtr<AnimTypeClass>::Heap = &AnimTypes;
+template<> FixedIHeapClass * CCPtr<UnitTypeClass>::Heap = &UnitTypes;
+template<> FixedIHeapClass * CCPtr<VesselTypeClass>::Heap = &VesselTypes;
+template<> FixedIHeapClass * CCPtr<TemplateTypeClass>::Heap = &TemplateTypes;
+template<> FixedIHeapClass * CCPtr<TerrainTypeClass>::Heap = &TerrainTypes;
+template<> FixedIHeapClass * CCPtr<OverlayTypeClass>::Heap = &OverlayTypes;
+template<> FixedIHeapClass * CCPtr<SmudgeTypeClass>::Heap = &SmudgeTypes;
 
 
 /* These variables are used to keep track of the slowest speed of a team */
@@ -345,7 +345,7 @@ bool AllowVoice = true;
 **	upward at the rate of one per game logic process. The target rate is 15
 **	per second. This value is saved and restored with the saved game.
 */
-long Frame = 0;
+int Frame = 0;
 
 
 /***************************************************************************
@@ -386,11 +386,11 @@ Buffer * TheaterBuffer;
 ** This accumulates into a useful value that contributes to a
 **	histogram of game performance.
 */
-long SpareTicks;
-long PathCount;			// Number of findpaths called.
-long CellCount;			// Number of cells redrawn.
-long TargetScan;			// Number of target scans.
-long SidebarRedraws;		// Number of sidebar redraws.
+int SpareTicks;
+int PathCount;			// Number of findpaths called.
+int CellCount;			// Number of cells redrawn.
+int TargetScan;			// Number of target scans.
+int SidebarRedraws;		// Number of sidebar redraws.
 
 
 /***************************************************************************
@@ -470,7 +470,7 @@ bool PassedProximity;	// used in display.cpp
 ** These variables should all be set together.
 */
 HousesType Whom;							// Initial command line house choice.
-bool ScenarioInit;
+int ScenarioInit;			// Nesting counter (was "bool" when bool was a typedef for int)
 bool SpecialFlag = false;
 
 
@@ -502,7 +502,7 @@ bool GameActive;
 **	a long, but the value wasn't supplied to a function. This is used
 **	specifically for the default reference value. As such, it is not stable.
 */
-long LParam;
+int LParam;
 
 
 #ifdef SCENARIO_EDITOR
@@ -592,7 +592,7 @@ CarryoverClass * Carryover;
 ** This value is computed every time a new scenario is loaded; it's a
 ** CRC of the INI and binary map files.
 */
-unsigned long ScenarioCRC;
+unsigned int ScenarioCRC;
 
 
 /***************************************************************************
@@ -618,7 +618,7 @@ int NewMaxAheadFrame2;
 #ifdef FIXIT_VERSION_3
 bool	bAftermathMultiplayer;		//	Is multiplayer game being played with Aftermath rules?
 #else
-unsigned long 	PlayingAgainstVersion;		// Negotiated version number
+unsigned int 	PlayingAgainstVersion;		// Negotiated version number
 bool				Version107InMix;				// Is there a v1.07 in the game
 #endif
 
@@ -732,7 +732,7 @@ GraphicViewPortClass	SeenBuff(&VisiblePage, 0, 0, 640, 480);
 GraphicViewPortClass	HidPage(&HiddenPage, 0, 0, 640, 480);
 #else
 GraphicBufferClass	HidPage(DEFAULT_SCREEN_WIDTH, 201, (void*)NULL);
-GraphicBufferClass	SeenBuff(320, 200, (void *)0xA0000L);
+GraphicBufferClass	SeenBuff(320, 200, (void *)0xA0000);
 VideoBufferClass		SeenPage;
 GraphicBufferClass & VisiblePage = SeenBuff;
 #endif
@@ -764,8 +764,8 @@ int MouseInstalled;
 // Variables for helping track how much time goes bye in routines
 //
 int LogLevel = 0;
-unsigned long LogLevelTime[ MAX_LOG_LEVEL ] = { 0 };
-unsigned long LogLastTime = 0;
+unsigned int LogLevelTime[ MAX_LOG_LEVEL ] = { 0 };
+unsigned int LogLastTime = 0;
 bool LogDump_Print = false;		// true = print the Log time Stuff
 
 
@@ -792,11 +792,11 @@ int UnitBuildPenalty = 100;
 
 #ifdef MPEGMOVIE // Denzil 6/15/98
 #ifdef MCIMPEG
-#include "mcimovie.h"
+#include "MCIMOVIE.H"
 MCIMovie* MciMovie = NULL;
 #endif
 
-#include "mpgset.h"
+#include "MPGSET.H"
 MPGSettings* MpgSettings = NULL;
 #endif
 

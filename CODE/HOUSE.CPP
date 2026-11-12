@@ -133,27 +133,31 @@
  *   HouseClass::Random_Cell_In_Zone -- Find a (technically) legal cell in the zone specified. *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
-#include	"vortex.h"
+#include	"FUNCTION.H"
+#include	"VORTEX.H"
 
 //#include "WolDebug.h"
 
 TFixedIHeapClass<HouseClass::BuildChoiceClass> HouseClass::BuildChoice;
 
+template<>
 int TFixedIHeapClass<HouseClass::BuildChoiceClass>::Save(Pipe &) const
 {
 	return(true);
 }
 
+template<>
 int TFixedIHeapClass<HouseClass::BuildChoiceClass>::Load(Straw &)
 {
 	return(0);
 }
 
+template<>
 void TFixedIHeapClass<HouseClass::BuildChoiceClass>::Code_Pointers(void)
 {
 }
 
+template<>
 void TFixedIHeapClass<HouseClass::BuildChoiceClass>::Decode_Pointers(void)
 {
 }
@@ -344,7 +348,7 @@ void HouseClass::Debug_Dump(MonoClass * mono) const
 	mono->Set_Cursor(52, 1);mono->Printf("%2d", State);
 	mono->Set_Cursor(58, 1);mono->Printf("%2d", Blockage);
 	mono->Set_Cursor(65, 1);mono->Printf("%2d", IQ);
-	mono->Set_Cursor(72, 1);mono->Printf("%5d", (long)RepairTimer);
+	mono->Set_Cursor(72, 1);mono->Printf("%5d", (int)RepairTimer);
 
 	mono->Set_Cursor(1, 3);mono->Printf("%08X", AScan);
 	mono->Set_Cursor(10, 3);mono->Printf("%8.8s", (BuildAircraft == AIRCRAFT_NONE) ? " " : AircraftTypeClass::As_Reference(BuildAircraft).Graphic_Name());
@@ -353,8 +357,8 @@ void HouseClass::Debug_Dump(MonoClass * mono) const
 	mono->Set_Cursor(37, 3);mono->Printf("%5d", Power);
 	mono->Set_Cursor(45, 3);mono->Printf("%04X", RadarSpied);
 	mono->Set_Cursor(52, 3);mono->Printf("%5d", PointTotal);
-	mono->Set_Cursor(62, 3);mono->Printf("%5d", (long)TeamTime);
-	mono->Set_Cursor(71, 3);mono->Printf("%5d", (long)AlertTime);
+	mono->Set_Cursor(62, 3);mono->Printf("%5d", (int)TeamTime);
+	mono->Set_Cursor(71, 3);mono->Printf("%5d", (int)AlertTime);
 
 	mono->Set_Cursor(1, 5);mono->Printf("%08X", BScan);
 	mono->Set_Cursor(10, 5);mono->Printf("%8.8s", (BuildStructure == STRUCT_NONE) ? " " : BuildingTypeClass::As_Reference(BuildStructure).Graphic_Name());
@@ -362,8 +366,8 @@ void HouseClass::Debug_Dump(MonoClass * mono) const
 	mono->Set_Cursor(27, 5);mono->Printf("%8d", Tiberium);
 	mono->Set_Cursor(37, 5);mono->Printf("%5d", Drain);
 	mono->Set_Cursor(44, 5);mono->Printf("%16.16s", QuarryName[PreferredTarget]);
-	mono->Set_Cursor(62, 5);mono->Printf("%5d", (long)TriggerTime);
-	mono->Set_Cursor(71, 5);mono->Printf("%5d", (long)BorrowedTime);
+	mono->Set_Cursor(62, 5);mono->Printf("%5d", (int)TriggerTime);
+	mono->Set_Cursor(71, 5);mono->Printf("%5d", (int)BorrowedTime);
 
 	mono->Set_Cursor(1, 7);mono->Printf("%08X", UScan);
 	mono->Set_Cursor(10, 7);mono->Printf("%8.8s", (BuildUnit == UNIT_NONE) ? " " : UnitTypeClass::As_Reference(BuildUnit).Graphic_Name());
@@ -371,7 +375,7 @@ void HouseClass::Debug_Dump(MonoClass * mono) const
 	mono->Set_Cursor(27, 7);mono->Printf("%8d", Control.InitialCredits);
 	mono->Set_Cursor(38, 7);mono->Printf("%5d", UnitsLost);
 	mono->Set_Cursor(44, 7);mono->Printf("%08X", Allies);
-	mono->Set_Cursor(71, 7);mono->Printf("%5d", (long)Attack);
+	mono->Set_Cursor(71, 7);mono->Printf("%5d", (int)Attack);
 
 	mono->Set_Cursor(1, 9);mono->Printf("%08X", IScan);
 	mono->Set_Cursor(10, 9);mono->Printf("%8.8s", (BuildInfantry == INFANTRY_NONE) ? " " : InfantryTypeClass::As_Reference(BuildInfantry).Graphic_Name());
@@ -379,13 +383,13 @@ void HouseClass::Debug_Dump(MonoClass * mono) const
 	mono->Set_Cursor(27, 9);mono->Printf("%8d", Capacity);
 	mono->Set_Cursor(38, 9);mono->Printf("%5d", BuildingsLost);
 	mono->Set_Cursor(45, 9);mono->Printf("%4d", Radius / CELL_LEPTON_W);
-	mono->Set_Cursor(71, 9);mono->Printf("%5d", (long)AITimer);
+	mono->Set_Cursor(71, 9);mono->Printf("%5d", (int)AITimer);
 
 	mono->Set_Cursor(1, 11);mono->Printf("%08X", VScan);
 	mono->Set_Cursor(10, 11);mono->Printf("%8.8s", (BuildVessel == VESSEL_NONE) ? " " : VesselTypeClass::As_Reference(BuildVessel).Graphic_Name());
 	mono->Set_Cursor(21, 11);mono->Printf("%3d", CurVessels);
 	mono->Set_Cursor(54, 11);mono->Printf("%04X", Coord_Cell(Center));
-	mono->Set_Cursor(71, 11);mono->Printf("%5d", (long)DamageTime);
+	mono->Set_Cursor(71, 11);mono->Printf("%5d", (int)DamageTime);
 
 
 	for (int index = 0; index < ARRAY_SIZE(Scen.GlobalFlags); index++) {
@@ -831,14 +835,14 @@ bool HouseClass::Can_Build(ObjectTypeClass const * type, HousesType house) const
 	/*
 	**	Check to see if this owner can build the object type specified.
 	*/
-	if (((1L << house) & own) == 0) {
+	if (((1 << house) & own) == 0) {
 		return(false);
 	}
 
 	/*
 	**	Perform some equivalency fixups for the building existence flags.
 	*/
-	long flags = ActiveBScan;
+	int flags = ActiveBScan;
 
 	/*
 	**	The computer records prerequisite buildings because it can't relay on the
@@ -1174,7 +1178,8 @@ void HouseClass::AI(void)
 		if( VQuantity[ VESSEL_SS ] > 0 )		//	Includes count of VESSEL_MISSILESUBs. ajw
 		{
 			int iCount = 0;
-			for( int i = 0; i != STRUCT_COUNT-3; ++i )
+			int i;
+			for (i = 0; i != STRUCT_COUNT-3; ++i )
 			{
 				iCount += BQuantity[ i ];
 			}
@@ -1803,7 +1808,7 @@ void HouseClass::Harvested(unsigned tiberium)
 {
 	assert(Houses.ID(this) == ID);
 
-	long oldtib = Tiberium;
+	int oldtib = Tiberium;
 
 	Tiberium += tiberium;
 	if (Tiberium > Capacity) {
@@ -1854,7 +1859,7 @@ void HouseClass::Stole(unsigned worth)
  * HISTORY:                                                                                    *
  *   01/25/1995 JLB : Created.                                                                 *
  *=============================================================================================*/
-long HouseClass::Available_Money(void) const
+int HouseClass::Available_Money(void) const
 {
 	assert(Houses.ID(this) == ID);
 
@@ -1883,7 +1888,7 @@ void HouseClass::Spend_Money(unsigned money)
 {
 	assert(Houses.ID(this) == ID);
 
-	long oldtib = Tiberium;
+	int oldtib = Tiberium;
 	if (money > Tiberium) {
 		money -= (unsigned)Tiberium;
 		Tiberium = 0;
@@ -1943,11 +1948,11 @@ int HouseClass::Adjust_Capacity(int adjust, bool inanger)
 {
 	assert(Houses.ID(this) == ID);
 
-	long oldcap = Capacity;
+	int oldcap = Capacity;
 	int retval = 0;
 
 	Capacity += adjust;
-	Capacity = max(Capacity, 0L);
+	Capacity = max(Capacity, 0);
 	if (Tiberium > Capacity) {
 		retval = Tiberium - Capacity;
 		Tiberium = Capacity;
@@ -1982,7 +1987,7 @@ int HouseClass::Adjust_Capacity(int adjust, bool inanger)
  * HISTORY:                                                                                    *
  *   02/02/1995 JLB : Created.                                                                 *
  *=============================================================================================*/
-void HouseClass::Silo_Redraw_Check(long oldtib, long oldcap)
+void HouseClass::Silo_Redraw_Check(int oldtib, int oldcap)
 {
 	assert(Houses.ID(this) == ID);
 
@@ -2100,7 +2105,7 @@ void HouseClass::Make_Ally(HousesType house)
 
 	if (Is_Allowed_To_Ally(house)) {
 
-		Allies |= (1L << house);
+		Allies |= (1 << house);
 
 		/*
 		**	Don't consider the newfound ally to be an enemy -- of course.
@@ -2110,7 +2115,7 @@ void HouseClass::Make_Ally(HousesType house)
 		}
 
 		if (ScenarioInit) {
-			Control.Allies |= (1L << house);
+			Control.Allies |= (1 << house);
 		}
 
 		if (Session.Type != GAME_NORMAL && !ScenarioInit) {
@@ -2213,20 +2218,20 @@ void HouseClass::Make_Enemy(HousesType house)
 
 	if (house != HOUSE_NONE && Is_Ally(house)) {
 		HouseClass * enemy = HouseClass::As_Pointer(house);
-		Allies &= ~(1L << house);
+		Allies &= ~(1 << house);
 
 		if (ScenarioInit) {
-			Control.Allies &= !(1L << house);
+			Control.Allies &= !(1 << house);
 		}
 
 		/*
 		**	Breaking an alliance is a bilateral event.
 		*/
 		if (enemy != NULL && enemy->Is_Ally(this)) {
-			enemy->Allies &= ~(1L << Class->House);
+			enemy->Allies &= ~(1 << Class->House);
 
 			if (ScenarioInit) {
-				Control.Allies &= ~(1L << Class->House);
+				Control.Allies &= ~(1 << Class->House);
 			}
 		}
 
@@ -3218,7 +3223,7 @@ bool HouseClass::Does_Enemy_Building_Exist(StructType btype) const
 {
 	assert(Houses.ID(this) == ID);
 
-	int bflag = 1L << btype;
+	int bflag = 1 << btype;
 	for (HousesType index = HOUSE_FIRST; index < HOUSE_COUNT; index++) {
 		HouseClass * house = HouseClass::As_Pointer(index);
 
@@ -4361,7 +4366,8 @@ COORDINATE HouseClass::Find_Build_Location(BuildingClass * building) const
 	**	Determine the average zone strengths for the base. This value is
 	**	used to determine what zones are considered under or over strength.
 	*/
-	for (ZoneType z = ZONE_NORTH; z < ZONE_COUNT; z++) {
+	ZoneType z;
+	for (z = ZONE_NORTH; z < ZONE_COUNT; z++) {
 		zoneinfo.AntiAir += ZoneInfo[z].AirDefense;
 		zoneinfo.AntiArmor += ZoneInfo[z].ArmorDefense;
 		zoneinfo.AntiInfantry += ZoneInfo[z].InfantryDefense;
@@ -4475,7 +4481,8 @@ void HouseClass::Recalc_Center(void)
 		int y = 0;
 		int count = 0;
 
-		for (int index = 0; index < Buildings.Count(); index++) {
+		int index;
+		for (index = 0; index < Buildings.Count(); index++) {
 			BuildingClass const * b = Buildings.Ptr(index);
 
 			if (b != NULL && !b->IsInLimbo && (HouseClass *)b->House == this && b->Strength > 0) {
@@ -4761,7 +4768,8 @@ int HouseClass::Expert_AI(void)
 	*/
 	UrgencyType urgency[STRATEGY_COUNT];
 
-	for (StrategyType strat = STRATEGY_FIRST; strat < STRATEGY_COUNT; strat++) {
+	StrategyType strat;
+	for (strat = STRATEGY_FIRST; strat < STRATEGY_COUNT; strat++) {
 		urgency[strat] = URGENCY_NONE;
 
 		switch (strat) {
@@ -5802,7 +5810,8 @@ int HouseClass::AI_Unit(void)
 		**	Build a list of the maximum of each type we wish to produce. This will be
 		**	twice the number required to fill all teams.
 		*/
-		for (int index = 0; index < Teams.Count(); index++) {
+		int index;
+		for (index = 0; index < Teams.Count(); index++) {
 			TeamClass * tptr = Teams.Ptr(index);
 			if (tptr != NULL) {
 				TeamTypeClass const * team = tptr->Class;
@@ -5876,7 +5885,8 @@ int HouseClass::AI_Unit(void)
 
 		int counter[UNIT_COUNT];
 		int total = 0;
-		for (UnitType index = UNIT_FIRST; index < UNIT_COUNT; index++) {
+		UnitType index;
+		for (index = UNIT_FIRST; index < UNIT_COUNT; index++) {
 			UnitTypeClass const * utype = &UnitTypeClass::As_Reference(index);
 			if (Can_Build(utype, ActLike) && utype->Type != UNIT_HARVESTER) {
 				if (utype->PrimaryWeapon != NULL) {
@@ -5934,7 +5944,8 @@ int HouseClass::AI_Vessel(void)
 		**	Build a list of the maximum of each type we wish to produce. This will be
 		**	twice the number required to fill all teams.
 		*/
-		for (int index = 0; index < Teams.Count(); index++) {
+		int index;
+		for (index = 0; index < Teams.Count(); index++) {
 			TeamClass * tptr = Teams.Ptr(index);
 			if (tptr) {
 				TeamTypeClass const * team = tptr->Class;
@@ -6044,7 +6055,8 @@ int HouseClass::AI_Infantry(void)
 		**	Build a list of the maximum of each type we wish to produce. This will be
 		**	twice the number required to fill all teams.
 		*/
-		for (int index = 0; index < Teams.Count(); index++) {
+		int index;
+		for (index = 0; index < Teams.Count(); index++) {
 			TeamClass * tptr = Teams.Ptr(index);
 			if (tptr != NULL) {
 				TeamTypeClass const * team = tptr->Class;
@@ -6424,7 +6436,7 @@ void HouseClass::Tracking_Add(TechnoClass const * techno)
 			CurBuildings++;
 			building = ((BuildingTypeClass const &)techno->Class_Of()).Type;
 			BQuantity[building]++;
-			BScan |= (1L << building);
+			BScan |= (1 << building);
 			if (Session.Type == GAME_INTERNET) {
 				BuildingTotals->Increment_Unit_Total(techno->Class_Of().ID);
 			}
@@ -6434,7 +6446,7 @@ void HouseClass::Tracking_Add(TechnoClass const * techno)
 			CurAircraft++;
 			aircraft = ((AircraftTypeClass const &)techno->Class_Of()).Type;
 			AQuantity[aircraft]++;
-			AScan |= (1L << aircraft);
+			AScan |= (1 << aircraft);
 			if (Session.Type == GAME_INTERNET) {
 				AircraftTotals->Increment_Unit_Total(techno->Class_Of().ID);
 			}
@@ -6454,7 +6466,7 @@ void HouseClass::Tracking_Add(TechnoClass const * techno)
 				if (!((InfantryTypeClass const &)techno->Class_Of()).IsCivilian && Session.Type == GAME_INTERNET) {
 					InfantryTotals->Increment_Unit_Total(techno->Class_Of().ID);
 				}
-				IScan |= (1L << infantry);
+				IScan |= (1 << infantry);
 			}
 			break;
 
@@ -6468,7 +6480,7 @@ void HouseClass::Tracking_Add(TechnoClass const * techno)
 #else
 			UQuantity[unit]++;
 #endif
-			UScan |= (1L << unit);
+			UScan |= (1 << unit);
 			if (Session.Type == GAME_INTERNET) {
 				UnitTotals->Increment_Unit_Total(techno->Class_Of().ID);
 			}
@@ -6484,7 +6496,7 @@ void HouseClass::Tracking_Add(TechnoClass const * techno)
 #else
 			VQuantity[vessel]++;
 #endif
-			VScan |= (1L << vessel);
+			VScan |= (1 << vessel);
 			if (Session.Type == GAME_INTERNET) {
 				VesselTotals->Increment_Unit_Total(techno->Class_Of().ID);
 			}
@@ -6703,7 +6715,8 @@ void HouseClass::Recalc_Attributes(void)
 	**	routine. This allows the filling in process to not worry about
 	**	old existing values.
 	*/
-	for (int index = 0; index < Houses.Count(); index++) {
+	int index;
+	for (index = 0; index < Houses.Count(); index++) {
 		HouseClass * house = Houses.Ptr(index);
 
 		if (house != NULL) {
@@ -6726,52 +6739,52 @@ void HouseClass::Recalc_Attributes(void)
 	*/
 	for (index = 0; index < Units.Count(); index++) {
 		UnitClass const * unit = Units.Ptr(index);
-		unit->House->UScan |= (1L << unit->Class->Type);
+		unit->House->UScan |= (1 << unit->Class->Type);
 		if (unit->IsLocked && (Session.Type != GAME_NORMAL || !unit->House->IsHuman || unit->IsDiscoveredByPlayer)) {
 			if (!unit->IsInLimbo) {
-				unit->House->ActiveUScan |= (1L << unit->Class->Type);
+				unit->House->ActiveUScan |= (1 << unit->Class->Type);
 			}
 		}
 	}
 	for (index = 0; index < Infantry.Count(); index++) {
 		InfantryClass const * infantry = Infantry.Ptr(index);
-		infantry->House->IScan |= (1L << infantry->Class->Type);
+		infantry->House->IScan |= (1 << infantry->Class->Type);
 		if (infantry->IsLocked && (Session.Type != GAME_NORMAL || !infantry->House->IsHuman || infantry->IsDiscoveredByPlayer)) {
 			if (!infantry->IsInLimbo) {
-				infantry->House->ActiveIScan |= (1L << infantry->Class->Type);
-				infantry->House->OldIScan |= (1L << infantry->Class->Type);
+				infantry->House->ActiveIScan |= (1 << infantry->Class->Type);
+				infantry->House->OldIScan |= (1 << infantry->Class->Type);
 			}
 		}
 	}
 	for (index = 0; index < Aircraft.Count(); index++) {
 		AircraftClass const * aircraft = Aircraft.Ptr(index);
-		aircraft->House->AScan |= (1L << aircraft->Class->Type);
+		aircraft->House->AScan |= (1 << aircraft->Class->Type);
 		if (aircraft->IsLocked && (Session.Type != GAME_NORMAL || !aircraft->House->IsHuman || aircraft->IsDiscoveredByPlayer)) {
 			if (!aircraft->IsInLimbo) {
-				aircraft->House->ActiveAScan |= (1L << aircraft->Class->Type);
-				aircraft->House->OldAScan |= (1L << aircraft->Class->Type);
+				aircraft->House->ActiveAScan |= (1 << aircraft->Class->Type);
+				aircraft->House->OldAScan |= (1 << aircraft->Class->Type);
 			}
 		}
 	}
 	for (index = 0; index < Buildings.Count(); index++) {
 		BuildingClass const * building = Buildings.Ptr(index);
 		if (building->Class->Type < 32) {
-			building->House->BScan |= (1L << building->Class->Type);
+			building->House->BScan |= (1 << building->Class->Type);
 			if (building->IsLocked && (Session.Type != GAME_NORMAL || !building->House->IsHuman || building->IsDiscoveredByPlayer)) {
 				if (!building->IsInLimbo) {
-					building->House->ActiveBScan |= (1L << building->Class->Type);
-					building->House->OldBScan |= (1L << building->Class->Type);
+					building->House->ActiveBScan |= (1 << building->Class->Type);
+					building->House->OldBScan |= (1 << building->Class->Type);
 				}
 			}
 		}
 	}
 	for (index = 0; index < Vessels.Count(); index++) {
 		VesselClass const * vessel = Vessels.Ptr(index);
-		vessel->House->VScan |= (1L << vessel->Class->Type);
+		vessel->House->VScan |= (1 << vessel->Class->Type);
 		if (vessel->IsLocked && (Session.Type != GAME_NORMAL || !vessel->House->IsHuman || vessel->IsDiscoveredByPlayer)) {
 			if (!vessel->IsInLimbo) {
-				vessel->House->ActiveVScan |= (1L << vessel->Class->Type);
-				vessel->House->OldVScan |= (1L << vessel->Class->Type);
+				vessel->House->ActiveVScan |= (1 << vessel->Class->Type);
+				vessel->House->OldVScan |= (1 << vessel->Class->Type);
 			}
 		}
 	}

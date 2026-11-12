@@ -50,8 +50,8 @@
  *   ThemeClass::Track_Length -- Calculates the length of the song (in seconds).               *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
-#include	"theme.h"
+#include	"FUNCTION.H"
+#include	"THEME.H"
 
 #ifndef WIN32
 extern short StreamLowImpact;
@@ -538,7 +538,8 @@ ThemeType ThemeClass::From_Name(char const * name) const
 		**	First search for an exact name match with the filename
 		**	of the theme. This is guaranteed to be unique.
 		*/
-		for (ThemeType theme = THEME_FIRST; theme < THEME_COUNT; theme++) {
+		ThemeType theme;
+		for (theme = THEME_FIRST; theme < THEME_COUNT; theme++) {
 			if (stricmp(_themes[theme].Name, name) == 0) {
 				return(theme);
 			}

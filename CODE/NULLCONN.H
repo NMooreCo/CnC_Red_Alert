@@ -48,8 +48,12 @@
 /*
 ********************************* Includes **********************************
 */
-#include "connect.h"
+#include "CONNECT.H"
+#ifndef WIN32
 #include "commlib.h"
+#else
+struct PORT;		// Greenleaf serial port handle (DOS only)
+#endif
 
 /*
 ********************************** Defines **********************************
@@ -98,7 +102,7 @@ class NullModemConnClass : public ConnectionClass
 		/*.....................................................................
 		Utility routines.
 		.....................................................................*/
-		unsigned long Actual_Max_Packet (void) { return (MaxPacketLen +
+		unsigned int Actual_Max_Packet (void) { return (MaxPacketLen +
 			(sizeof(SerialHeaderType)) + sizeof(int) + sizeof (char)); }
 
 		/*.....................................................................

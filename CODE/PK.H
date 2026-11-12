@@ -38,7 +38,7 @@
 #ifndef PK_H
 #define PK_H
 
-#include	"int.h"
+#include	"INT.H"
 
 /*
 **	This class holds a public or private key used in Public Key Cryptography. It also serves
@@ -74,7 +74,7 @@ class PKey
 		void Decode_Modulus(void * buffer);
 		void Decode_Exponent(void * buffer);
 
-		static long Fast_Exponent(void) {return(65537L);}
+		static int Fast_Exponent(void) {return(65537);}
 
 	private:
 

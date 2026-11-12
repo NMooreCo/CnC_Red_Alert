@@ -50,7 +50,7 @@
 extern short StreamLowImpact;
 #endif
 
-#include	"function.h"
+#include	"FUNCTION.H"
 
 #define SCORETEXT_X		184
 #define SCORETEXT_Y		8
@@ -424,10 +424,10 @@ void ScoreClass::Presentation(void)
 	** Load the background for the score screen
 	*/
 #ifndef WIN32
-	void *anim = Open_Animation(ScreenNames[house], NULL, 0L, (WSAOpenType)(WSA_OPEN_FROM_MEM | WSA_OPEN_TO_PAGE), ScorePalette);
+	void *anim = Open_Animation(ScreenNames[house], NULL, 0, (WSAOpenType)(WSA_OPEN_FROM_MEM | WSA_OPEN_TO_PAGE), ScorePalette);
 #endif
 
-	unsigned minutes = (unsigned)((ElapsedTime / (long)TIMER_MINUTE))+1;
+	unsigned minutes = (unsigned)((ElapsedTime / (int)TIMER_MINUTE))+1;
 
 // Load up the shapes for the Nod score screen
 #ifdef WIN32
@@ -521,7 +521,8 @@ void ScoreClass::Presentation(void)
 	**	Determine leadership rating.
 	*/
 	int leadership = 0;
-	for (int index = 0; index < Logic.Count(); index++) {
+	int index;
+	for (index = 0; index < Logic.Count(); index++) {
 		ObjectClass * object = Logic[index];
 		HousesType owner = object->Owner();
 		if ( (house) && (owner == HOUSE_USSR || owner == HOUSE_BAD || owner == HOUSE_UKRAINE) ) {
@@ -874,7 +875,7 @@ void Cycle_Wait_Click(bool cycle)
 {
 	int counter = 0;
 	int minclicks = 20;
-	unsigned long timingtime = TickCount;
+	unsigned int timingtime = TickCount;
 	SerialPacketType sendpacket;
 	SerialPacketType receivepacket;
 	int packetlen;
@@ -952,7 +953,8 @@ void ScoreClass::Do_Nod_Buildings_Graph(void)
 	/*
 	** Here's the animation/draw loop for blowing up the factory
 	*/
-	for (int i=0; i<98; i++) {
+	int i;
+	for (i =0; i<98; i++) {
 		HidPage.Blit(HidPage, BUILDING_X, BUILDING_Y, 0, 0, 320-BUILDING_X, 48);
 		shapenum = 0;	// no damage
 		if (i >= 60) {
@@ -1789,7 +1791,7 @@ void Multi_Score_Presentation(void)
 	SeenPage.Clear();
 	HidPage.Clear();
 	Hide_Mouse();
-	void *anim = Open_Animation("MLTIPLYR.WSA", NULL, 0L, (WSAOpenType)(WSA_OPEN_FROM_MEM | WSA_OPEN_TO_PAGE), ScorePalette);
+	void *anim = Open_Animation("MLTIPLYR.WSA", NULL, 0, (WSAOpenType)(WSA_OPEN_FROM_MEM | WSA_OPEN_TO_PAGE), ScorePalette);
 	/*
 	** Display the background animation
 	*/

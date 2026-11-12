@@ -66,7 +66,7 @@
 
 #if defined(__MSDOS__) || defined(MSDOS)
 #  define __LZO_MSDOS
-#  if (UINT_MAX < 0xffffffffL)
+#  if (UINT_MAX < 0xffffffff)
 #    define __LZO_MSDOS16 
 #  endif
 #endif
@@ -77,13 +77,13 @@
 ************************************************************************/
 
 /* Unsigned type with 32 bits or more */
-#if (UINT_MAX >= 0xffffffffL)
+#if (UINT_MAX >= 0xffffffff)
    typedef unsigned int     lzo_uint;
    typedef int              lzo_int;
 #  define LZO_UINT_MAX      UINT_MAX
-#elif (ULONG_MAX >= 0xffffffffL)
-   typedef unsigned long    lzo_uint;
-   typedef long             lzo_int;
+#elif (ULONG_MAX >= 0xffffffff)
+   typedef unsigned int    lzo_uint;
+   typedef int             lzo_int;
 #  define LZO_UINT_MAX      ULONG_MAX
 #else
 #  error lzo_uint
@@ -116,7 +116,7 @@
 
 
 /* Unsigned type that can store all bits of a lzo_voidp */
-typedef unsigned long       lzo_ptr_t;
+typedef unsigned int       lzo_ptr_t;
 
 /* Align a pointer on a boundary that is a multiple of 'size' */
 #define LZO_ALIGN(ptr,size) \

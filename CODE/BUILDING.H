@@ -38,13 +38,13 @@
 #ifndef BUILDING_H
 #define BUILDING_H
 
-#include	"radio.h"
-#include	"cargo.h"
-#include	"mission.h"
-#include	"bullet.h"
-#include	"target.h"
-#include	"factory.h"
-#include	"techno.h"
+#include	"RADIO.H"
+#include	"CARGO.H"
+#include	"MISSION.H"
+#include	"BULLET.H"
+#include	"TARGET.H"
+#include	"FACTORY.H"
+#include	"TECHNO.H"
 
 #define	MAX_DOOR_STAGE	18	// # of frames of door opening on weapons factory
 #define	DOOR_OPEN_STAGE 9	// frame on which the door is entirely open
@@ -314,7 +314,7 @@ class BuildingClass : public TechnoClass
 		virtual bool Revealed(HouseClass * house);
 		virtual void Repair(int control);
 		virtual void Sell_Back(int control);
-		virtual RadioMessageType Receive_Message(RadioClass * from, RadioMessageType message, long & param);
+		virtual RadioMessageType Receive_Message(RadioClass * from, RadioMessageType message, int & param);
 		virtual void AI(void);
 		virtual void Assign_Target(TARGET target);
 		virtual bool Toggle_Primary(void);

@@ -38,15 +38,15 @@
 #ifndef TECHNO_H
 #define TECHNO_H
 
-#include	"radio.h"
-#include	"stage.h"
-#include	"cargo.h"
-#include	"flasher.h"
-#include	"house.h"
-#include	"target.h"
-#include	"bullet.h"
-#include	"door.h"
-#include	"crew.h"
+#include	"RADIO.H"
+#include	"STAGE.H"
+#include	"CARGO.H"
+#include	"FLASHER.H"
+#include	"HOUSE.H"
+#include	"TARGET.H"
+#include	"BULLET.H"
+#include	"DOOR.H"
+#include	"CREW.H"
 
 /****************************************************************************
 **	This is the common data between building and units.
@@ -323,7 +323,7 @@ class TechnoClass :	public RadioClass,
 		bool Evaluate_Cell(ThreatType method, int mask, CELL cell, int range, TechnoClass const ** object, int & value, int zone=0) const;
 		bool Evaluate_Object(ThreatType method, int mask, int range, TechnoClass const * object, int & value, int zone=-1) const;
 		int Evaluate_Just_Cell(CELL cell) const;
-		virtual bool Electric_Zap (TARGET target, int which, COORDINATE target_coord=0L, unsigned char * remap=NULL);
+		virtual bool Electric_Zap (TARGET target, int which, COORDINATE target_coord=0, unsigned char * remap=NULL);
 
 		/*
 		**	AI.
@@ -331,7 +331,7 @@ class TechnoClass :	public RadioClass,
 		virtual void Renovate(void);
 		virtual void AI(void);
 		virtual bool Revealed(HouseClass * house);
-		virtual RadioMessageType Receive_Message(RadioClass * from, RadioMessageType message, long & param);
+		virtual RadioMessageType Receive_Message(RadioClass * from, RadioMessageType message, int & param);
 		void Cloaking_AI(void);
 
 		/*

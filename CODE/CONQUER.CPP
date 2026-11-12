@@ -85,15 +85,15 @@ B<A> test;
 
 
 
-#include	"function.h"
+#include	"FUNCTION.H"
 #ifdef WIN32
 #ifdef WINSOCK_IPX
-#include	"WSProto.h"
+#include	"WSPROTO.H"
 #else	//WINSOCK_IPX
-#include	"tcpip.h"
+#include	"TCPIP.H"
 #endif	//WINSOCK_IPX
 #else
-#include	"fakesock.h"
+#include	"FAKESOCK.H"
 TcpipManagerClass	Winsock;
 #endif
 #include	<stdlib.h>
@@ -104,22 +104,22 @@ TcpipManagerClass	Winsock;
 #include	<io.h>
 #include	<dos.h>
 #include	<share.h>
-#include	"ccdde.h"
-#include	"vortex.h"
+#include	"CCDDE.H"
+#include	"VORTEX.H"
 
 #ifdef WOLAPI_INTEGRATION
 //#include "WolDebug.h"
-#include "WolStrng.h"
-#include "WolapiOb.h"
+#include "WOLSTRNG.H"
+#include "WOLAPIOB.H"
 extern WolapiObject* pWolapi;
 #define PAGE_RESPOND_KEY	KN_RETURN	//KN_COMMA
 #endif
 
 #ifdef MPEGMOVIE
 #ifdef MCIMPEG
-#include "mcimovie.h"
+#include "MCIMOVIE.H"
 #endif
-#include "movie.h"
+#include "MOVIE.H"
 MPG_RESPONSE far __stdcall MpegCallback(MPG_CMD cmd, LPVOID data, LPVOID user);
 #endif
 
@@ -952,8 +952,8 @@ void Keyboard_Process(KeyNumType & input)
 
 void Toggle_Formation(void) {
 	int team = -1;
-	long minx = 0x7FFFFFFFL, miny = 0x7FFFFFFFL;
-	long maxx = 0, maxy = 0;
+	int minx = 0x7FFFFFFF, miny = 0x7FFFFFFF;
+	int maxx = 0, maxy = 0;
 	int index;
 	bool setform = 0;
 
@@ -1004,7 +1004,7 @@ void Toggle_Formation(void) {
 			if (obj && !obj->IsInLimbo && obj->House == PlayerPtr && obj->IsSelected) {
 				team = obj->Group;
 				if (team != -1) {
-					setform = obj->XFormOffset == 0x80000000UL;
+					setform = obj->XFormOffset == 0x80000000U;
 					TeamSpeed[team] = SPEED_WHEEL;
 					TeamMaxSpeed[team] = MPH_LIGHT_SPEED;
 					break;
@@ -1022,8 +1022,8 @@ void Toggle_Formation(void) {
 		if (obj && !obj->IsInLimbo && obj->House == PlayerPtr && obj->Group == team) {
 			obj->Mark(MARK_CHANGE);
 			if (setform) {
-				long xc = Cell_X(Coord_Cell(obj->Center_Coord()));
-				long yc = Cell_Y(Coord_Cell(obj->Center_Coord()));
+				int xc = Cell_X(Coord_Cell(obj->Center_Coord()));
+				int yc = Cell_Y(Coord_Cell(obj->Center_Coord()));
 				if (xc < minx) minx = xc;
 				if (xc > maxx) maxx = xc;
 				if (yc < miny) miny = yc;
@@ -1043,8 +1043,8 @@ void Toggle_Formation(void) {
 		if (obj && !obj->IsInLimbo && obj->House == PlayerPtr && obj->Group == team) {
 			obj->Mark(MARK_CHANGE);
 			if (setform) {
-				long xc = Cell_X(Coord_Cell(obj->Center_Coord()));
-				long yc = Cell_Y(Coord_Cell(obj->Center_Coord()));
+				int xc = Cell_X(Coord_Cell(obj->Center_Coord()));
+				int yc = Cell_Y(Coord_Cell(obj->Center_Coord()));
 				if (xc < minx) minx = xc;
 				if (xc > maxx) maxx = xc;
 				if (yc < miny) miny = yc;
@@ -1063,8 +1063,8 @@ void Toggle_Formation(void) {
 		if (obj && !obj->IsInLimbo && obj->House == PlayerPtr && obj->Group == team) {
 			obj->Mark(MARK_CHANGE);
 			if (setform) {
-				long xc = Cell_X(Coord_Cell(obj->Center_Coord()));
-				long yc = Cell_Y(Coord_Cell(obj->Center_Coord()));
+				int xc = Cell_X(Coord_Cell(obj->Center_Coord()));
+				int yc = Cell_Y(Coord_Cell(obj->Center_Coord()));
 				if (xc < minx) minx = xc;
 				if (xc > maxx) maxx = xc;
 				if (yc < miny) miny = yc;
@@ -1073,7 +1073,7 @@ void Toggle_Formation(void) {
 					TeamMaxSpeed[team] = obj->Class->MaxSpeed;
 				}
 			} else {
-				obj->XFormOffset = obj->YFormOffset = 0x80000000UL;
+				obj->XFormOffset = obj->YFormOffset = 0x80000000U;
 			}
 		}
 	}
@@ -1090,8 +1090,8 @@ void Toggle_Formation(void) {
 		for (index = 0; index < Units.Count(); index++) {
 			UnitClass * obj = Units.Ptr(index);
 			if (obj && !obj->IsInLimbo && obj->House == PlayerPtr && obj->Group == team) {
-				long xc = Cell_X(Coord_Cell(obj->Center_Coord()));
-				long yc = Cell_Y(Coord_Cell(obj->Center_Coord()));
+				int xc = Cell_X(Coord_Cell(obj->Center_Coord()));
+				int yc = Cell_Y(Coord_Cell(obj->Center_Coord()));
 
 				obj->XFormOffset = xc - centerx;
 				obj->YFormOffset = yc - centery;
@@ -1101,8 +1101,8 @@ void Toggle_Formation(void) {
 		for (index = 0; index < Infantry.Count(); index++) {
 			InfantryClass * obj = Infantry.Ptr(index);
 			if (obj && !obj->IsInLimbo && obj->House == PlayerPtr && obj->Group == team ) {
-				long xc = Cell_X(Coord_Cell(obj->Center_Coord()));
-				long yc = Cell_Y(Coord_Cell(obj->Center_Coord()));
+				int xc = Cell_X(Coord_Cell(obj->Center_Coord()));
+				int yc = Cell_Y(Coord_Cell(obj->Center_Coord()));
 
 				obj->XFormOffset = xc - centerx;
 				obj->YFormOffset = yc - centery;
@@ -1112,8 +1112,8 @@ void Toggle_Formation(void) {
 		for (index = 0; index < Vessels.Count(); index++) {
 			VesselClass * obj = Vessels.Ptr(index);
 			if (obj && !obj->IsInLimbo && obj->House == PlayerPtr && obj->Group == team ) {
-				long xc = Cell_X(Coord_Cell(obj->Center_Coord()));
-				long yc = Cell_Y(Coord_Cell(obj->Center_Coord()));
+				int xc = Cell_X(Coord_Cell(obj->Center_Coord()));
+				int yc = Cell_Y(Coord_Cell(obj->Center_Coord()));
 
 				obj->XFormOffset = xc - centerx;
 				obj->YFormOffset = yc - centery;
@@ -2601,10 +2601,10 @@ void Go_Editor(bool flag)
  * HISTORY:                                                                                    *
  *   07/04/1995 JLB : Created.                                                                 *
  *=============================================================================================*/
-long MixFileHandler(VQAHandle * vqa, long action, void * buffer, long nbytes)
+int MixFileHandler(VQAHandle * vqa, int action, void * buffer, int nbytes)
 {
 	CCFileClass * file;
-	long        error;
+	int        error;
 
 	file = (CCFileClass *)vqa->VQAio;
 
@@ -2657,7 +2657,7 @@ long MixFileHandler(VQAHandle * vqa, long action, void * buffer, long nbytes)
 				error = file->Open((char *)buffer, READ);
 
 				if (error != -1) {
-					vqa->VQAio = (unsigned long)file;
+					vqa->VQAio = (unsigned int)file;
 					error = 0;
 				} else {
 					delete file;
@@ -3318,7 +3318,7 @@ void const * Get_Radar_Icon(void const * shapefile, int shapenum, int frames, in
 		if ((ptr = (void *)(Build_Frame(shapefile, shapenum + framelp, SysMemPage.Get_Buffer()))) != NULL) {
 			ptr = Get_Shape_Header_Data(ptr);
 #else	//WIN#@
-		if (Build_Frame(shapefile, shapenum + framelp, HidPage.Get_Buffer()) <= (unsigned long)HidPage.Get_Size() ) {
+		if (Build_Frame(shapefile, shapenum + framelp, HidPage.Get_Buffer()) <= (unsigned int)HidPage.Get_Size() ) {
 #endif	//WIN32
 
 			/*
@@ -3404,11 +3404,11 @@ void const * Get_Radar_Icon(void const * shapefile, int shapenum, int frames, in
  * HISTORY:                                                                                    *
  *   02/21/1995 JLB : Created.                                                                 *
  *=============================================================================================*/
-void CC_Draw_Shape(void const * shapefile, int shapenum, int x, int y, WindowNumberType window, ShapeFlags_Type flags, void const * fadingdata, void const * ghostdata, DirType rotation, long scale)
+void CC_Draw_Shape(void const * shapefile, int shapenum, int x, int y, WindowNumberType window, ShapeFlags_Type flags, void const * fadingdata, void const * ghostdata, DirType rotation, int scale)
 {
 	int predoffset;
 #ifdef WIN32
-	unsigned	long	shape_pointer;
+	uintptr_t	shape_pointer;
 #endif	//WIN32
 
 
@@ -3466,7 +3466,7 @@ void CC_Draw_Shape(void const * shapefile, int shapenum, int x, int y, WindowNum
 			unsigned char * buffer = (unsigned char *) shape_pointer;	//Get_Shape_Header_Data((void*)shape_pointer);
 
 #else	//WIN32
-		if ( Build_Frame(shapefile, shapenum, _ShapeBuffer ) <= (unsigned long)_ShapeBufferSize) {
+		if ( Build_Frame(shapefile, shapenum, _ShapeBuffer ) <= (unsigned int)_ShapeBufferSize) {
 			GraphicViewPortClass draw_window(LogicPage,
 														WindowList[window][WINDOWX],
 														WindowList[window][WINDOWY],
@@ -3600,7 +3600,8 @@ Rect const Shape_Dimensions(void const * shapedata, int shapenum)
 	/*
 	**	Find top edge of the shape.
 	*/
-	for (int y = 0; y <= ylimit; y++) {
+	int y;
+	for (y = 0; y <= ylimit; y++) {
 		for (int x = 0; x <= xlimit; x++) {
 			if (shape[y*width + x] != 0) {
 				rect.Y = y;
@@ -3628,7 +3629,8 @@ Rect const Shape_Dimensions(void const * shapedata, int shapenum)
 	/*
 	**	Find left edge of the shape.
 	*/
-	for (int x = 0; x < rect.X; x++) {
+	int x;
+	for (x = 0; x < rect.X; x++) {
 		for (y = rect.Y; y < rect.Y+rect.Height; y++) {
 			if (shape[y*width + x] != 0) {
 				rect.X = x;
@@ -3735,7 +3737,7 @@ void Check_VQ_Palette_Set(void);
 
 extern GraphicBufferClass VQ640;
 extern bool IsVQ640;
-long VQ_Call_Back(unsigned char *, long )
+int VQ_Call_Back(unsigned char *, int )
 {
 	int key = 0;
 	if (Keyboard->Check()) {
@@ -3771,7 +3773,7 @@ long VQ_Call_Back(unsigned char *, long )
 
 #else	//WIN32
 
-long VQ_Call_Back(unsigned char *, long )
+int VQ_Call_Back(unsigned char *, int )
 {
 	Call_Back();
 	if ((BreakoutAllowed || Debug_Flag) && Keyboard->Check()) {
@@ -3933,8 +3935,8 @@ void Handle_Team(int team, int action)
 		**	Create the team.
 		*/
 		case 2: {
-			long minx = 0x7FFFFFFFL, miny = 0x7FFFFFFFL;
-			long maxx = 0, maxy = 0;
+			int minx = 0x7FFFFFFF, miny = 0x7FFFFFFF;
+			int maxx = 0, maxy = 0;
 			TeamSpeed[team] = SPEED_WHEEL;
 			TeamMaxSpeed[team] = MPH_LIGHT_SPEED;
 			for (index = 0; index < Units.Count(); index++) {
@@ -3944,8 +3946,8 @@ void Handle_Team(int team, int action)
 					if (obj->IsSelected) {
 						obj->Group = team;
 						obj->Mark(MARK_CHANGE);
-						long xc = Cell_X(Coord_Cell(obj->Center_Coord()));
-						long yc = Cell_Y(Coord_Cell(obj->Center_Coord()));
+						int xc = Cell_X(Coord_Cell(obj->Center_Coord()));
+						int yc = Cell_Y(Coord_Cell(obj->Center_Coord()));
 						if (xc < minx) minx = xc;
 						if (xc > maxx) maxx = xc;
 						if (yc < miny) miny = yc;
@@ -3965,8 +3967,8 @@ void Handle_Team(int team, int action)
 					if (obj->IsSelected) {
 						obj->Group = team;
 						obj->Mark(MARK_CHANGE);
-						long xc = Cell_X(Coord_Cell(obj->Center_Coord()));
-						long yc = Cell_Y(Coord_Cell(obj->Center_Coord()));
+						int xc = Cell_X(Coord_Cell(obj->Center_Coord()));
+						int yc = Cell_Y(Coord_Cell(obj->Center_Coord()));
 						if (xc < minx) minx = xc;
 						if (xc > maxx) maxx = xc;
 						if (yc < miny) miny = yc;
@@ -3986,8 +3988,8 @@ void Handle_Team(int team, int action)
 					if (obj->IsSelected) {
 						obj->Group = team;
 						obj->Mark(MARK_CHANGE);
-						long xc = Cell_X(Coord_Cell(obj->Center_Coord()));
-						long yc = Cell_Y(Coord_Cell(obj->Center_Coord()));
+						int xc = Cell_X(Coord_Cell(obj->Center_Coord()));
+						int yc = Cell_Y(Coord_Cell(obj->Center_Coord()));
 						if (xc < minx) minx = xc;
 						if (xc > maxx) maxx = xc;
 						if (yc < miny) miny = yc;
@@ -4026,8 +4028,8 @@ void Handle_Team(int team, int action)
 #else
 #if(1)
 // Old always-north formation stuff
-						long xc = Cell_X(Coord_Cell(obj->Center_Coord()));
-						long yc = Cell_Y(Coord_Cell(obj->Center_Coord()));
+						int xc = Cell_X(Coord_Cell(obj->Center_Coord()));
+						int yc = Cell_Y(Coord_Cell(obj->Center_Coord()));
 
 						obj->XFormOffset = xc - centerx;
 						obj->YFormOffset = yc - centery;
@@ -4051,8 +4053,8 @@ void Handle_Team(int team, int action)
 #else
 #if(1)
 // Old always-north formation stuff
-						long xc = Cell_X(Coord_Cell(obj->Center_Coord()));
-						long yc = Cell_Y(Coord_Cell(obj->Center_Coord()));
+						int xc = Cell_X(Coord_Cell(obj->Center_Coord()));
+						int yc = Cell_Y(Coord_Cell(obj->Center_Coord()));
 
 						obj->XFormOffset = xc - centerx;
 						obj->YFormOffset = yc - centery;
@@ -4131,7 +4133,7 @@ static char * _CD_Volume_Label[] = {
 static int _Num_Volumes = ARRAY_SIZE(_CD_Volume_Label);
 
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(RA_PORT)
 /***********************************************************************************************
  * Get_CD_Index -- returns the volume type of the CD in the given drive                        *
  *                                                                                             *
@@ -4174,9 +4176,9 @@ int Get_CD_Index (int cd_drive, int timeout)
 		sprintf(buffer, "%c:\\", 'A' + cd_drive);
 
 		if (GetVolumeInformation ((char const *)buffer, &volume_name[0] ,
-				(unsigned long)sizeof(volume_name), (unsigned long *)NULL ,
-				(unsigned long *)&filename_length, (unsigned long *)&misc_dword,
-				(char *)NULL, (unsigned long)0))
+				(unsigned int)sizeof(volume_name), (unsigned int *)NULL ,
+				(unsigned int *)&filename_length, (unsigned int *)&misc_dword,
+				(char *)NULL, (unsigned int)0))
 			{
 			/*
 			** Try opening 'movies.mix' to verify that the CD is really there and is what
@@ -4224,7 +4226,7 @@ int Get_CD_Index (int cd_drive, int timeout)
 			}	
 		}
 	}
-#else
+#elif !defined(RA_PORT)
 int Get_CD_Index(int cd_drive, int)
 	{
 	char buffer[128];
@@ -4332,7 +4334,117 @@ typedef enum {
 	CD_DVD
 } CD_VOLUME;
 
-#ifdef FIXIT_VERSION_3
+#ifdef RA_PORT
+
+#include "RAPORT.H"
+
+/*
+**	Modern port: there are no CD-ROM drives. A disc is a directory in the game data
+**	directory named after its volume label ("CD1" = Allied disc, "CD2" = Soviet disc,
+**	"CD3" = Counterstrike, "CD4" = Aftermath) holding that disc's MAIN.MIX. Files found in
+**	the data directory itself are always used first, so a single disc's MAIN.MIX can also
+**	simply be copied there.
+*/
+int Port_Current_CD = -1;
+
+bool Port_CD_Present(int cd)
+{
+	if (cd < 0 || cd >= 4) return(false);
+	char path[16];
+	sprintf(path, "%s", _CD_Volume_Label[cd]);
+	DWORD attr = GetFileAttributes(path);
+	return(attr != INVALID_FILE_ATTRIBUTES && (attr & FILE_ATTRIBUTE_DIRECTORY));
+}
+
+bool Port_Get_CD_Directory(char * buffer)
+{
+	if (!Port_CD_Present(Port_Current_CD)) return(false);
+	sprintf(buffer, "%s\\", _CD_Volume_Label[Port_Current_CD]);
+	return(true);
+}
+
+int Get_CD_Index (int , int )
+{
+	return(Port_CD_Present(Port_Current_CD) ? Port_Current_CD : -1);
+}
+
+bool Force_CD_Available( int cd_desired )
+{
+	static int _last = -1;
+
+	if (cd_desired == CD_LOCAL) return(true);
+
+	/*
+	**	There is no DVD version (Using_DVD() is always false).
+	*/
+	if (cd_desired == CD_DVD) return(false);
+
+	/*
+	**	"Counterstrike or Aftermath": use whichever is present.
+	*/
+	if (cd_desired == CD_CS_OR_AM) {
+		if (Port_Current_CD == CD_COUNTERSTRIKE || Port_Current_CD == CD_AFTERMATH) {
+			cd_desired = Port_Current_CD;
+		} else if (Port_CD_Present(CD_AFTERMATH)) {
+			cd_desired = CD_AFTERMATH;
+		} else if (Port_CD_Present(CD_COUNTERSTRIKE)) {
+			cd_desired = CD_COUNTERSTRIKE;
+		} else {
+			cd_desired = CD_ANY;
+		}
+	}
+
+	if (cd_desired == CD_ANY) {
+		if (!Port_CD_Present(Port_Current_CD)) {
+			Port_Current_CD = -1;
+			for (int cd = 0; cd < 4; cd++) {
+				if (Port_CD_Present(cd)) {
+					Port_Current_CD = cd;
+					break;
+				}
+			}
+		}
+	} else if (Port_CD_Present(cd_desired)) {
+		Port_Current_CD = cd_desired;
+	}
+
+	/*
+	**	A disc that isn't present as a directory is assumed to have been copied into the data
+	**	directory, so the request always succeeds.
+	*/
+	CurrentCD = (Port_Current_CD >= 0) ? Port_Current_CD : cd_desired;
+	CCFileClass::Set_CD_Drive(Port_Current_CD + 3);
+	CCFileClass::Refresh_Search_Drives();
+
+	/*
+	**	Reload the disc specific mix files when a different disc is selected (as the original).
+	*/
+	if (cd_desired > -1 && _last != cd_desired && Port_Current_CD == cd_desired)
+	{
+		_last = cd_desired;
+
+		Theme.Stop();
+
+		if (MoviesMix) delete MoviesMix;
+		if (GeneralMix) delete GeneralMix;
+		if (ScoreMix) delete ScoreMix;
+		if (MainMix) delete MainMix;
+
+		MainMix = new MFCD("MAIN.MIX", &FastKey);
+		assert(MainMix != NULL);
+		if (CCFileClass("MOVIES1.MIX").Is_Available())
+			MoviesMix = new MFCD("MOVIES1.MIX", &FastKey);
+		else
+			MoviesMix = new MFCD("MOVIES2.MIX", &FastKey);
+		assert(MoviesMix != NULL);
+		GeneralMix = new MFCD("GENERAL.MIX", &FastKey);
+		ScoreMix = new MFCD("SCORES.MIX", &FastKey);
+		ThemeClass::Scan();
+	}
+	return(true);
+}
+
+#elif defined(FIXIT_VERSION_3)
 
 #ifndef DVD
 #error DVD must be defined!
@@ -4645,7 +4757,7 @@ bool Force_CD_Available( int cd_desired )				//	ajw
 	return(true);
 }
 
-#else		//	FIXIT_VERSION_3 not defined
+#else		//	FIXIT_VERSION_3 not defined (and not the modern port)
 
 bool Force_CD_Available(int cd)
 {
@@ -5064,7 +5176,7 @@ bool Force_CD_Available(int cd)
  * HISTORY:                                                                *
  *   08/11/1995 PWG : Created.                                             *
  *=========================================================================*/
-unsigned long Disk_Space_Available(void)
+unsigned int Disk_Space_Available(void)
 {
 	struct diskfree_t diskdata;
 	unsigned drive;
@@ -5098,9 +5210,9 @@ static void Do_Record_Playback(void)
 	int i;
 	COORDINATE coord;
 	ObjectClass * obj;
-	unsigned long sum;
-	unsigned long sum2;
-	unsigned long ltgt;
+	unsigned int sum;
+	unsigned int sum2;
+	unsigned int ltgt;
 
 	/*
 	**	Record a game
@@ -5124,7 +5236,7 @@ static void Do_Record_Playback(void)
 		*/
 		sum = 0;
 		for (i = 0; i < count; i++) {
-			ltgt = (unsigned long)(CurrentObject[i]->As_Target());
+			ltgt = (unsigned int)(CurrentObject[i]->As_Target());
 			sum += ltgt;
 		}
 		Session.RecordFile.Write (&sum, sizeof(sum));
@@ -5173,7 +5285,7 @@ static void Do_Record_Playback(void)
 			*/
 			sum = 0;
 			for (i = 0; i < CurrentObject.Count(); i++) {
-				ltgt = (unsigned long)(CurrentObject[i]->As_Target());
+				ltgt = (unsigned int)(CurrentObject[i]->As_Target());
 				sum += ltgt;
 			}
 
@@ -5473,6 +5585,14 @@ bool Is_Counterstrike_Installed (void)
 	static bool	bAlreadyChecked = false;
 	static bool bInstalled = false;
 
+#ifdef RA_PORT
+	if( !bAlreadyChecked )
+	{
+		bInstalled = RawFileClass("EXPAND.MIX").Is_Available() ? true : false;
+		bAlreadyChecked = true;
+	}
+	return bInstalled;
+#endif
 	if( !bAlreadyChecked )
 	{
 		HKEY hKey;
@@ -5503,6 +5623,14 @@ bool Is_Aftermath_Installed (void)
 	static bool	bAlreadyChecked = false;
 	static bool bInstalled = false;
 
+#ifdef RA_PORT
+	if( !bAlreadyChecked )
+	{
+		bInstalled = RawFileClass("EXPAND2.MIX").Is_Available() ? true : false;
+		bAlreadyChecked = true;
+	}
+	return bInstalled;
+#endif
 	if( !bAlreadyChecked )
 	{
 		HKEY hKey;

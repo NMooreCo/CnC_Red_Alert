@@ -38,7 +38,7 @@
  *   CreditClass::Graphic_Logic -- Handles the credit redraw logic.                            *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
+#include	"FUNCTION.H"
 
 
 /***********************************************************************************************
@@ -117,15 +117,15 @@ void CreditClass::Graphic_Logic(bool forced)
 		*/
 		TabClass::Draw_Credits_Tab();
 #ifdef WIN32
-		Fancy_Text_Print("%ld", xx, 0, &MetalScheme, TBLACK, TPF_METAL12 | TPF_CENTER | TPF_USE_GRAD_PAL, Current);
+		Fancy_Text_Print("%d", xx, 0, &MetalScheme, TBLACK, TPF_METAL12 | TPF_CENTER | TPF_USE_GRAD_PAL, Current);
 #else
-		Fancy_Text_Print("%ld", xx, 0, &ColorRemaps[PCOLOR_GREY], TBLACK, TPF_NOSHADOW|TPF_6PT_GRAD|TPF_CENTER|TPF_BRIGHT_COLOR, Current);
+		Fancy_Text_Print("%d", xx, 0, &ColorRemaps[PCOLOR_GREY], TBLACK, TPF_NOSHADOW|TPF_6PT_GRAD|TPF_CENTER|TPF_BRIGHT_COLOR, Current);
 #endif	//WIN32
 
 		if (Scen.MissionTimer.Is_Active()) {
-			long secs = Scen.MissionTimer / TICKS_PER_SECOND;
-			long mins = secs / 60;
-			long hours = mins / 60;
+			int secs = Scen.MissionTimer / TICKS_PER_SECOND;
+			int mins = secs / 60;
+			int hours = mins / 60;
 			secs %= 60;
 			mins %= 60;
 
@@ -199,7 +199,7 @@ void CreditClass::AI(bool forced)
 	/*
 	**	Make sure that the credit counter doesn't drop below zero.
 	*/
-	Credits = max(Credits, 0L);
+	Credits = max(Credits, 0);
 
 	if (Scen.MissionTimer.Is_Active() || Scen.MissionTimer) {
 		IsToRedraw = true;

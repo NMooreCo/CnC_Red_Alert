@@ -56,66 +56,66 @@ extern "C" {
 /* unvqbuff.asm */
 #ifndef PHARLAP_TNT
 void cdecl UnVQ_2x2(unsigned char *codebook, unsigned char *pointers,
-		unsigned char *buffer, unsigned long blocksperrow,
-		unsigned long numrows, unsigned long bufwidth);
+		unsigned char *buffer, unsigned int blocksperrow,
+		unsigned int numrows, unsigned int bufwidth);
 
 void cdecl UnVQ_2x3(unsigned char *codebook, unsigned char *pointers,
-		unsigned char *buffer, unsigned long blocksperrow,
-		unsigned long numrows, unsigned long bufwidth);
+		unsigned char *buffer, unsigned int blocksperrow,
+		unsigned int numrows, unsigned int bufwidth);
 
 void cdecl UnVQ_4x2(unsigned char *codebook, unsigned char *pointers,
-		unsigned char *buffer, unsigned long blocksperrow,
-		unsigned long numrows, unsigned long bufwidth);
+		unsigned char *buffer, unsigned int blocksperrow,
+		unsigned int numrows, unsigned int bufwidth);
 
 void cdecl UnVQ_4x4(unsigned char *codebook, unsigned char *pointers,
-		unsigned char *buffer, unsigned long blocksperrow,
-		unsigned long numrows, unsigned long bufwidth);
+		unsigned char *buffer, unsigned int blocksperrow,
+		unsigned int numrows, unsigned int bufwidth);
 
 void cdecl UnVQ_4x2_Woofer(unsigned char *codebook, unsigned char *pointers,
-		unsigned char *buffer, unsigned long blocksperrow,
-		unsigned long numrows, unsigned long bufwidth);
+		unsigned char *buffer, unsigned int blocksperrow,
+		unsigned int numrows, unsigned int bufwidth);
 
 /* unvqvesa.asm */
 void cdecl UnVQ_4x2_VESA320_32K(unsigned char *codebook,
 		unsigned char *pointers, unsigned char *palette,
-		unsigned long grains_per_win,unsigned long dummy1,unsigned long dummy2);
+		unsigned int grains_per_win,unsigned int dummy1,unsigned int dummy2);
 
 #else /* PHARLAP_TNT */
 
 void cdecl UnVQ_2x2(unsigned char *codebook, unsigned char *pointers,
-		FARPTR buffer, unsigned long blocksperrow, unsigned long numrows,
-		unsigned long bufwidth);
+		FARPTR buffer, unsigned int blocksperrow, unsigned int numrows,
+		unsigned int bufwidth);
 
 void cdecl UnVQ_2x3(unsigned char *codebook, unsigned char *pointers,
-		FARPTR buffer, unsigned long blocksperrow, unsigned long numrows,
-		unsigned long bufwidth);
+		FARPTR buffer, unsigned int blocksperrow, unsigned int numrows,
+		unsigned int bufwidth);
 
 void cdecl UnVQ_4x2(unsigned char *codebook, unsigned char *pointers,
-		FARPTR buffer, unsigned long blocksperrow, unsigned long numrows,
-		unsigned long bufwidth);
+		FARPTR buffer, unsigned int blocksperrow, unsigned int numrows,
+		unsigned int bufwidth);
 
 void cdecl UnVQ_4x4(unsigned char *codebook, unsigned char *pointers,
-		FARPTR buffer, unsigned long blocksperrow, unsigned long numrows,
-		unsigned long bufwidth);
+		FARPTR buffer, unsigned int blocksperrow, unsigned int numrows,
+		unsigned int bufwidth);
 
 /* unvqvesa.asm */
 void cdecl UnVQ_4x2_VESA320_32K(unsigned char *codebook,
-		unsigned char *pointers, FARPTR palette, unsigned long grains_per_win,
-		unsigned long dummy1, unsigned long dummy2);
+		unsigned char *pointers, FARPTR palette, unsigned int grains_per_win,
+		unsigned int dummy1, unsigned int dummy2);
 
 #endif /* PHARLAP_TNT */
 
 /* unvqxmde.asm */
 void cdecl UnVQ_4x2_Xmode(unsigned char *codebook, unsigned char *pointers,
-		unsigned char *buffer, unsigned long blocksperrow,
-		unsigned long numrows, unsigned long dummy);
+		unsigned char *buffer, unsigned int blocksperrow,
+		unsigned int numrows, unsigned int dummy);
 
 void cdecl UnVQ_4x2_XmodeCB(unsigned char *cbdummy, unsigned char *pointers,
-		unsigned char *buffer, unsigned long blocksperrow,
-		unsigned long numrows, unsigned long dummy);
+		unsigned char *buffer, unsigned int blocksperrow,
+		unsigned int numrows, unsigned int dummy);
 
-void cdecl Upload_4x2CB(unsigned char *codebook, unsigned long numentries);
-void cdecl XlatePointers(unsigned char *pointers, unsigned long numpointers);
+void cdecl Upload_4x2CB(unsigned char *codebook, unsigned int numentries);
+void cdecl XlatePointers(unsigned char *pointers, unsigned int numpointers);
 
 #ifdef __cplusplus
 }

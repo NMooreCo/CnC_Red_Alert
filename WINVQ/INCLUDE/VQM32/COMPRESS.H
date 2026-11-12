@@ -44,12 +44,12 @@
 extern "C" {
 #endif
 
-unsigned long __cdecl LCW_Compress(char const *source, char *dest,
-		unsigned long length);
-unsigned long __cdecl LCW_Uncompress(char const *source, char *dest,
-		unsigned long length);
-long AudioZap(void *source, void *dest, long size);
-long __cdecl AudioUnzap(void *source, void *dest, long);
+unsigned int __cdecl LCW_Compress(char const *source, char *dest,
+		unsigned int length);
+unsigned int __cdecl LCW_Uncompress(char const *source, char *dest,
+		unsigned int length);
+int AudioZap(void *source, void *dest, int size);
+int __cdecl AudioUnzap(void *source, void *dest, int);
 
 #ifdef __cplusplus
 }

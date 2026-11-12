@@ -35,11 +35,11 @@
  * Functions:                                                                                  *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"mpu.h"
+#include	"MPU.H"
 
 
 #ifdef __BORLANDC__
-unsigned long __cdecl Get_CPU_Clock(unsigned long & high)
+unsigned int __cdecl Get_CPU_Clock(unsigned int & high)
 {
 	__asm db 0fh,031h
 	__asm mov [high],edx

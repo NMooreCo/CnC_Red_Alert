@@ -44,8 +44,8 @@
 
 //#include	"function.h"
 //#include	"ems.h"
-#include <keyboard.h>
-#include "dipthong.h"
+#include <KEYBOARD.H>
+#include "DIPTHONG.H"
 
 /***************************************************************************
  * Fixup_Text -- Converts dipthonged foreign text into normal text.        *
@@ -121,7 +121,7 @@ int Dip_Text(char const *source, char *dest)
 	int				common,		// Common character index.
 						dipthong;	// Dipthong character index.
 
-	unsigned long length=0;		// Length of output string
+	unsigned int length=0;		// Length of output string
 
 	first = *source++;
 	next = *source;

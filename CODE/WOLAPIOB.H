@@ -29,9 +29,9 @@
 #ifndef WOLAPI_H
 #define WOLAPI_H
 
-#include "RAWolapi.h"
-#include "dibapi.h"
-#include "IconList.h"
+#include "RAWOLAPI.H"
+#include "DIBAPI.H"
+#include "ICONLIST.H"
 
 //***********************************************************************************************
 class IconListClass;
@@ -234,7 +234,7 @@ public:
 	bool		bConnectionDown;		//	Flag used while in a game, set to true if connection goes down.
 	bool		bGameServer;			//	Flag used while in a game, true if game server (host).
 	
-	unsigned long	TournamentOpponentIP;	//	Valid while playing a tournament game. IP address of opponent.
+	unsigned int	TournamentOpponentIP;	//	Valid while playing a tournament game. IP address of opponent.
 
 	bool		bPump_In_Call_Back;		//	Used to enable PumpMessages during Call_Back(), for when we're in a modal dialog.
 

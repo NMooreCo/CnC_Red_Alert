@@ -36,10 +36,10 @@
  *   EListClass::Draw_Entry -- Draws entry for expansion scenario.                             *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include "function.h"
+#include "FUNCTION.H"
 
 #ifdef FIXIT_VERSION_3
-#include "WolStrng.h"
+#include "WOLSTRNG.H"
 #endif
 
 //#define CS_DEBUG
@@ -398,9 +398,11 @@ bool Expansion_Dialog(void)
 	char buffer[128], buffer2[128];
 	char * sbuffer = (char*)_ShapeBuffer;
 #ifdef FIXIT_CSII	//	checked - ajw 9/28/98 - Though disgusted.
-	for (int index = 20; index < (36+18); index++) {
+	int index;
+	for (index = 20; index < (36+18); index++) {
 #else
-	for (int index = 20; index < 36; index++) {
+	int index;
+	for (index = 20; index < 36; index++) {
 #endif
 
 #ifndef CS_DEBUG

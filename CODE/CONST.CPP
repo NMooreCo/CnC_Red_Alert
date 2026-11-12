@@ -35,22 +35,22 @@
  * Functions:                                                                                  *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include "function.h"
+#include "FUNCTION.H"
 
 
 /***************************************************************************
 **	These are the access passwords used to activate cheat mode, editor mode,
 **	and special game options.
 */
-long const PlayCodes[] = {
+int const PlayCodes[] = {
 	0xE0792D6D,					// Dwight Okahara
 	0x90046ECF,					// Paul S. Mudra
 	0xC3EE9A26,					// Frank Klepaki
 	0xED382178,					// Ed Del Castillo
-	0L
+	0
 };
 
-long const CheatCodes[] = {
+int const CheatCodes[] = {
 	0xA0E2AB53,					// Joseph Hewitt
 	0x00532693,					// Mike Lightner
 	0x7DDFF824,					// Joe Bostic
@@ -61,17 +61,17 @@ long const CheatCodes[] = {
 	0xBE79088C,					// David Dettmer
 	0xB216AE7E,					// Barry Green
 	0x0E07B213,					// Steve Tall
-	0L
+	0
 };
 
 
-long const EditorCodes[] = {
+int const EditorCodes[] = {
 	0xA2C09326,					// Erik Yeo
 	0x1F944BB3,					// Mike Lightner
 	0xDE07154D,					// Adam Isgreen
 	0x0E07B213,					// Steve Tall
 	0x16B170B1,					// Joe Bostic
-	0L
+	0
 };
 
 
@@ -326,11 +326,11 @@ char const * const VQName[VQ_COUNT] = {
 **	are allowed to stop at other than the center of the cell.
 */
 COORDINATE const StoppingCoordAbs[5] = {
-	0x00800080L,	// center
-	0x00400040L,	// upper left
-	0x004000C0L,	// upper right
-	0x00C00040L,	// lower left
-	0x00C000C0L		// lower right
+	0x00800080,	// center
+	0x00400040,	// upper left
+	0x004000C0,	// upper right
+	0x00C00040,	// lower left
+	0x00C000C0		// lower right
 };
 
 
@@ -363,14 +363,14 @@ CELL const AdjacentCell[FACING_COUNT] = {
 };
 
 COORDINATE const AdjacentCoord[FACING_COUNT] = {
-	0xFF000000L,
-	0xFF000100L,
-	0x00000100L,
-	0x01000100L,
-	0x01000000L,
-	0x0100FF00L,
-	0x0000FF00L,
-	0xFF00FF00L
+	0xFF000000,
+	0xFF000100,
+	0x00000100,
+	0x01000100,
+	0x01000000,
+	0x0100FF00,
+	0x0000FF00,
+	0xFF00FF00
 };
 
 

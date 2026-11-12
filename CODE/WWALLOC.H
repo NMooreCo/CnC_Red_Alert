@@ -46,21 +46,21 @@ typedef enum MemoryFlagType {
 	MEM_EMS    = 0x0080,		// EMS memory (not implemented).
 	MEM_X      = 0x8000		// Here to force this enum to be unsigned sized.
 } MemoryFlagType;
-MemoryFlagType operator |(MemoryFlagType, MemoryFlagType);
-MemoryFlagType operator &(MemoryFlagType, MemoryFlagType);
-MemoryFlagType operator ~(MemoryFlagType);
+//MemoryFlagType operator |(MemoryFlagType, MemoryFlagType);	// (pre-standard guiding declaration; the JSHELL.H template is used)
+//MemoryFlagType operator &(MemoryFlagType, MemoryFlagType);	// (pre-standard guiding declaration; the JSHELL.H template is used)
+//MemoryFlagType operator ~(MemoryFlagType);	// (pre-standard guiding declaration; the JSHELL.H template is used)
 
 
 /* Prototypes for functions defined in this file */
-void *cdecl Alloc(unsigned long bytes_to_alloc, MemoryFlagType flags);
+void *cdecl Alloc(unsigned int bytes_to_alloc, MemoryFlagType flags);
 void cdecl Free(void const *pointer);
-void *cdecl Resize_Alloc(void const *original_ptr, unsigned long new_size_in_bytes);
-long cdecl Ram_Free(MemoryFlagType flag);
-long cdecl Total_Ram_Free(MemoryFlagType flag);
-long cdecl Heap_Size(MemoryFlagType flag);
+void *cdecl Resize_Alloc(void const *original_ptr, unsigned int new_size_in_bytes);
+int cdecl Ram_Free(MemoryFlagType flag);
+int cdecl Total_Ram_Free(MemoryFlagType flag);
+int cdecl Heap_Size(MemoryFlagType flag);
 
-extern unsigned long cdecl MinRam;		// Record of least memory at worst case.
-extern unsigned long cdecl MaxRam;		// Record of total allocated at worst case.
+extern unsigned int cdecl MinRam;		// Record of least memory at worst case.
+extern unsigned int cdecl MaxRam;		// Record of total allocated at worst case.
 
 #ifdef __cplusplus
 }

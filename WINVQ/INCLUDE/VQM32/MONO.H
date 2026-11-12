@@ -46,16 +46,16 @@ extern "C" {
 
 void __cdecl Mono_Enable(void);
 void __cdecl Mono_Disable(void);
-void __cdecl Mono_Set_Cursor(long x, long y);
+void __cdecl Mono_Set_Cursor(int x, int y);
 void __cdecl Mono_Clear_Screen(void);
-void __cdecl Mono_Scroll(long lines);
-void __cdecl Mono_Put_Char(long character, long attrib);
-void __cdecl Mono_Draw_Rect(long x, long y, long w, long h, long attrib,
-		long thick);
+void __cdecl Mono_Scroll(int lines);
+void __cdecl Mono_Put_Char(int character, int attrib);
+void __cdecl Mono_Draw_Rect(int x, int y, int w, int h, int attrib,
+		int thick);
 
-void __cdecl Mono_Text_Print(void const *text, long x, long y, long attrib);
+void __cdecl Mono_Text_Print(void const *text, int x, int y, int attrib);
 void __cdecl Mono_Print(void const *text);
-short __cdecl Mono_View_Page(long page);
+short __cdecl Mono_View_Page(int page);
 short __cdecl Mono_X(void);
 short __cdecl Mono_Y(void);
 

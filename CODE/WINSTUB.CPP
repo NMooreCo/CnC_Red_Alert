@@ -45,20 +45,20 @@
  *   Memory_Error_Handler -- Handle a possibly fatal failure to allocate memory                *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
+#include	"FUNCTION.H"
 
 #ifdef WINSOCK_IPX
-#include "WSProto.h"
+#include "WSPROTO.H"
 #else	//WINSOCK_IPX
-#include "tcpip.h"
-#include "ipx95.h"
+#include "TCPIP.H"
+#include "IPX95.H"
 #endif	//WINSOCK_IPX
 
 void output(short,short)
 {}
 
 
-unsigned long CCFocusMessage = WM_USER+50;	//Private message for receiving application focus
+unsigned int CCFocusMessage = WM_USER+50;	//Private message for receiving application focus
 extern	void VQA_PauseAudio(void);
 extern	void VQA_ResumeAudio(void);
 
@@ -161,9 +161,9 @@ void Check_For_Focus_Loss(void)
 
 
 
-extern BOOL InMovie;
+extern bool InMovie;
 
-long FAR PASCAL _export Windows_Procedure(HWND hwnd, UINT message, UINT wParam, LONG lParam)
+int FAR PASCAL _export Windows_Procedure(HWND hwnd, UINT message, UINT wParam, LONG lParam)
 {
 
 	int	low_param = LOWORD(wParam);
@@ -659,18 +659,18 @@ BOOL Any_Locked (void)
 
 
 unsigned char	*VQPalette;
-long				VQNumBytes;
-unsigned long	VQSlowpal;
+int				VQNumBytes;
+unsigned int	VQSlowpal;
 bool				VQPaletteChange = false;
 
 
 extern "C"{
-	void __cdecl SetPalette(unsigned char *palette, long numbytes, unsigned long slowpal);
+	void __cdecl SetPalette(unsigned char *palette, int numbytes, unsigned int slowpal);
 }
 
 
 
-void Flag_To_Set_Palette(unsigned char *palette, long numbytes, unsigned long slowpal)
+void Flag_To_Set_Palette(unsigned char *palette, int numbytes, unsigned int slowpal)
 {
 	VQPalette = palette;
 	VQNumBytes = numbytes;
@@ -692,7 +692,7 @@ void Check_VQ_Palette_Set(void)
 
 
 
-void __cdecl SetPalette(unsigned char *palette, long, unsigned long)
+void __cdecl SetPalette(unsigned char *palette, int, unsigned int)
 {
 	for (int i=0 ; i<256*3 ; i++) {
 		*(palette+i)&=63;
@@ -813,7 +813,7 @@ void Memory_Error_Handler(void)
 
 
 
-GraphicBufferClass* Read_PCX_File(char* name, char* Palette, void *Buff, long Size);
+GraphicBufferClass* Read_PCX_File(char* name, char* Palette, void *Buff, int Size);
 void Load_Title_Screen(char *name, GraphicViewPortClass *video_page, unsigned char *palette)
 {
 
@@ -830,7 +830,7 @@ void Load_Title_Screen(char *name, GraphicViewPortClass *video_page, unsigned ch
 
 
 
-#include "filepcx.h"
+#include "FILEPCX.H"
 
 /***************************************************************************
  * READ_PCX_FILE -- read a pcx file into a Graphic Buffer                  *
@@ -866,7 +866,7 @@ void Load_Title_Screen(char *name, GraphicViewPortClass *video_page, unsigned ch
 							 }
 
 
-GraphicBufferClass* Read_PCX_File(char* name, char* palette, void *Buff, long Size)
+GraphicBufferClass* Read_PCX_File(char* name, char* palette, void *Buff, int Size)
 {
 	unsigned					i, j;
 	unsigned					rle;
@@ -946,7 +946,7 @@ GraphicBufferClass* Read_PCX_File(char* name, char* palette, void *Buff, long Si
 
 	if ( palette ) {
 		file_handle.Seek (- (256 * sizeof ( RGB )) , SEEK_END );
-		file_handle.Read (palette , 256L * sizeof ( RGB ));
+		file_handle.Read (palette , 256 * sizeof ( RGB ));
 
 		pal = ( RGB * ) palette;
 		for (i = 0 ; i < 256 ; i ++) {

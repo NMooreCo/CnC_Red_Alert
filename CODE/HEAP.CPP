@@ -54,8 +54,8 @@
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 
-#include	"function.h"
-#include	"heap.h"
+#include	"FUNCTION.H"
+#include	"HEAP.H"
 #include	<mem.h>
 #include	<stdio.h>
 #include	<stddef.h>
@@ -630,3 +630,20 @@ void TFixedIHeapClass<T>::Decode_Pointers(void)
 		Ptr(i)->Decode_Pointers();
 	}
 }
+
+
+/*
+**	Modern port: explicit instantiations (Watcom instantiated templates for every
+**	specialisation declared in the headers this module includes).
+**	TFixedIHeapClass<HouseClass::BuildChoiceClass> is specialised in HOUSE.CPP.
+*/
+#define RA_HEAP_TYPES(X) \
+	X(AircraftClass) X(AircraftTypeClass) X(AnimClass) X(AnimTypeClass) X(BuildingClass) \
+	X(BuildingTypeClass) X(BulletClass) X(BulletTypeClass) X(FactoryClass) X(HouseClass) \
+	X(HouseTypeClass) X(InfantryClass) X(InfantryTypeClass) X(OverlayClass) X(OverlayTypeClass) \
+	X(SmudgeClass) X(SmudgeTypeClass) X(TeamClass) X(TeamTypeClass) X(TemplateClass) \
+	X(TemplateTypeClass) X(TerrainClass) X(TerrainTypeClass) X(TriggerClass) X(TriggerTypeClass) \
+	X(UnitClass) X(UnitTypeClass) X(VesselClass) X(VesselTypeClass) X(WarheadTypeClass) \
+	X(WeaponTypeClass)
+#define RA_INSTANTIATE_HEAP(T) template class TFixedIHeapClass<T>;
+RA_HEAP_TYPES(RA_INSTANTIATE_HEAP)

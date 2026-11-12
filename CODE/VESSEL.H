@@ -38,11 +38,11 @@
 #ifndef VESSEL_H
 #define VESSEL_H
 
-#include "drive.h"
-#include "radio.h"
-#include "cargo.h"
-#include "mission.h"
-#include	"target.h"
+#include "DRIVE.H"
+#include "RADIO.H"
+#include "CARGO.H"
+#include "MISSION.H"
+#include	"TARGET.H"
 
 class VesselClass : public DriveClass
 {
@@ -105,12 +105,12 @@ class VesselClass : public DriveClass
 		virtual void Draw_It(int x, int y, WindowNumberType window) const;
 		virtual short const * Overlap_List(bool redraw=false) const;
 		virtual DirType Desired_Load_Dir(ObjectClass * passenger, CELL & moveto) const;
-		virtual RadioMessageType Receive_Message(RadioClass * from, RadioMessageType message, long & param);
+		virtual RadioMessageType Receive_Message(RadioClass * from, RadioMessageType message, int & param);
 		virtual void AI(void);
 		virtual void Per_Cell_Process(PCPType why);
 		virtual void Assign_Destination(TARGET target);
 
-		virtual ResultType Take_Damage(int & damage, int distance, WarheadType warhead, TechnoClass * source=0, int forced=false);
+		virtual ResultType Take_Damage(int & damage, int distance, WarheadType warhead, TechnoClass * source=0, bool forced=false);
 		virtual FireErrorType Can_Fire(TARGET target, int which) const;
 
 		virtual void Enter_Idle_Mode(bool initial=false);

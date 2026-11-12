@@ -38,10 +38,10 @@
 *
 ****************************************************************************/
 
-#include <vqm32\iff.h>
+#include <VQM32/IFF.H>
 
 /* Disable Watcom structure alignment. */
-#ifdef __WATCOMC__
+#if defined(__WATCOMC__) || defined(RA_PORT)
 #pragma pack(1);
 #endif
 
@@ -110,8 +110,8 @@ typedef struct _VQHeader {
 #define ID_VQCT MAKE_ID('V','Q','C','T') /* VQ Color Table (palette) */
 #define ID_VQVP MAKE_ID('V','Q','V','P') /* VQ Vector pointers */
 
-#ifdef __WATCOMC__
-#pragma pack();
+#if defined(__WATCOMC__) || defined(RA_PORT)
+#pragma pack(1)		/* RA_PORT: Watcom "pack()" restored the /zp1 default. */
 #endif
 
 #endif /* VQFILE_H */

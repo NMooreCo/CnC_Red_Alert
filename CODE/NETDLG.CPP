@@ -106,22 +106,22 @@
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 //	Warning - Most disgusting cpp file of all time. ajw
 
-#include "function.h"
+#include "FUNCTION.H"
 #ifdef WIN32
 #ifdef WINSOCK_IPX
-#include	"WSProto.h"
+#include	"WSPROTO.H"
 #else	//WINSOCK_IPX
-#include "tcpip.h"
+#include "TCPIP.H"
 #endif	//WINSOCK_IPX
-#include "ccdde.h"
+#include "CCDDE.H"
 #else	//WIN32
-#include "fakesock.h"
+#include "FAKESOCK.H"
 #endif	//WIN32
 
 #include <time.h>
 #include <dos.h>
 
-#include "WolDebug.h"
+#include "WOLDEBUG.H"
 
 #define SHOW_MONO		0
 //#define OLDWAY			1
@@ -144,8 +144,8 @@ bool bSpecialAftermathScenario( const char* szScenarioDescription );
 bool Force_Scenario_Available( const char* szName );
 #endif
 #ifdef WOLAPI_INTEGRATION
-#include "WolStrng.h"
-#include "WolapiOb.h"
+#include "WOLSTRNG.H"
+#include "WOLAPIOB.H"
 extern WolapiObject* pWolapi;
 #endif
 
@@ -1573,7 +1573,7 @@ static int Net_Join_Dialog(void)
 	Session.Options.ScenarioDescription[0] = 0;	//Flag that we dont know the scenario name yet
 
 	char * item;
-	unsigned long starttime;
+	unsigned int starttime;
 	int load_game = 0;						// 1 = load saved game
 	int goto_lobby;
 	bool messages_have_focus = true;		// Gadget focus starts on the message system
@@ -1962,7 +1962,8 @@ static int Net_Join_Dialog(void)
 				if (Session.Options.ScenarioDescription[0]) {
 
 					// EW - Scenario language translation goes here!!!!!!!! VG
-					for (int ii = 0; EngMisStr[ii] != NULL;  ii++) {
+					int ii;
+					for (ii = 0; EngMisStr[ii] != NULL;  ii++) {
 						if (!strcmp(Session.Options.ScenarioDescription, EngMisStr[ii])) {
 							#if defined(GERMAN) || defined(FRENCH)
 								sprintf(txt, "%s %s", p, EngMisStr[ii+1]);
@@ -2546,7 +2547,7 @@ static int Net_Join_Dialog(void)
 				**	need to request that it is sent. If we can identify the scenario locally then
 				**	we need to fix up the file name so we load the right one.
 				*/
-				Ipx.Set_Timing (25, (unsigned long) -1, 1000);
+				Ipx.Set_Timing (25, (unsigned int) -1, 1000);
 				if (Find_Local_Scenario (Session.Options.ScenarioDescription,
 												Session.ScenarioFileName,
 												Session.ScenarioFileLength,
@@ -2599,7 +2600,7 @@ static int Net_Join_Dialog(void)
 #endif
 				}
 
-				Ipx.Set_Timing (30, (unsigned long) -1, 600);
+				Ipx.Set_Timing (30, (unsigned int) -1, 600);
 				strcpy (Scen.ScenarioName, Session.ScenarioFileName);
 				rc = 0;
 				process = false;
@@ -2965,7 +2966,7 @@ static int Net_Join_Dialog(void)
 	//------------------------------------------------------------------------
 //	Ipx.Set_Timing (Ipx.Global_Response_Time() + 2, -1,
 //		Ipx.Global_Response_Time() * 4);
-	Ipx.Set_Timing (Ipx.Global_Response_Time () + 2, (unsigned long) -1, max (120, Ipx.Global_Response_Time () * 8));
+	Ipx.Set_Timing (Ipx.Global_Response_Time () + 2, (unsigned int) -1, max (120, Ipx.Global_Response_Time () * 8));
 
 
 	//------------------------------------------------------------------------
@@ -3715,7 +3716,7 @@ static JoinEventType Get_Join_Responses(JoinStateType *joinstate, ListClass *gam
 #ifdef FIXIT_VERSION_3
 			//	Guest receives game version number from host.
 			//	Added to the transmitted version number is a bit indicating presence of Aftermath expansion.
-			unsigned long lVersion = Session.GPacket.ScenarioInfo.Version & ~0x80000000;	//	Actual version number.
+			unsigned int lVersion = Session.GPacket.ScenarioInfo.Version & ~0x80000000;	//	Actual version number.
 			Session.CommProtocol = VerNum.Version_Protocol( lVersion );
 			bAftermathMultiplayer = Session.GPacket.ScenarioInfo.Version & 0x80000000;
 //			if( bAftermathMultiplayer )
@@ -4156,7 +4157,7 @@ static int Net_New_Dialog(void)
 
 	int transmit;								// 1 = re-transmit new game options
 
-	long ok_timer = 0;						// for timing OK button
+	int ok_timer = 0;						// for timing OK button
 	int index;									// index for rejecting a player
 	int rc;
 	int i,j;
@@ -4165,7 +4166,7 @@ static int Net_New_Dialog(void)
 	int optiontabs[] = {8*RESFACTOR};	// tabs for option list box
 
 	NodeNameType *who;						// node to add to Players
-	long ping_timer = 0;						// for sending Ping packets
+	int ping_timer = 0;						// for sending Ping packets
 
 	int color_used[MAX_MPLAYER_COLORS];	// 1 = color has been used
 	char txt[80];
@@ -5051,7 +5052,7 @@ static int Net_New_Dialog(void)
 										  NETWORK_MIN_MAX_AHEAD );
 		}
 
-		Ipx.Set_Timing (25, (unsigned long) -1, 1000);
+		Ipx.Set_Timing (25, (unsigned int) -1, 1000);
 
 		//.....................................................................
 		//	Send all players the NET_GO packet.  Wait until all ACK's have been
@@ -5140,7 +5141,7 @@ static int Net_New_Dialog(void)
 	//	of what our retry delta & timeout should be.
 	//------------------------------------------------------------------------
 	//Ipx.Set_Timing (Ipx.Global_Response_Time() + 2, -1, Ipx.Global_Response_Time() * 4);
-	Ipx.Set_Timing (Ipx.Global_Response_Time () + 2, (unsigned long) -1, max (120, Ipx.Global_Response_Time () * 8));
+	Ipx.Set_Timing (Ipx.Global_Response_Time () + 2, (unsigned int) -1, max (120, Ipx.Global_Response_Time () * 8));
 
 	//------------------------------------------------------------------------
 	//	Clear all lists, but NOT the Games or Players vectors.
@@ -5227,7 +5228,7 @@ static JoinEventType Get_NewGame_Responses(ColorListClass *playerlist,
 	int found;
 	JoinEventType retval = EV_NONE;
 	int resend;
-	unsigned long version;			// version # to use
+	unsigned int version;			// version # to use
 
 	//------------------------------------------------------------------------
 	//	If there is no incoming packet, just return
@@ -5525,17 +5526,17 @@ static JoinEventType Get_NewGame_Responses(ColorListClass *playerlist,
  * HISTORY:                                                                *
  *   06/29/1995 BRR : Created.                                             *
  *=========================================================================*/
-unsigned long Compute_Name_CRC(char *name)
+unsigned int Compute_Name_CRC(char *name)
 {
 	char buf[80];
-	unsigned long crc = 0L;
+	unsigned int crc = 0;
 	int i;
 
 	strcpy (buf, name);
 	strupr (buf);
 
 	for (i = 0; i < strlen(buf); i++) {
-		Add_CRC (&crc, (unsigned long)buf[i]);
+		Add_CRC (&crc, (unsigned int)buf[i]);
 	}
 
 	return (crc);
@@ -5563,7 +5564,7 @@ unsigned long Compute_Name_CRC(char *name)
  *   07/08/1995 BRR : Created.                                             *
  *=========================================================================*/
 void Net_Reconnect_Dialog(int reconn, int fresh, int oldest_index,
-	unsigned long timeval)
+	unsigned int timeval)
 {
 	static int x,y,w,h;
 	int id;
@@ -5640,9 +5641,13 @@ void Net_Reconnect_Dialog(int reconn, int fresh, int oldest_index,
 
 #ifdef FIXIT_VERSION_3
 		char szNewCancelMessage[ 300 ];
+#ifdef WOLAPI_INTEGRATION
 		sprintf( szNewCancelMessage, "%s%s", buf3, TXT_WOL_CANCELMEANSFORFEIT );
+#else
+		strcpy( szNewCancelMessage, buf3 );
+#endif
 
-		if( Session.Type == GAME_INTERNET && pWolapi && pWolapi->GameInfoCurrent.bTournament )
+		if( RA_WOL_TOURNAMENT_GAME() )
 		{
 			w = max(String_Pixel_Width(szNewCancelMessage), w);	// * RESFACTOR;		why was it ever multiplied by this!!!?
 			w += (d_margin * 12);
@@ -5670,7 +5675,7 @@ void Net_Reconnect_Dialog(int reconn, int fresh, int oldest_index,
 		Fancy_Text_Print (buf2, 160*RESFACTOR, y + (d_margin * 2) + d_txt6_h + d_margin, scheme, TBLACK, TPF_CENTER | TPF_TEXT);
 
 #ifdef FIXIT_VERSION_3
-		if( Session.Type == GAME_INTERNET && pWolapi && pWolapi->GameInfoCurrent.bTournament )
+		if( RA_WOL_TOURNAMENT_GAME() )
 			Fancy_Text_Print (szNewCancelMessage, 160*RESFACTOR, y + (d_margin * 2) + (d_txt6_h + d_margin) * 2, scheme, TBLACK, TPF_CENTER | TPF_TEXT);
 		else
 			Fancy_Text_Print (buf3, 160*RESFACTOR, y + (d_margin * 2) + (d_txt6_h + d_margin) * 2, scheme, TBLACK, TPF_CENTER | TPF_TEXT);
@@ -5708,7 +5713,7 @@ struct WWPerson {
 	char Name[MAX_CHAT_NAME];
 	char Phrase[MAX_CHAT_PHRASE];
 	PlayerColorType Color;
-	unsigned long LastTime;
+	unsigned int LastTime;
 };
 
 struct WWPerson WWPersons[] = {
@@ -6194,7 +6199,7 @@ static int Net_Fake_New_Dialog(void)
 
 	int transmit;								// 1 = re-transmit new game options
 
-	long ok_timer = 0;						// for timing OK button
+	int ok_timer = 0;						// for timing OK button
 	int rc;
 	int i;
 	char *item;
@@ -6202,7 +6207,7 @@ static int Net_Fake_New_Dialog(void)
 	int optiontabs[] = {8};					// tabs for option list box
 
 	NodeNameType *who;						// node to add to Players
-	long ping_timer = 0;						// for sending Ping packets
+	int ping_timer = 0;						// for sending Ping packets
 
 	int color_used[MAX_MPLAYER_COLORS];	// 1 = color has been used
 	JoinEventType whahoppa;					// event generated by received packets
@@ -6216,7 +6221,7 @@ static int Net_Fake_New_Dialog(void)
 	bool	player_joined = false;
 	CountDownTimerClass join_timer;
 
-	Fancy_Text_Print(TXT_NONE,0,0,TBLACK,TBLACK,TPF_6PT_GRAD | TPF_NOSHADOW);
+	Fancy_Text_Print(TXT_NONE,0,0,(RemapControlType *)NULL,TBLACK,TPF_6PT_GRAD | TPF_NOSHADOW);
 	Format_Window_String((char*)TXT_HACKHACK, SeenBuff.Get_Height(), width, height);
 
 	//------------------------------------------------------------------------
@@ -6784,7 +6789,7 @@ static int Net_Fake_New_Dialog(void)
 	//------------------------------------------------------------------------
 	//Ipx.Set_Timing (Ipx.Global_Response_Time() + 2, -1,
 	//	Ipx.Global_Response_Time() * 4);
-	Ipx.Set_Timing (Ipx.Global_Response_Time () + 2, (unsigned long) -1, max (120, Ipx.Global_Response_Time () * 8));
+	Ipx.Set_Timing (Ipx.Global_Response_Time () + 2, (unsigned int) -1, max (120, Ipx.Global_Response_Time () * 8));
 
 	Clear_Listbox(&playerlist);
 
@@ -7006,10 +7011,10 @@ static int Net_Fake_Join_Dialog(void)
 	int	width;
 	int	height;
 
-	Fancy_Text_Print(TXT_NONE,0,0,TBLACK,TBLACK,TPF_6PT_GRAD | TPF_NOSHADOW);
+	Fancy_Text_Print(TXT_NONE,0,0,(RemapControlType *)NULL,TBLACK,TPF_6PT_GRAD | TPF_NOSHADOW);
 	Format_Window_String((char*)TXT_HACKHACK, SeenBuff.Get_Height(), width, height);
 	char * item;
-	unsigned long starttime;
+	unsigned int starttime;
 	int load_game = 0;						// 1 = load saved game
 
 	//------------------------------------------------------------------------
@@ -7674,7 +7679,7 @@ static int Net_Fake_Join_Dialog(void)
 	//------------------------------------------------------------------------
 	//Ipx.Set_Timing (Ipx.Global_Response_Time() + 2, -1,
 	//	Ipx.Global_Response_Time() * 4);
-	Ipx.Set_Timing (Ipx.Global_Response_Time () + 2, (unsigned long) -1, max (120, Ipx.Global_Response_Time () * 8));
+	Ipx.Set_Timing (Ipx.Global_Response_Time () + 2, (unsigned int) -1, max (120, Ipx.Global_Response_Time () * 8));
 
 	//------------------------------------------------------------------------
 	//	Clear all lists, but NOT the Games & Players vectors.

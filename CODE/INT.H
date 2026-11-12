@@ -42,8 +42,8 @@
 #include <memory.h>
 #include	<limits.h>
 #include	<assert.h>
-#include	"mp.h"
-#include	"straw.h"
+#include	"MP.H"
+#include	"STRAW.H"
 
 #pragma warn -inl
 
@@ -55,7 +55,7 @@ class Int {
 		**	Constructors and initializers.
 		*/
 		Int(void) {XMP_Init(&reg[0], 0, PRECISION);}
-		Int(unsigned long value) {XMP_Init(&reg[0], value, PRECISION);}
+		Int(unsigned int value) {XMP_Init(&reg[0], value, PRECISION);}
 
 		void Randomize(Straw & rng, int bitcount) {XMP_Randomize(&reg[0], rng, bitcount, PRECISION);}
 		void Randomize(Straw & rng, const Int & minval, const Int & maxval) {XMP_Randomize(&reg[0], rng, minval, maxval, PRECISION); reg[0] |= 1;}
@@ -88,7 +88,7 @@ class Int {
 		int ByteCount(void) const {return(XMP_Count_Bytes(&reg[0], PRECISION));}
 		int BitCount(void) const {return(XMP_Count_Bits(&reg[0], PRECISION));}
 		bool Is_Negative(void) const {return(XMP_Is_Negative(&reg[0], PRECISION));}
-		unsigned MaxBitPrecision() const {return PRECISION*(sizeof(unsigned long)*CHAR_BIT);}
+		unsigned MaxBitPrecision() const {return PRECISION*(sizeof(unsigned int)*CHAR_BIT);}
 		bool IsSmallPrime(void) const {return(XMP_Is_Small_Prime(&reg[0], PRECISION));}
 		bool SmallDivisorsTest(void) const {return(XMP_Small_Divisors_Test(&reg[0], PRECISION));}
 		bool FermatTest(unsigned rounds) const {return(XMP_Fermat_Test(&reg[0], rounds, PRECISION));}
@@ -119,11 +119,11 @@ class Int {
 		Int operator * (unsigned short b) const {Int result;Error=XMP_Unsigned_Mult_Int(result, &reg[0], b, PRECISION);return(result);}
 //		friend Int<PRECISION> operator * (digit b, const Int<PRECISION> & a) {return(Int<PRECISION>(b) * a);}
 		Int operator / (const Int & divisor) const {Int quotient = *this;XMP_Signed_Div(Remainder, quotient, &reg[0], divisor, PRECISION);return (quotient);}
-		Int operator / (unsigned long b) const {return(*this / Int<PRECISION>(b));}
+		Int operator / (unsigned int b) const {return(*this / Int<PRECISION>(b));}
 		Int operator / (unsigned short divisor) const {Int quotient;Error=XMP_Unsigned_Div_Int(quotient, &reg[0], divisor, PRECISION);return(quotient);}
 //		friend Int<PRECISION> operator / (digit a, const Int<PRECISION> & b) {return(Int<PRECISION>(a) / b);}
 		Int operator % (const Int & divisor) const {Int remainder;XMP_Signed_Div(remainder, Remainder, &reg[0], divisor, PRECISION);return(remainder);}
-		Int operator % (unsigned long b) const {return(*this % Int<PRECISION>(b));}
+		Int operator % (unsigned int b) const {return(*this % Int<PRECISION>(b));}
 		unsigned short operator % (unsigned short divisor) const {return(XMP_Unsigned_Div_Int(Remainder, &reg[0], divisor, PRECISION));}
 //		friend Int<PRECISION> operator % (digit a, const Int<PRECISION> & b) {return(Int<PRECISION>(a) % b);}
 
@@ -181,7 +181,9 @@ class Int {
 		void DERDecode(const unsigned char *input) {XMP_DER_Decode(&reg[0], input, PRECISION);}
 
 		// Friend helper functions.
-		friend Int<PRECISION> Generate_Prime(Straw & rng, int pbits, Int<PRECISION> const * = 0);
+		// (The original declared a non-template friend here, which in standard C++ names a
+		//  separate, undefined function; befriend the Generate_Prime template instead.)
+		template<class TT> friend TT Generate_Prime(Straw & rng, int pbits, TT const *);
 		friend Int<PRECISION> Gcd(const Int<PRECISION> & a, const Int<PRECISION> & b);
 //		friend bool NextPrime(Int<PRECISION> & p, const Int<PRECISION> & max, bool blumInt=false);
 //		friend Int<PRECISION> a_exp_b_mod_pq(const Int<PRECISION> & a, const Int<PRECISION> & ep, const Int<PRECISION> & eq, const Int<PRECISION> & p, const Int<PRECISION> & q, const Int<PRECISION> & u);
@@ -244,7 +246,7 @@ class Int {
 template<class T>
 T Gcd(const T & a, const T & n)
 {
-	T g[3]={n, a, 0UL};
+	T g[3]={n, a, 0U};
 
 	unsigned int i = 1;
 	while (!!g[i%3]) {
@@ -261,8 +263,8 @@ T Gcd(const T & a, const T & n)
 template<class T>
 T Generate_Prime(Straw & rng, int pbits, T const *)
 {
-	T minQ = (T(1UL) << (unsigned short)(pbits-(unsigned short)2));
-	T maxQ = ((T(1UL) << (unsigned short)(pbits-(unsigned short)1)) - (unsigned short)1);
+	T minQ = (T(1U) << (unsigned short)(pbits-(unsigned short)2));
+	T maxQ = ((T(1U) << (unsigned short)(pbits-(unsigned short)1)) - (unsigned short)1);
 
 	T q;
 	T p;
@@ -271,8 +273,8 @@ T Generate_Prime(Straw & rng, int pbits, T const *)
 		q.Randomize(rng, minQ, maxQ);
 		p = (q*2) + (unsigned short)1;
 
-		T::RemainderTable rtQ(q);
-		T::RemainderTable rtP(p);
+		typename T::RemainderTable rtQ(q);
+		typename T::RemainderTable rtP(p);
 
 		while (rtQ.HasZero() || rtP.HasZero() || !q.IsPrime() || !p.IsPrime()) {
 			q += 2;

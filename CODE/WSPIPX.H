@@ -37,7 +37,7 @@
 #ifndef WSPIPX_H
 #define WSPIPX_H
 
-#include	"WSProto.h"
+#include	"WSPROTO.H"
 
 /*
 ** Include Windows specific extensions for Winsock that allow IPX over winsock 1.1
@@ -62,7 +62,7 @@ class IPXInterfaceClass : public WinsockInterfaceClass {
 		IPXInterfaceClass (void);
 		//virtual ~IPXInterfaceClass(void){Close();};
 		bool Get_Network_Card_Address (int card_number, SOCKADDR_IPX *addr);
-	 	virtual long Message_Handler(HWND window, UINT message, UINT wParam, LONG lParam);
+	 	virtual int Message_Handler(HWND window, UINT message, UINT wParam, LONG lParam);
 		virtual bool Open_Socket ( SOCKET socketnum );
 
 		virtual ProtocolEnum Get_Protocol (void) {

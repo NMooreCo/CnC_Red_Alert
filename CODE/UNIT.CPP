@@ -100,7 +100,7 @@
  *   UnitClass::~UnitClass -- Destructor for unit objects.                                     *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
+#include	"FUNCTION.H"
 
 
 /***********************************************************************************************
@@ -290,7 +290,7 @@ UnitClass::UnitClass(UnitType classid, HousesType house) :
 	Gold(0),
 	Tiberium(0),
 	IsToScatter(false),
-	ShroudBits(0xFFFFFFFFUL),
+	ShroudBits(0xFFFFFFFFU),
 	ShroudCenter(0),
 	Reload(0),
 	SecondaryFacing(PrimaryFacing)
@@ -375,7 +375,7 @@ COORDINATE UnitClass::Sort_Y(void) const
 	assert(Units.ID(this) == ID);
 	assert(IsActive);
 
-	return(Coord_Add(Coord, 0x00800000L));
+	return(Coord_Add(Coord, 0x00800000));
 }
 
 
@@ -709,7 +709,7 @@ void UnitClass::Firing_AI(void)
  * HISTORY:                                                                                    *
  *   05/22/1994 JLB : Created.                                                                 *
  *=============================================================================================*/
-RadioMessageType UnitClass::Receive_Message(RadioClass * from, RadioMessageType message, long & param)
+RadioMessageType UnitClass::Receive_Message(RadioClass * from, RadioMessageType message, int & param)
 {
 	assert(Units.ID(this) == ID);
 	assert(IsActive);
@@ -830,7 +830,7 @@ RadioMessageType UnitClass::Receive_Message(RadioClass * from, RadioMessageType 
 						if (cell == 0) {
 							Transmit_Message(RADIO_OVER_OUT, from);
 						} else {
-							param = (long)::As_Target(cell);
+							param = (int)::As_Target(cell);
 							Do_Turn(dir);
 
 							/*
@@ -865,7 +865,7 @@ RadioMessageType UnitClass::Receive_Message(RadioClass * from, RadioMessageType 
 #else
 								if (*this != UNIT_APC || Is_Door_Open()) {
 #endif
-									param = (long)As_Target();
+									param = (int)As_Target();
 									Transmit_Message(RADIO_TETHER);
 									if (Transmit_Message(RADIO_MOVE_HERE, param, from) != RADIO_ROGER) {
 										Transmit_Message(RADIO_OVER_OUT, from);
@@ -932,8 +932,8 @@ bool UnitClass::Unlimbo(COORDINATE coord, DirType dir)
 		**	Ensure that the owning house knows about the
 		**	new object.
 		*/
-		House->UScan |= (1L << Class->Type);
-		House->ActiveUScan |= (1L << Class->Type);
+		House->UScan |= (1 << Class->Type);
+		House->ActiveUScan |= (1 << Class->Type);
 
 		/*
 		**	If it starts off the edge of the map, then it already starts cloaked.
@@ -985,7 +985,7 @@ bool UnitClass::Unlimbo(COORDINATE coord, DirType dir)
  *   06/30/1995 JLB : Lasers do maximum damage against gunboat.                                *
  *   08/16/1995 JLB : Harvester crushing doesn't occur on early missions.                      *
  *=============================================================================================*/
-ResultType UnitClass::Take_Damage(int & damage, int distance, WarheadType warhead, TechnoClass * source, int forced)
+ResultType UnitClass::Take_Damage(int & damage, int distance, WarheadType warhead, TechnoClass * source, bool forced)
 {
 	assert(Units.ID(this) == ID);
 	assert(IsActive);
@@ -4957,7 +4957,7 @@ void UnitClass::Shroud_Regen(void)
 		CELL trycell;
 
 		// Only restore under the shroud if it's a valid field.
-		if (ShroudBits != (unsigned)-1L) {
+		if (ShroudBits != (unsigned)-1) {
 			centerx = Cell_X(ShroudCenter);
 			centery = Cell_Y(ShroudCenter);
 			for (index = 30; index >= 0 && ShroudBits; index--) {
@@ -4976,7 +4976,7 @@ void UnitClass::Shroud_Regen(void)
 
 		if(IsActive && Strength) {
 			// Now shroud around the new center
-			ShroudBits = 0L;
+			ShroudBits = 0;
 			ShroudCenter = Coord_Cell(Center_Coord());
 			centerx = Cell_X(ShroudCenter);
 			centery = Cell_Y(ShroudCenter);

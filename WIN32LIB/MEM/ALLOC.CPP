@@ -48,11 +48,11 @@
 
 
 #ifndef WWMEM_H
-#include "wwmem.h"
+#include "WWMEM.H"
 #endif
 
 
-extern "C" unsigned long Largest_Mem_Block ( void ) ;
+extern "C" unsigned int Largest_Mem_Block ( void ) ;
 
 /*
 ** Define the equates necessary to call a DPMI interrupt.
@@ -68,10 +68,10 @@ extern "C" unsigned long Largest_Mem_Block ( void ) ;
 
 /*= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =*/
 
-unsigned long MinRam=0L;		// Record of least memory at worst case.
-unsigned long MaxRam=0L;		// Record of total allocated at worst case.
-static unsigned long TotalRam = 0L;
-static unsigned long Memory_Calls = 0L;
+unsigned int MinRam=0;		// Record of least memory at worst case.
+unsigned int MaxRam=0;		// Record of total allocated at worst case.
+static unsigned int TotalRam = 0;
+static unsigned int Memory_Calls = 0;
 
 void (*Memory_Error)(void) = NULL;
 extern void (*Memory_Error_Exit)(char *string)=NULL;
@@ -97,8 +97,8 @@ extern "C"{
  * HISTORY:                                                                *
  *   06/23/1995 PWG : Created.                                             *
  *=========================================================================*/
-#include"mono.h"
-void DPMI_Lock(VOID const *, long const )
+#include"MONO.H"
+void DPMI_Lock(VOID const *, int const )
 {
 }
 
@@ -114,7 +114,7 @@ void DPMI_Lock(VOID const *, long const )
  * HISTORY:                                                                *
  *   06/23/1995 PWG : Created.                                             *
  *=========================================================================*/
-void DPMI_Unlock(void const *, long const )
+void DPMI_Unlock(void const *, int const )
 {
 }
 
@@ -147,7 +147,7 @@ void DPMI_Unlock(void const *, long const )
  *   03/09/1995 JLB : Fixed                                                *
  *   09/28/1995 ST  : Simplified for win95                                                                      *
  *=========================================================================*/
-void *Alloc(unsigned long bytes_to_alloc, MemoryFlagType flags)
+void *Alloc(unsigned int bytes_to_alloc, MemoryFlagType flags)
 {
 
 #ifdef WIN32
@@ -170,16 +170,16 @@ void *Alloc(unsigned long bytes_to_alloc, MemoryFlagType flags)
 
 #ifdef MEM_CHECK
 	mem_ptr = (void*)((char*)mem_ptr + 16);
-	unsigned long *magic_ptr =(unsigned long*) ( ((char *)mem_ptr) - 16 );
-	*magic_ptr++ = (unsigned long)mem_ptr;
-	*magic_ptr++ = (unsigned long)mem_ptr;
-	*magic_ptr++ = (unsigned long)mem_ptr;
+	unsigned int *magic_ptr =(unsigned int*) ( ((char *)mem_ptr) - 16 );
+	*magic_ptr++ = (unsigned int)mem_ptr;
+	*magic_ptr++ = (unsigned int)mem_ptr;
+	*magic_ptr++ = (unsigned int)mem_ptr;
 	*magic_ptr 	 = bytes_to_alloc - 32;
-	magic_ptr = (unsigned long*) ( ((char*)mem_ptr) + bytes_to_alloc - 32 );
-	*magic_ptr++ = (unsigned long)mem_ptr;
-	*magic_ptr++ = (unsigned long)mem_ptr;
-	*magic_ptr++ = (unsigned long)mem_ptr;
-	*magic_ptr 	 = (unsigned long)mem_ptr;
+	magic_ptr = (unsigned int*) ( ((char*)mem_ptr) + bytes_to_alloc - 32 );
+	*magic_ptr++ = (unsigned int)mem_ptr;
+	*magic_ptr++ = (unsigned int)mem_ptr;
+	*magic_ptr++ = (unsigned int)mem_ptr;
+	*magic_ptr 	 = (unsigned int)mem_ptr;
 #endif	//MEM_CHECK
 
 	Memory_Calls++;
@@ -192,9 +192,9 @@ void *Alloc(unsigned long bytes_to_alloc, MemoryFlagType flags)
 	union REGS		regs ;
 	struct SREGS 	sregs ;
 	unsigned char *retval=NULL;	// Pointer to allocated block.
-	unsigned long	original_size;	// Original allocation size.
-	unsigned long	bytesfree;		// Number of free bytes.
-	long 				*longptr=NULL;	// Pointer used to store selector
+	unsigned int	original_size;	// Original allocation size.
+	unsigned int	bytesfree;		// Number of free bytes.
+	int 				*longptr=NULL;	// Pointer used to store selector
 
 	/*
 	** Save the original allocated space size so that we can clear the
@@ -243,7 +243,7 @@ void *Alloc(unsigned long bytes_to_alloc, MemoryFlagType flags)
 			if (regs.x.cflag)
 				retval = NULL;
 			else {
-				longptr		= (long *)(((regs.x.eax & 0xFFFF) << 4)+ 1);
+				longptr		= (int *)(((regs.x.eax & 0xFFFF) << 4)+ 1);
 				*longptr++	= regs.x.edx & 0xFFFF;
 				retval		= (unsigned char *)longptr;
 			}
@@ -260,7 +260,7 @@ void *Alloc(unsigned long bytes_to_alloc, MemoryFlagType flags)
 	// If the memory needs to be DPMI locked then we should store the
 	// original size in the header before we store the flags.
 	if (flags & MEM_LOCK) {
-		longptr		= (long *)retval;
+		longptr		= (int *)retval;
 		*longptr++	= original_size;
 		retval		= (unsigned char *)longptr;
 	}
@@ -326,20 +326,20 @@ void Free(void const *pointer)
 
 #ifdef MEM_CHECK
 
-		unsigned long	*magic_ptr = (unsigned long*) ( ((char*)pointer) - 16 );
+		unsigned int	*magic_ptr = (unsigned int*) ( ((char*)pointer) - 16 );
 
-		if (*magic_ptr++ != (unsigned long)pointer ||
-		 	*magic_ptr++ != (unsigned long)pointer ||
-		 	*magic_ptr++ != (unsigned long)pointer ){
+		if (*magic_ptr++ != (unsigned int)pointer ||
+		 	*magic_ptr++ != (unsigned int)pointer ||
+		 	*magic_ptr++ != (unsigned int)pointer ){
 		 	Int3();
 		}
 
-		magic_ptr = (unsigned long*) ( ((char*)pointer) + *magic_ptr );
+		magic_ptr = (unsigned int*) ( ((char*)pointer) + *magic_ptr );
 
-		if (*magic_ptr++ != (unsigned long)pointer ||
-		 	*magic_ptr++ != (unsigned long)pointer ||
-		 	*magic_ptr++ != (unsigned long)pointer ||
-		 	*magic_ptr++ != (unsigned long)pointer ){
+		if (*magic_ptr++ != (unsigned int)pointer ||
+		 	*magic_ptr++ != (unsigned int)pointer ||
+		 	*magic_ptr++ != (unsigned int)pointer ||
+		 	*magic_ptr++ != (unsigned int)pointer ){
 		 	Int3();
 		}
 
@@ -369,7 +369,7 @@ void Free(void const *pointer)
 		** Check to see if this was locked me and if it was unlock it.
 		*/
 		if (*byteptr & MEM_LOCK) {
-			long *longptr = ((long *)byteptr) - 1;
+			int *longptr = ((int *)byteptr) - 1;
 			DPMI_Unlock(pointer, *longptr);
 			pointer = (void *)longptr;
 		} else
@@ -381,7 +381,7 @@ void Free(void const *pointer)
 		// use DPMI to free it.
 		if (*byteptr & MEM_REAL) {
 			regs.x.eax	= 0x101;
-			regs.x.edx	= *(((long *)pointer) - 1);
+			regs.x.edx	= *(((int *)pointer) - 1);
 			segread ( & sregs ) ;
 			int386x(0x31, &regs, &regs, &sregs);
 		} else {
@@ -412,15 +412,15 @@ void Free(void const *pointer)
  * HISTORY:                                                                *
  *   02/01/1992 JLB : Commented.                                           *
  *=========================================================================*/
-void *Resize_Alloc(void *original_ptr, unsigned long new_size_in_bytes)
+void *Resize_Alloc(void *original_ptr, unsigned int new_size_in_bytes)
 {
 
-	unsigned long *temp;
+	unsigned int *temp;
 
-	temp = (unsigned long*)original_ptr;
+	temp = (unsigned int*)original_ptr;
 
 	/* ReAlloc the space */
-	temp = (unsigned long *)realloc(temp, new_size_in_bytes);
+	temp = (unsigned int *)realloc(temp, new_size_in_bytes);
 	if (temp == NULL) {
 		if(Memory_Error != NULL)
 			Memory_Error();
@@ -447,7 +447,7 @@ void *Resize_Alloc(void *original_ptr, unsigned long new_size_in_bytes)
  * HISTORY:                                                                *
  *   09/03/1991 JLB : Commented.                                           *
  *=========================================================================*/
-long Ram_Free(MemoryFlagType)
+int Ram_Free(MemoryFlagType)
 {
 //	return(_memmax());
 #if(0)
@@ -474,7 +474,7 @@ long Ram_Free(MemoryFlagType)
  * HISTORY:                                                                *
  *   06/21/1994 SKB : Created.                                             *
  *=========================================================================*/
-long Heap_Size(MemoryFlagType )
+int Heap_Size(MemoryFlagType )
 {
 	if (!TotalRam) {
 		TotalRam = Total_Ram_Free(MEM_NORMAL);
@@ -498,7 +498,7 @@ long Heap_Size(MemoryFlagType )
  *   06/21/1994 SKB : Created.                                             *
  *   03/09/1995 JLB : Uses prerecorded heap size maximum.                  *
  *=========================================================================*/
-long Total_Ram_Free(MemoryFlagType )
+int Total_Ram_Free(MemoryFlagType )
 {
 #if(0)
 	MEMORYSTATUS	mem_info;

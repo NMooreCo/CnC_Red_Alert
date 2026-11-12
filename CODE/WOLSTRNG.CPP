@@ -18,9 +18,10 @@
 
 //	New character strings for wolapi integration.
 
-#ifdef WOLAPI_INTEGRATION
-#include "function.h"
-#include "WolStrng.h"
+// Modern port: some of these strings are used by the network/skirmish dialogs too.
+#if defined(WOLAPI_INTEGRATION) || defined(RA_PORT)
+#include "FUNCTION.H"
+#include "WOLSTRNG.H"
 
 //#undef ENGLISH
 //#define GERMAN

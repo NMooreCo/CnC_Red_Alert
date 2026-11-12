@@ -127,7 +127,10 @@
 
 //	Denotes changes made for version 3 - reunification of all existing versions and undoing of Aftermath divergence. - ajw
 #define FIXIT_VERSION_3
-#define DVD
+
+// Modern port: the DVD build played MPEG movies through DirectX Media. The port plays the
+// original VQA movies instead, so the DVD specific code is disabled.
+//#define DVD
 
 // Define DVD to turn on RADVD additions/changes - Denzil
 #ifdef DVD
@@ -451,7 +454,7 @@ typedef enum DiffType {
 **	as the largest speech sample, plus a few bytes for overhead
 **	(16 bytes is sufficient).
 */
-#define SPEECH_BUFFER_SIZE		50000L
+#define SPEECH_BUFFER_SIZE		50000
 
 
 /**********************************************************************
@@ -459,7 +462,7 @@ typedef enum DiffType {
 **	that the size specified is at least as large as the largest
 **	theater mixfile data block.
 */
-#define THEATER_BUFFER_SIZE	1100000L
+#define THEATER_BUFFER_SIZE	1100000
 
 
 /**********************************************************************
@@ -469,7 +472,7 @@ typedef enum DiffType {
 **	changed, be sure to update the makefile and rebuild all of the shape
 **	data files.
 */
-#define SHAPE_BUFFER_SIZE		65000L
+#define SHAPE_BUFFER_SIZE		65000
 
 
 /**********************************************************************
@@ -485,7 +488,7 @@ typedef enum DiffType {
 **	All larger elements are build upon these.
 */
 
-#define	HIGH_COORD_MASK			0x80008000L
+#define	HIGH_COORD_MASK			0x80008000
 
 // Size of the map in cells.
 #define	MAP_CELL_W				128
@@ -507,7 +510,7 @@ typedef unsigned short	LEPTON;
 typedef union {
 	LEPTON Raw;
 	struct {
-#ifdef BIG_ENDIAN
+#ifdef RA_BIG_ENDIAN
 		unsigned char Cell;
 		unsigned char Lepton;
 #else
@@ -517,11 +520,11 @@ typedef union {
 	} Sub;
 } LEPTON_COMPOSITE;
 
-typedef unsigned long	COORDINATE;
+typedef unsigned int	COORDINATE;
 typedef union {
 	COORDINATE Coord;
 	struct {
-#ifdef BIG_ENDIAN
+#ifdef RA_BIG_ENDIAN
 		LEPTON_COMPOSITE Y;
 		LEPTON_COMPOSITE X;
 #else
@@ -532,17 +535,17 @@ typedef union {
 }	COORD_COMPOSITE;
 
 typedef signed short		CELL;
-#define	SLUFF_BITS	(sizeof(CELL)*CHAR_BIT)-(14)
+#define	SLUFF_BITS	2		// (sizeof(CELL)*CHAR_BIT)-(14)
 typedef union {
 	CELL Cell;
 	struct {
-#ifdef BIG_ENDIAN
+#ifdef RA_BIG_ENDIAN
 #if SLUFF_BITS
 		/*
 		**	Unused upper bits will cause problems on a big-endian machine unless they
 		**	are deliberately accounted for.
 		*/
-		unsigned sluff:SLUF_BITS;
+		unsigned sluff:SLUFF_BITS;
 #endif
 		unsigned Y:7;
 		unsigned X:7;
@@ -561,14 +564,14 @@ typedef int		WAYPOINT;
 **	and an index value of 0, the target value returned is identical with
 **	TARGET_NONE. This is by design and is necessary.
 */
-typedef long	TARGET;
+typedef int	TARGET;
 
 #define	TARGET_MANTISSA			24				// Bits of value precision.
 #define	TARGET_EXPONENT			8
 typedef union {
 	TARGET Target;
 	struct {
-#ifdef BIG_ENDIAN
+#ifdef RA_BIG_ENDIAN
 		unsigned Exponent:TARGET_EXPONENT;
 		unsigned Mantissa:TARGET_MANTISSA;
 #else
@@ -888,8 +891,7 @@ typedef enum ThemeType {
 	THEME_LAST=(int)THEME_COUNT-1,
 	THEME_FIRST=0
 } ThemeType;
-
-inline ThemeType operator++(ThemeType &, int);
+//inline ThemeType operator++(ThemeType &, int);	// (pre-standard guiding declaration; the JSHELL.H template is used)
 
 
 /**********************************************************************
@@ -913,9 +915,9 @@ typedef enum ThreatType {
 	THREAT_FACTORIES=0x1000,	// Consider factories a greater target?
 	THREAT_BASE_DEFENSE=0x2000	// Consider base defense buildings a greater target?
 } ThreatType;
-inline ThreatType operator |(ThreatType, ThreatType);
-inline ThreatType operator &(ThreatType, ThreatType);
-inline ThreatType operator ~(ThreatType);
+//inline ThreatType operator |(ThreatType, ThreatType);	// (pre-standard guiding declaration; the JSHELL.H template is used)
+//inline ThreatType operator &(ThreatType, ThreatType);	// (pre-standard guiding declaration; the JSHELL.H template is used)
+//inline ThreatType operator ~(ThreatType);	// (pre-standard guiding declaration; the JSHELL.H template is used)
 
 #define THREAT_GROUND	(THREAT_VEHICLES|THREAT_BUILDINGS|THREAT_INFANTRY)
 
@@ -1158,34 +1160,33 @@ typedef enum HousesType {
 	HOUSE_COUNT,
 	HOUSE_FIRST=0
 } HousesType;
-
-inline HousesType operator++(HousesType &, int);
+//inline HousesType operator++(HousesType &, int);	// (pre-standard guiding declaration; the JSHELL.H template is used)
 
 #define	HOUSEF_ALLIES	(HOUSEF_ENGLAND|HOUSEF_SPAIN|HOUSEF_GREECE|HOUSEF_GERMANY|HOUSEF_FRANCE|HOUSEF_TURKEY|HOUSEF_GOOD)
 #define	HOUSEF_SOVIET	(HOUSEF_USSR|HOUSEF_UKRAINE|HOUSEF_BAD)
 #define	HOUSEF_OTHERS	(HOUSEF_NEUTRAL|HOUSEF_JP|HOUSEF_MULTI1|HOUSEF_MULTI2|HOUSEF_MULTI3|HOUSEF_MULTI4|HOUSEF_MULTI5|HOUSEF_MULTI6|HOUSEF_MULTI7|HOUSEF_MULTI8)
 #define	HOUSEF_NONE		0
 
-#define	HOUSEF_ENGLAND	(1L<<HOUSE_ENGLAND)
-#define	HOUSEF_SPAIN	(1L<<HOUSE_SPAIN)
-#define	HOUSEF_GREECE	(1L<<HOUSE_GREECE)
-#define	HOUSEF_USSR		(1L<<HOUSE_USSR)
-#define	HOUSEF_UKRAINE	(1L<<HOUSE_UKRAINE)
-#define	HOUSEF_GERMANY	(1L<<HOUSE_GERMANY)
-#define	HOUSEF_FRANCE	(1L<<HOUSE_FRANCE)
-#define	HOUSEF_TURKEY	(1L<<HOUSE_TURKEY)
-#define	HOUSEF_GOOD		(1L<<HOUSE_GOOD)
-#define	HOUSEF_BAD		(1L<<HOUSE_BAD)
-#define	HOUSEF_NEUTRAL	(1L<<HOUSE_NEUTRAL)
-#define	HOUSEF_JP		(1L<<HOUSE_JP)
-#define	HOUSEF_MULTI1	(1L<<HOUSE_MULTI1)
-#define	HOUSEF_MULTI2	(1L<<HOUSE_MULTI2)
-#define	HOUSEF_MULTI3	(1L<<HOUSE_MULTI3)
-#define	HOUSEF_MULTI4	(1L<<HOUSE_MULTI4)
-#define	HOUSEF_MULTI5	(1L<<HOUSE_MULTI5)
-#define	HOUSEF_MULTI6	(1L<<HOUSE_MULTI6)
-#define	HOUSEF_MULTI7	(1L<<HOUSE_MULTI7)
-#define	HOUSEF_MULTI8	(1L<<HOUSE_MULTI8)
+#define	HOUSEF_ENGLAND	(1<<HOUSE_ENGLAND)
+#define	HOUSEF_SPAIN	(1<<HOUSE_SPAIN)
+#define	HOUSEF_GREECE	(1<<HOUSE_GREECE)
+#define	HOUSEF_USSR		(1<<HOUSE_USSR)
+#define	HOUSEF_UKRAINE	(1<<HOUSE_UKRAINE)
+#define	HOUSEF_GERMANY	(1<<HOUSE_GERMANY)
+#define	HOUSEF_FRANCE	(1<<HOUSE_FRANCE)
+#define	HOUSEF_TURKEY	(1<<HOUSE_TURKEY)
+#define	HOUSEF_GOOD		(1<<HOUSE_GOOD)
+#define	HOUSEF_BAD		(1<<HOUSE_BAD)
+#define	HOUSEF_NEUTRAL	(1<<HOUSE_NEUTRAL)
+#define	HOUSEF_JP		(1<<HOUSE_JP)
+#define	HOUSEF_MULTI1	(1<<HOUSE_MULTI1)
+#define	HOUSEF_MULTI2	(1<<HOUSE_MULTI2)
+#define	HOUSEF_MULTI3	(1<<HOUSE_MULTI3)
+#define	HOUSEF_MULTI4	(1<<HOUSE_MULTI4)
+#define	HOUSEF_MULTI5	(1<<HOUSE_MULTI5)
+#define	HOUSEF_MULTI6	(1<<HOUSE_MULTI6)
+#define	HOUSEF_MULTI7	(1<<HOUSE_MULTI7)
+#define	HOUSEF_MULTI8	(1<<HOUSE_MULTI8)
 
 typedef enum PlayerColorType {
 	PCOLOR_NONE = -1,
@@ -1235,8 +1236,7 @@ typedef enum ScenarioPlayerEnum
 	SCEN_PLAYER_COUNT,
 	SCEN_PLAYER_FIRST = 0
 } ScenarioPlayerType;
-
-inline ScenarioPlayerType operator++(ScenarioPlayerType &, int);
+//inline ScenarioPlayerType operator++(ScenarioPlayerType &, int);	// (pre-standard guiding declaration; the JSHELL.H template is used)
 
 
 /**********************************************************************
@@ -1250,8 +1250,7 @@ typedef enum ScenarioDirEnum
 	SCEN_DIR_COUNT,
 	SCEN_DIR_FIRST = 0
 } ScenarioDirType;
-
-inline ScenarioDirType operator++(ScenarioDirType &, int);
+//inline ScenarioDirType operator++(ScenarioDirType &, int);	// (pre-standard guiding declaration; the JSHELL.H template is used)
 
 
 /**********************************************************************
@@ -1268,8 +1267,7 @@ typedef enum ScenarioVarEnum
 	SCEN_VAR_LOSE,
 	SCEN_VAR_FIRST = 0
 } ScenarioVarType;
-
-inline ScenarioVarType operator++(ScenarioVarType &, int);
+//inline ScenarioVarType operator++(ScenarioVarType &, int);	// (pre-standard guiding declaration; the JSHELL.H template is used)
 
 
 /**********************************************************************
@@ -1287,8 +1285,7 @@ typedef enum LayerType {
 	LAYER_COUNT,
 	LAYER_FIRST=0
 } LayerType;
-
-inline LayerType operator++(LayerType &, int);
+//inline LayerType operator++(LayerType &, int);	// (pre-standard guiding declaration; the JSHELL.H template is used)
 
 
 /**********************************************************************
@@ -1320,8 +1317,7 @@ typedef enum BulletType {
 	BULLET_COUNT,
 	BULLET_FIRST=0
 } BulletType;
-
-inline BulletType operator++(BulletType &, int);
+//inline BulletType operator++(BulletType &, int);	// (pre-standard guiding declaration; the JSHELL.H template is used)
 
 
 /**********************************************************************
@@ -1436,42 +1432,41 @@ typedef enum StructType {
 	STRUCT_COUNT,
 	STRUCT_FIRST=0
 } StructType;
+//inline StructType operator++(StructType &, int);	// (pre-standard guiding declaration; the JSHELL.H template is used)
 
-inline StructType operator++(StructType &, int);
-
-#define	STRUCTF_NONE				0L
-#define	STRUCTF_ADVANCED_TECH	(1L << STRUCT_ADVANCED_TECH)
-#define	STRUCTF_IRON_CURTAIN		(1L << STRUCT_IRON_CURTAIN)
-#define	STRUCTF_WEAP				(1L << STRUCT_WEAP)
-#define	STRUCTF_CHRONOSPHERE		(1L << STRUCT_CHRONOSPHERE)
-#define	STRUCTF_PILLBOX			(1L << STRUCT_PILLBOX)
-#define	STRUCTF_CAMOPILLBOX		(1L << STRUCT_CAMOPILLBOX)
-#define	STRUCTF_RADAR				(1L << STRUCT_RADAR)
-#define	STRUCTF_GAP					(1L << STRUCT_GAP)
-#define	STRUCTF_TURRET				(1L << STRUCT_TURRET)
-#define	STRUCTF_AAGUN				(1L << STRUCT_AAGUN)
-#define	STRUCTF_FLAME_TURRET		(1L << STRUCT_FLAME_TURRET)
-#define	STRUCTF_CONST				(1L << STRUCT_CONST)
-#define	STRUCTF_REFINERY			(1L << STRUCT_REFINERY)
-#define	STRUCTF_STORAGE			(1L << STRUCT_STORAGE)
-#define	STRUCTF_HELIPAD			(1L << STRUCT_HELIPAD)
-#define	STRUCTF_SAM					(1L << STRUCT_SAM)
-#define	STRUCTF_AIRSTRIP			(1L << STRUCT_AIRSTRIP)
-#define	STRUCTF_POWER				(1L << STRUCT_POWER)
-#define	STRUCTF_ADVANCED_POWER	(1L << STRUCT_ADVANCED_POWER)
-#define	STRUCTF_SOVIET_TECH		(1L << STRUCT_SOVIET_TECH)
-#define	STRUCTF_HOSPITAL			(1L << STRUCT_HOSPITAL)
-#define	STRUCTF_BARRACKS			(1L << STRUCT_BARRACKS)
-#define	STRUCTF_TENT				(1L << STRUCT_TENT)
-#define	STRUCTF_KENNEL				(1L << STRUCT_KENNEL)
-#define	STRUCTF_REPAIR				(1L << STRUCT_REPAIR)
-#define	STRUCTF_BIO_LAB			(1L << STRUCT_BIO_LAB)
-#define	STRUCTF_MISSION			(1L << STRUCT_MISSION)
-#define	STRUCTF_SHIP_YARD			(1L << STRUCT_SHIP_YARD)
-#define	STRUCTF_SUB_PEN			(1L << STRUCT_SUB_PEN)
-#define	STRUCTF_MSLO				(1L << STRUCT_MSLO)
-#define	STRUCTF_FAKECONST			(1L << STRUCT_FAKECONST)
-#define	STRUCTF_FAKEWEAP			(1L << STRUCT_FAKEWEAP)
+#define	STRUCTF_NONE				0
+#define	STRUCTF_ADVANCED_TECH	(1 << STRUCT_ADVANCED_TECH)
+#define	STRUCTF_IRON_CURTAIN		(1 << STRUCT_IRON_CURTAIN)
+#define	STRUCTF_WEAP				(1 << STRUCT_WEAP)
+#define	STRUCTF_CHRONOSPHERE		(1 << STRUCT_CHRONOSPHERE)
+#define	STRUCTF_PILLBOX			(1 << STRUCT_PILLBOX)
+#define	STRUCTF_CAMOPILLBOX		(1 << STRUCT_CAMOPILLBOX)
+#define	STRUCTF_RADAR				(1 << STRUCT_RADAR)
+#define	STRUCTF_GAP					(1 << STRUCT_GAP)
+#define	STRUCTF_TURRET				(1 << STRUCT_TURRET)
+#define	STRUCTF_AAGUN				(1 << STRUCT_AAGUN)
+#define	STRUCTF_FLAME_TURRET		(1 << STRUCT_FLAME_TURRET)
+#define	STRUCTF_CONST				(1 << STRUCT_CONST)
+#define	STRUCTF_REFINERY			(1 << STRUCT_REFINERY)
+#define	STRUCTF_STORAGE			(1 << STRUCT_STORAGE)
+#define	STRUCTF_HELIPAD			(1 << STRUCT_HELIPAD)
+#define	STRUCTF_SAM					(1 << STRUCT_SAM)
+#define	STRUCTF_AIRSTRIP			(1 << STRUCT_AIRSTRIP)
+#define	STRUCTF_POWER				(1 << STRUCT_POWER)
+#define	STRUCTF_ADVANCED_POWER	(1 << STRUCT_ADVANCED_POWER)
+#define	STRUCTF_SOVIET_TECH		(1 << STRUCT_SOVIET_TECH)
+#define	STRUCTF_HOSPITAL			(1 << STRUCT_HOSPITAL)
+#define	STRUCTF_BARRACKS			(1 << STRUCT_BARRACKS)
+#define	STRUCTF_TENT				(1 << STRUCT_TENT)
+#define	STRUCTF_KENNEL				(1 << STRUCT_KENNEL)
+#define	STRUCTF_REPAIR				(1 << STRUCT_REPAIR)
+#define	STRUCTF_BIO_LAB			(1 << STRUCT_BIO_LAB)
+#define	STRUCTF_MISSION			(1 << STRUCT_MISSION)
+#define	STRUCTF_SHIP_YARD			(1 << STRUCT_SHIP_YARD)
+#define	STRUCTF_SUB_PEN			(1 << STRUCT_SUB_PEN)
+#define	STRUCTF_MSLO				(1 << STRUCT_MSLO)
+#define	STRUCTF_FAKECONST			(1 << STRUCT_FAKECONST)
+#define	STRUCTF_FAKEWEAP			(1 << STRUCT_FAKEWEAP)
 
 
 /**********************************************************************
@@ -1510,8 +1505,7 @@ typedef enum OverlayType {
 	OVERLAY_COUNT,
 	OVERLAY_FIRST=0
 } OverlayType;
-
-inline OverlayType operator++(OverlayType &, int);
+//inline OverlayType operator++(OverlayType &, int);	// (pre-standard guiding declaration; the JSHELL.H template is used)
 
 
 /**********************************************************************
@@ -1560,9 +1554,8 @@ typedef enum InfantryType{
 #endif
 } InfantryType;
 
-#define INFANTRYF_DOG	(1L << INFANTRY_DOG)
-
-inline InfantryType operator++(InfantryType &, int);
+#define INFANTRYF_DOG	(1 << INFANTRY_DOG)
+//inline InfantryType operator++(InfantryType &, int);	// (pre-standard guiding declaration; the JSHELL.H template is used)
 
 
 /**********************************************************************
@@ -1610,20 +1603,19 @@ typedef enum UnitType{
 	UNIT_RA_COUNT = UNIT_CHRONOTANK
 #endif
 } UnitType;
+//inline UnitType operator++(UnitType &, int);	// (pre-standard guiding declaration; the JSHELL.H template is used)
 
-inline UnitType operator++(UnitType &, int);
-
-#define	UNITF_HTANK			(1L<<UNIT_HTANK)
-#define	UNITF_MTANK			(1L<<UNIT_MTANK)
-#define	UNITF_MTANK2		(1L<<UNIT_MTANK2)
-#define	UNITF_LTANK			(1L<<UNIT_LTANK)
-#define	UNITF_STANK			(1L<<UNIT_STANK)
-#define	UNITF_APC			(1L<<UNIT_APC)
-#define	UNITF_MLRS			(1L<<UNIT_MLRS)
-#define	UNITF_JEEP			(1L<<UNIT_JEEP)
-#define	UNITF_HARVESTER	(1L<<UNIT_HARVESTER)
-#define	UNITF_ARTY			(1L<<UNIT_ARTY)
-#define	UNITF_MCV			(1L<<UNIT_MCV)
+#define	UNITF_HTANK			(1<<UNIT_HTANK)
+#define	UNITF_MTANK			(1<<UNIT_MTANK)
+#define	UNITF_MTANK2		(1<<UNIT_MTANK2)
+#define	UNITF_LTANK			(1<<UNIT_LTANK)
+#define	UNITF_STANK			(1<<UNIT_STANK)
+#define	UNITF_APC			(1<<UNIT_APC)
+#define	UNITF_MLRS			(1<<UNIT_MLRS)
+#define	UNITF_JEEP			(1<<UNIT_JEEP)
+#define	UNITF_HARVESTER	(1<<UNIT_HARVESTER)
+#define	UNITF_ARTY			(1<<UNIT_ARTY)
+#define	UNITF_MCV			(1<<UNIT_MCV)
 
 
 /**********************************************************************
@@ -1652,14 +1644,13 @@ typedef enum VesselType{
 	VESSEL_RA_COUNT = VESSEL_MISSILESUB
 #endif
 } VesselType;
+//inline VesselType operator++(VesselType &, int);	// (pre-standard guiding declaration; the JSHELL.H template is used)
 
-inline VesselType operator++(VesselType &, int);
-
-#define	VESSELF_SS			(1L<<VESSEL_SS)
-#define	VESSELF_DD			(1L<<VESSEL_DD)
-#define	VESSELF_CA			(1L<<VESSEL_CA)
-#define	VESSELF_TRANSPORT	(1L<<VESSEL_TRANSPORT)
-#define	VESSELF_PT			(1L<<VESSEL_PT)
+#define	VESSELF_SS			(1<<VESSEL_SS)
+#define	VESSELF_DD			(1<<VESSEL_DD)
+#define	VESSELF_CA			(1<<VESSEL_CA)
+#define	VESSELF_TRANSPORT	(1<<VESSEL_TRANSPORT)
+#define	VESSELF_PT			(1<<VESSEL_PT)
 
 
 /**********************************************************************
@@ -1680,15 +1671,14 @@ typedef enum AircraftType {
 	AIRCRAFT_FIRST=0
 } AircraftType;
 
-#define	AIRCRAFTF_TRANSPORT	(1L << AIRCRAFT_TRANSPORT)
-#define	AIRCRAFTF_BADGER		(1L << AIRCRAFT_BADGER)
-#define	AIRCRAFTF_U2			(1L << AIRCRAFT_U2)
-#define	AIRCRAFTF_MIG			(1L << AIRCRAFT_MIG)
-#define	AIRCRAFTF_YAK			(1L << AIRCRAFT_YAK)
-#define	AIRCRAFTF_LONGBOW		(1L << AIRCRAFT_LONGBOW)
-#define	AIRCRAFTF_HIND			(1L << AIRCRAFT_HIND)
-
-inline AircraftType operator++(AircraftType &, int);
+#define	AIRCRAFTF_TRANSPORT	(1 << AIRCRAFT_TRANSPORT)
+#define	AIRCRAFTF_BADGER		(1 << AIRCRAFT_BADGER)
+#define	AIRCRAFTF_U2			(1 << AIRCRAFT_U2)
+#define	AIRCRAFTF_MIG			(1 << AIRCRAFT_MIG)
+#define	AIRCRAFTF_YAK			(1 << AIRCRAFT_YAK)
+#define	AIRCRAFTF_LONGBOW		(1 << AIRCRAFT_LONGBOW)
+#define	AIRCRAFTF_HIND			(1 << AIRCRAFT_HIND)
+//inline AircraftType operator++(AircraftType &, int);	// (pre-standard guiding declaration; the JSHELL.H template is used)
 
 
 /**********************************************************************
@@ -2111,8 +2101,7 @@ typedef enum TemplateType {
 	TEMPLATE_NONE=65535,
 	TEMPLATE_FIRST=0
 } TemplateType;
-
-inline TemplateType operator++(TemplateType &, int);
+//inline TemplateType operator++(TemplateType &, int);	// (pre-standard guiding declaration; the JSHELL.H template is used)
 
 
 /**********************************************************************
@@ -2164,8 +2153,7 @@ typedef enum TerrainType {
 	TERRAIN_COUNT,
 	TERRAIN_FIRST=0
 } TerrainType;
-
-inline TerrainType operator++(TerrainType &, int);
+//inline TerrainType operator++(TerrainType &, int);	// (pre-standard guiding declaration; the JSHELL.H template is used)
 
 
 /**********************************************************************
@@ -2194,8 +2182,7 @@ typedef enum SmudgeType {
 	SMUDGE_COUNT,
 	SMUDGE_FIRST=0
 } SmudgeType;
-
-inline SmudgeType operator++(SmudgeType &, int);
+//inline SmudgeType operator++(SmudgeType &, int);	// (pre-standard guiding declaration; the JSHELL.H template is used)
 
 
 /**********************************************************************
@@ -2292,9 +2279,7 @@ typedef enum AnimType {
 	ANIM_COUNT,
 	ANIM_FIRST=0
 } AnimType;
-
-
-inline AnimType operator++(AnimType &, int);
+//inline AnimType operator++(AnimType &, int);	// (pre-standard guiding declaration; the JSHELL.H template is used)
 
 
 /****************************************************************************
@@ -2328,8 +2313,7 @@ typedef enum DoType {
 	DO_COUNT,
 	DO_FIRST=0
 } DoType;
-
-inline DoType operator++(DoType &, int);
+//inline DoType operator++(DoType &, int);	// (pre-standard guiding declaration; the JSHELL.H template is used)
 
 /*
 **	This structure is associated with each maneuver type. It tells whether the
@@ -2813,10 +2797,9 @@ typedef enum TextPrintType {
 	TPF_BRIGHT_COLOR	=0x2000,		// Use bright color for all text gradient
 	TPF_USE_GRAD_PAL	=0x4000		// Use a gradient palette based on fore color
 } TextPrintType;
-
-inline TextPrintType operator |(TextPrintType, TextPrintType);
-inline TextPrintType operator &(TextPrintType, TextPrintType);
-inline TextPrintType operator ~(TextPrintType);
+//inline TextPrintType operator |(TextPrintType, TextPrintType);	// (pre-standard guiding declaration; the JSHELL.H template is used)
+//inline TextPrintType operator &(TextPrintType, TextPrintType);	// (pre-standard guiding declaration; the JSHELL.H template is used)
+//inline TextPrintType operator ~(TextPrintType);	// (pre-standard guiding declaration; the JSHELL.H template is used)
 
 // Standard button text print flags.
 #define TPF_BUTTON	(TPF_CENTER|TPF_6PT_GRAD|TPF_NOSHADOW)
@@ -2881,8 +2864,7 @@ typedef enum TheaterType {
 	THEATER_COUNT,
 	THEATER_FIRST=0
 } TheaterType;
-
-inline TheaterType operator++(TheaterType &, int);
+//inline TheaterType operator++(TheaterType &, int);	// (pre-standard guiding declaration; the JSHELL.H template is used)
 
 #define	THEATERF_TEMPERATE		(1<<THEATER_TEMPERATE)
 #define	THEATERF_SNOW				(1<<THEATER_SNOW)
@@ -2914,8 +2896,7 @@ typedef enum BSizeType {
 
 	BSIZE_COUNT
 } BSizeType;
-
-inline BSizeType operator++(BSizeType &, int);
+//inline BSizeType operator++(BSizeType &, int);	// (pre-standard guiding declaration; the JSHELL.H template is used)
 
 
 /**********************************************************************
@@ -2969,8 +2950,7 @@ typedef enum FacingType {
 	FACING_COUNT,			// Total of 8 directions (0..7).
 	FACING_FIRST=0
 } FacingType;
-
-inline FacingType operator++(FacingType &, int);
+//inline FacingType operator++(FacingType &, int);	// (pre-standard guiding declaration; the JSHELL.H template is used)
 inline FacingType operator + (FacingType f1, FacingType f2)
 {
 	return (FacingType)(((int)f1 + (int)f2) & 0x07);
@@ -3454,7 +3434,7 @@ typedef struct {
 	int				Cost;					// Accumulated terrain cost.
 	int				Length;				// Command string length.
 	FacingType		*Command;			// Pointer to command string.
-	unsigned long	*Overlap;			// Pointer to overlap list
+	unsigned int	*Overlap;			// Pointer to overlap list
 	CELL				LastOverlap;		// stores position of last overlap
 	CELL				LastFixup;			// stores position of last overlap
 } PathType;

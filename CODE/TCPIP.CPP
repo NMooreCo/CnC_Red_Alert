@@ -58,8 +58,8 @@
 
 #ifdef WIN32
 
-#include "function.h"
-#include "tcpip.h"
+#include "FUNCTION.H"
+#include "TCPIP.H"
 
 
 /*
@@ -895,7 +895,7 @@ void TcpipManagerClass::Set_Protocol_UDP(BOOL state)
 
 void TcpipManagerClass::Clear_Socket_Error(SOCKET socket)
 {
-	unsigned long error_code;
+	unsigned int error_code;
 	int length = 4;
 
 	getsockopt (socket, SOL_SOCKET, SO_ERROR, (char*)&error_code, &length);

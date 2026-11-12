@@ -36,10 +36,10 @@
 ;* GraphicBufferClass* Read_PCX_File (char* name, BYTE* palette, BufferClass& Buff); 
 ;* int Write_PCX_File (char* name, GraphicViewPortClass& pic, BYTE* palette );*
 ;*= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =*/
-#include <gbuffer.h>
+#include <GBUFFER.H>
 #include <string.h>
-#include <buffer.h>
-#include	<file.h>
+#include <BUFFER.H>
+#include	<FILE.H>
 
 #ifndef PCX_H
 #define PCX_H
@@ -70,7 +70,7 @@ typedef	struct	{
 						  char	   filler [ 58 ] ;
 						} PCX_HEADER ;
 
-GraphicBufferClass* Read_PCX_File (char* name, char* palette= NULL,void *buff=NULL, long size=0);
+GraphicBufferClass* Read_PCX_File (char* name, char* palette= NULL,void *buff=NULL, int size=0);
 GraphicBufferClass* Read_PCX_File (char* name, BufferClass& Buff,char* palette= NULL) ;
 int Write_PCX_File (char* name, GraphicViewPortClass& pic, unsigned char* palette );
 

@@ -121,8 +121,8 @@ typedef struct _TGAHandle {
 
 TGAHandle *OpenTarga(char *, unsigned short);
 void CloseTarga(TGAHandle *);
-long LoadTarga(char *, char *, char *);
-long SaveTarga(char *, TGAHeader *, char *, char *);
+int LoadTarga(char *, char *, char *);
+int SaveTarga(char *, TGAHeader *, char *, char *);
 void XFlipTarga(TGAHeader *, char *);
 void YFlipTarga(TGAHeader *, char *);
 

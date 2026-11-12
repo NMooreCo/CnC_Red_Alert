@@ -54,9 +54,9 @@
  *   WWKeyboardClass::Put_Mouse_Message -- Stores a mouse type message into the keyboard buffer*
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include "key.h"
+#include "KEY.H"
 
-#include	"monoc.h"
+#include	"MONOC.H"
 
 //void Message_Loop(void);
 
@@ -362,7 +362,7 @@ char WWKeyboardClass::To_ASCII(unsigned short key)
  * HISTORY:                                                                                    *
  *   09/30/1996 JLB : Created.                                                                 *
  *=============================================================================================*/
-WWKeyboardClass::Down(unsigned short key)
+bool WWKeyboardClass::Down(unsigned short key)
 {
 	return(GetAsyncKeyState(key & 0xFF));
 }

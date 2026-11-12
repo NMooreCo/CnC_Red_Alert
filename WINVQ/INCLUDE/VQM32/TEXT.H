@@ -44,9 +44,9 @@
 extern "C" {
 #endif
 
-long __cdecl Text_Print(char *string, long x, long y, long fcol, long bcol);
-void __cdecl Draw_Char(long character, long x, long y);
-void __cdecl Set_Font_Palette_Range(void *palette, long start, long end);
+int __cdecl Text_Print(char *string, int x, int y, int fcol, int bcol);
+void __cdecl Draw_Char(int character, int x, int y);
+void __cdecl Set_Font_Palette_Range(void *palette, int start, int end);
 
 #ifdef __cplusplus
 }

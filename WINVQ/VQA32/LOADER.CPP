@@ -73,10 +73,10 @@
 #include <malloc.h>
 #include <mem.h>
 #include <dos.h>
-#include "vq.h"
-#include "vqaplayp.h"
-#include <vqm32\all.h>
-#include "caption.h"
+#include "VQ.H"
+#include "VQAPLAYP.H"
+#include <VQM32/ALL.H>
+#include "CAPTION.H"
 
 /*---------------------------------------------------------------------------
  * PRIVATE DECLARATIONS
@@ -84,23 +84,23 @@
 
 static VQAData *AllocBuffers(VQAHeader *header, VQAConfig *config);
 static void FreeBuffers(VQAData *vqa, VQAConfig *config, VQAHeader *header);
-static long PrimeBuffers(VQAHandle *vqa);
-static long Load_VQF(VQAHandleP *vqap, unsigned long iffsize);
-static long Load_FINF(VQAHandleP *vqap, unsigned long iffsize);
-static long Load_VQHD(VQAHandleP *vqap, unsigned long iffsize);
-static long Load_CBF0(VQAHandleP *vqap, unsigned long iffsize);
-static long Load_CBFZ(VQAHandleP *vqap, unsigned long iffsize);
-static long Load_CBP0(VQAHandleP *vqap, unsigned long iffsize);
-static long Load_CBPZ(VQAHandleP *vqap, unsigned long iffsize);
-static long Load_CPL0(VQAHandleP *vqap, unsigned long iffsize);
-static long Load_CPLZ(VQAHandleP *vqap, unsigned long iffsize);
-static long Load_VPT0(VQAHandleP *vqap, unsigned long iffsize);
-static long Load_VPTZ(VQAHandleP *vqap, unsigned long iffsize);
+static int PrimeBuffers(VQAHandle *vqa);
+static int Load_VQF(VQAHandleP *vqap, unsigned int iffsize);
+static int Load_FINF(VQAHandleP *vqap, unsigned int iffsize);
+static int Load_VQHD(VQAHandleP *vqap, unsigned int iffsize);
+static int Load_CBF0(VQAHandleP *vqap, unsigned int iffsize);
+static int Load_CBFZ(VQAHandleP *vqap, unsigned int iffsize);
+static int Load_CBP0(VQAHandleP *vqap, unsigned int iffsize);
+static int Load_CBPZ(VQAHandleP *vqap, unsigned int iffsize);
+static int Load_CPL0(VQAHandleP *vqap, unsigned int iffsize);
+static int Load_CPLZ(VQAHandleP *vqap, unsigned int iffsize);
+static int Load_VPT0(VQAHandleP *vqap, unsigned int iffsize);
+static int Load_VPTZ(VQAHandleP *vqap, unsigned int iffsize);
 
 #if(VQAAUDIO_ON)
-static long Load_SND0(VQAHandleP *vqap, unsigned long iffsize);
-static long Load_SND1(VQAHandleP *vqap, unsigned long iffsize);
-static long Load_SND2(VQAHandleP *vqap, unsigned long iffsize);
+static int Load_SND0(VQAHandleP *vqap, unsigned int iffsize);
+static int Load_SND1(VQAHandleP *vqap, unsigned int iffsize);
+static int Load_SND2(VQAHandleP *vqap, unsigned int iffsize);
 
 #if(VQAVOC_ON)
 static void Load_AudFrame(VQAHandleP *vqap);
@@ -148,15 +148,15 @@ extern "C"{
 #define OPEN_CAPTIONS (1<<2)
 #define OPEN_EVA      (1<<3)
 extern int VQAMovieDone;
-long VQA_Open(VQAHandle *vqa, char const *filename, VQAConfig *config)
+int VQA_Open(VQAHandle *vqa, char const *filename, VQAConfig *config)
 {
 	VQAHandleP  *vqap;
 	VQAHeader   *header;
 	ChunkHeader chunk;
-	long        max_frm_size;
-	long        i;
-	long        done;
-	long        found;
+	int        max_frm_size;
+	int        i;
+	int        done;
+	int        found;
 	char        *ptr;
 
 	/* Dereference commonly used data members for quicker access. */
@@ -503,7 +503,7 @@ long VQA_Open(VQAHandle *vqa, char const *filename, VQAConfig *config)
 
 		if (header->Version == VQAHD_VER1) {
 			audio->ADPCM_Info.wBitSize = 8;
-			audio->ADPCM_Info.dwUnCompSize = (22050L/header->FPS) * header->Frames;
+			audio->ADPCM_Info.dwUnCompSize = (22050/header->FPS) * header->Frames;
 			audio->ADPCM_Info.wChannels = 1;
 		} else {
 			audio->ADPCM_Info.wBitSize = audio->BitsPerSample;
@@ -573,7 +573,7 @@ long VQA_Open(VQAHandle *vqa, char const *filename, VQAConfig *config)
 
 void VQA_Close(VQAHandle *vqa)
 {
-	long (*iohandler)(VQAHandle *, long, void *, long);
+	int (*iohandler)(VQAHandle *, int, void *, int);
 
 	/* Restore video mode to text. */
 	#if(VQAVIDEO_ON)
@@ -673,7 +673,7 @@ void VQA_Close(VQAHandle *vqa)
 *
 ****************************************************************************/
 
-long VQA_LoadFrame(VQAHandle *vqa)
+int VQA_LoadFrame(VQAHandle *vqa)
 {
 	VQAHandleP    *vqap;
 	VQAData       *vqabuf;
@@ -681,8 +681,8 @@ long VQA_LoadFrame(VQAHandle *vqa)
 	VQADrawer     *drawer;
 	VQAFrameNode  *curframe;
 	ChunkHeader   *chunk;
-	unsigned long iffsize;
-	long          frame_loaded = 0;
+	unsigned int iffsize;
+	int          frame_loaded = 0;
 
 	/* Dereference commonly used data members for quicker access. */
 	vqap = (VQAHandleP *)vqa;
@@ -1078,7 +1078,7 @@ long VQA_LoadFrame(VQAHandle *vqa)
 *
 ****************************************************************************/
 
-long VQA_SeekFrame(VQAHandle *vqa, long framenum, long fromwhere)
+int VQA_SeekFrame(VQAHandle *vqa, int framenum, int fromwhere)
 {
 	VQAHandleP   *vqap;
 	VQAData      *vqabuf;
@@ -1086,13 +1086,13 @@ long VQA_SeekFrame(VQAHandle *vqa, long framenum, long fromwhere)
 	VQAHeader    *header;
 	VQAFrameNode *frame;
 	VQAConfig    *config;
-	long         group;
-	long         i;
-	long         rc = VQAERR_NONE;
+	int         group;
+	int         i;
+	int         rc = VQAERR_NONE;
 
 	#if(VQAAUDIO_ON)
 	VQAAudio     *audio;
-	long         audio_on;
+	int         audio_on;
  	#endif
 
 	/* Dereference commonly used data members for quick access. */
@@ -1187,7 +1187,7 @@ long VQA_SeekFrame(VQAHandle *vqa, long framenum, long fromwhere)
 					memset(audio->Buffer, 0, config->AudioBufSize);
 
 					/* Position the audio buffer to 1/2 second. */
-					audio->AudBufPos = (long)(((audio->SampleRate * audio->Channels)
+					audio->AudBufPos = (int)(((audio->SampleRate * audio->Channels)
 							* (audio->BitsPerSample >> 3)) / 2);
 
 					/* Mark 1/2 second of the audio buffer as loaded. */
@@ -1310,7 +1310,7 @@ static VQAData *AllocBuffers(VQAHeader *header, VQAConfig *config)
 	VQACBNode    *this_cb;
 	VQAFrameNode *framenode;
 	VQAFrameNode *this_frame;
-	long         i;
+	int         i;
 
 	/* Check the configuration for valid values. */
 	if ((config->NumCBBufs == 0) || (config->NumFrameBufs == 0)) {
@@ -1379,7 +1379,7 @@ static VQAData *AllocBuffers(VQAHeader *header, VQAConfig *config)
 
 
 		/* Keep count of the memory usage. */
-		vqa->MemUsed += (long)(sizeof(VQACBNode) + vqa->Max_CB_Size);
+		vqa->MemUsed += (int)(sizeof(VQACBNode) + vqa->Max_CB_Size);
 
 		/* Initialize the node */
 		memset(cbnode, 0, sizeof(VQACBNode));
@@ -1428,7 +1428,7 @@ static VQAData *AllocBuffers(VQAHeader *header, VQAConfig *config)
 #endif	//(!VQADIRECT_SOUND)
 
 		/* Keep count of the memory usage. */
-		vqa->MemUsed += (long)(sizeof(VQAFrameNode) + vqa->Max_Ptr_Size
+		vqa->MemUsed += (int)(sizeof(VQAFrameNode) + vqa->Max_Ptr_Size
 				+ vqa->Max_Pal_Size);
 
 		/* Initialize the node */
@@ -1484,7 +1484,7 @@ static VQAData *AllocBuffers(VQAHeader *header, VQAConfig *config)
 			/* Plugin image buffer information. */
 			vqa->Drawer.ImageWidth = header->ImageWidth;
 			vqa->Drawer.ImageHeight = header->ImageHeight;
-			vqa->MemUsed += (long)(header->ImageWidth * header->ImageHeight);
+			vqa->MemUsed += (int)(header->ImageWidth * header->ImageHeight);
 		} else {
 			vqa->Drawer.ImageWidth = config->ImageWidth;
 			vqa->Drawer.ImageHeight = config->ImageHeight;
@@ -1625,7 +1625,7 @@ static VQAData *AllocBuffers(VQAHeader *header, VQAConfig *config)
 	/*-------------------------------------------------------------------------
 	 * ALLOCATE THE FRAME INFORMATION TABLE IF REQUESTED.
 	 *-----------------------------------------------------------------------*/
-	vqa->Foff = (long *)malloc(header->Frames * sizeof(long));
+	vqa->Foff = (int *)malloc(header->Frames * sizeof(int));
 
 	if (vqa->Foff == NULL) {
 		FreeBuffers(vqa, config, header);
@@ -1634,14 +1634,14 @@ static VQAData *AllocBuffers(VQAHeader *header, VQAConfig *config)
 
 	/* Lock to prevent page swapping. */
 #if (!VQADIRECT_SOUND)
-	DPMI_Lock(vqa->Foff, header->Frames * sizeof(long));
+	DPMI_Lock(vqa->Foff, header->Frames * sizeof(int));
 #else	//!VQADIRECT_SOUND
 	/* Make sure the allocated memory is paged in */
-	Force_VM_Page_In(vqa->Foff, header->Frames * sizeof(long));
+	Force_VM_Page_In(vqa->Foff, header->Frames * sizeof(int));
 #endif	//(!VQADIRECT_SOUND)
 
 	/* Keep a running total of memory usage. */
-	vqa->MemUsed += (header->Frames * sizeof(long));
+	vqa->MemUsed += (header->Frames * sizeof(int));
 
 	return (vqa);
 }
@@ -1676,14 +1676,14 @@ static void FreeBuffers(VQAData *vqa, VQAConfig *config, VQAHeader *header)
 	             *cb_next;
 	VQAFrameNode *frame_this,
 	             *frame_next;
-	long         i;
+	int         i;
 
 	/*-------------------------------------------------------------------------
 	 * FREE THE FRAME INFORMATION TABLE.
 	 *-----------------------------------------------------------------------*/
 	if (vqa->Foff) {
 #if (!VQADIRECT_SOUND)
-		DPMI_Unlock(vqa->Foff, header->Frames * sizeof(long));
+		DPMI_Unlock(vqa->Foff, header->Frames * sizeof(int));
 #endif	//(!VQADIRECT_SOUND)
 		free(vqa->Foff);
 	}
@@ -1796,12 +1796,12 @@ static void FreeBuffers(VQAData *vqa, VQAConfig *config, VQAHeader *header)
 *
 ****************************************************************************/
 
-long PrimeBuffers(VQAHandle *vqa)
+int PrimeBuffers(VQAHandle *vqa)
 {
 	VQAData   *vqabuf;
 	VQAConfig *config;
-	long      rc;
-	long      i;
+	int      rc;
+	int      i;
 
 	/* Dereference commonly used data members for quick access. */
 	vqabuf = ((VQAHandleP *)vqa)->VQABuf;
@@ -1845,14 +1845,14 @@ long PrimeBuffers(VQAHandle *vqa)
 *
 ****************************************************************************/
 
-static long Load_VQF(VQAHandleP *vqap, unsigned long frame_iffsize)
+static int Load_VQF(VQAHandleP *vqap, unsigned int frame_iffsize)
 {
 	VQAData       *vqabuf;
 	VQAFrameNode  *curframe;
 	ChunkHeader   *chunk;
-	unsigned long iffsize;
-	unsigned long framesize;
-	unsigned long bytes_loaded = 0;
+	unsigned int iffsize;
+	unsigned int framesize;
+	unsigned int bytes_loaded = 0;
 	VQADrawer     *drawer;
 
 	/* Dereference commonly used data members for quicker access. */
@@ -2001,7 +2001,7 @@ static long Load_VQF(VQAHandleP *vqap, unsigned long frame_iffsize)
 *
 ****************************************************************************/
 
-static long Load_FINF(VQAHandleP *vqap, unsigned long iffsize)
+static int Load_FINF(VQAHandleP *vqap, unsigned int iffsize)
 {
 	VQAData *vqabuf;
 
@@ -2049,7 +2049,7 @@ static long Load_FINF(VQAHandleP *vqap, unsigned long iffsize)
 *
 ****************************************************************************/
 
-static long Load_VQHD(VQAHandleP *vqap, unsigned long iffsize)
+static int Load_VQHD(VQAHandleP *vqap, unsigned int iffsize)
 {
 	/* Read the header */
 	if (vqap->IOHandler((VQAHandle *)vqap, VQACMD_READ, &vqap->Header,
@@ -2086,7 +2086,7 @@ static long Load_VQHD(VQAHandleP *vqap, unsigned long iffsize)
 *
 ****************************************************************************/
 
-static long Load_CBF0(VQAHandleP *vqap, unsigned long iffsize)
+static int Load_CBF0(VQAHandleP *vqap, unsigned int iffsize)
 {
 	VQALoader *loader;
 	VQACBNode *curcb;
@@ -2139,13 +2139,13 @@ static long Load_CBF0(VQAHandleP *vqap, unsigned long iffsize)
 *
 ****************************************************************************/
 
-static long Load_CBFZ(VQAHandleP *vqap, unsigned long iffsize)
+static int Load_CBFZ(VQAHandleP *vqap, unsigned int iffsize)
 {
 	VQALoader     *loader;
 	VQACBNode     *curcb;
 	void          *buffer;
-	unsigned long padsize;
-	unsigned long lcwoffset;
+	unsigned int padsize;
+	unsigned int lcwoffset;
 
 	/* Dereference commonly used data members for quicker access. */
 	loader = &vqap->VQABuf->Loader;
@@ -2197,7 +2197,7 @@ static long Load_CBFZ(VQAHandleP *vqap, unsigned long iffsize)
 *
 ****************************************************************************/
 
-static long Load_CBP0(VQAHandleP *vqap, unsigned long iffsize)
+static int Load_CBP0(VQAHandleP *vqap, unsigned int iffsize)
 {
 	VQAData   *vqabuf;
 	VQALoader *loader;
@@ -2271,13 +2271,13 @@ static long Load_CBP0(VQAHandleP *vqap, unsigned long iffsize)
 *
 ****************************************************************************/
 
-static long Load_CBPZ(VQAHandleP *vqap, unsigned long iffsize)
+static int Load_CBPZ(VQAHandleP *vqap, unsigned int iffsize)
 {
 	VQAData       *vqabuf;
 	VQALoader     *loader;
 	VQACBNode     *curcb;
 	void          *buffer;
-	unsigned long padsize;
+	unsigned int padsize;
 
 	/* Dereference commonly used data members for quicker access */
 	vqabuf = vqap->VQABuf;
@@ -2352,7 +2352,7 @@ static long Load_CBPZ(VQAHandleP *vqap, unsigned long iffsize)
 *
 ****************************************************************************/
 
-static long Load_CPL0(VQAHandleP *vqap, unsigned long iffsize)
+static int Load_CPL0(VQAHandleP *vqap, unsigned int iffsize)
 {
 	VQAFrameNode *curframe;
 
@@ -2396,12 +2396,12 @@ static long Load_CPL0(VQAHandleP *vqap, unsigned long iffsize)
 *
 ****************************************************************************/
 
-static long Load_CPLZ(VQAHandleP *vqap, unsigned long iffsize)
+static int Load_CPLZ(VQAHandleP *vqap, unsigned int iffsize)
 {
 	VQAFrameNode  *curframe;
 	void          *buffer;
-	unsigned long padsize;
-	unsigned long lcwoffset;
+	unsigned int padsize;
+	unsigned int lcwoffset;
 
 	/* Dereference commonly used data members for quicker access. */
 	curframe = vqap->VQABuf->Loader.CurFrame;
@@ -2445,7 +2445,7 @@ static long Load_CPLZ(VQAHandleP *vqap, unsigned long iffsize)
 *
 ****************************************************************************/
 
-static long Load_VPT0(VQAHandleP *vqap, unsigned long iffsize)
+static int Load_VPT0(VQAHandleP *vqap, unsigned int iffsize)
 {
 	VQAFrameNode *curframe;
 
@@ -2488,12 +2488,12 @@ static long Load_VPT0(VQAHandleP *vqap, unsigned long iffsize)
 *
 ****************************************************************************/
 
-static long Load_VPTZ(VQAHandleP *vqap, unsigned long iffsize)
+static int Load_VPTZ(VQAHandleP *vqap, unsigned int iffsize)
 {
 	VQAFrameNode  *curframe;
 	void          *buffer;
-	unsigned long padsize;
-	unsigned long lcwoffset;
+	unsigned int padsize;
+	unsigned int lcwoffset;
 
 	/* Dereference commonly used data members for quicker access. */
 	curframe = vqap->VQABuf->Loader.CurFrame;
@@ -2541,14 +2541,14 @@ static long Load_VPTZ(VQAHandleP *vqap, unsigned long iffsize)
 *
 ****************************************************************************/
 
-static long Load_SND0(VQAHandleP *vqap, unsigned long iffsize)
+static int Load_SND0(VQAHandleP *vqap, unsigned int iffsize)
 {
 	VQAData       *vqabuf;
 	VQALoader     *loader;
 	VQAAudio      *audio;
 	VQAConfig     *config;
-	unsigned long padsize;
-	long          i;
+	unsigned int padsize;
+	int          i;
 
 	/* Dereference commonly used data members for quicker access. */
 	vqabuf = vqap->VQABuf;
@@ -2634,16 +2634,16 @@ static long Load_SND0(VQAHandleP *vqap, unsigned long iffsize)
 *
 ****************************************************************************/
 
-static long Load_SND1(VQAHandleP *vqap, unsigned long iffsize)
+static int Load_SND1(VQAHandleP *vqap, unsigned int iffsize)
 {
 	VQAData       *vqabuf;
 	VQALoader     *loader;
 	VQAAudio      *audio;
 	VQAConfig     *config;
 	unsigned char *loadbuf;
-	unsigned long padsize;
+	unsigned int padsize;
 	ZAPHeader     zap;
-	long          i;
+	int          i;
 
 	/* Dereference commonly used data members for quicker access. */
 	vqabuf = vqap->VQABuf;
@@ -2769,16 +2769,16 @@ static long Load_SND1(VQAHandleP *vqap, unsigned long iffsize)
 *
 ****************************************************************************/
 
-static long Load_SND2(VQAHandleP *vqap, unsigned long iffsize)
+static int Load_SND2(VQAHandleP *vqap, unsigned int iffsize)
 {
 	VQAData       *vqabuf;
 	VQALoader     *loader;
 	VQAAudio      *audio;
 	VQAConfig     *config;
 	unsigned char *loadbuf;
-	unsigned long padsize;
-	unsigned long uncomp_size;
-	long          i;
+	unsigned int padsize;
+	unsigned int uncomp_size;
+	int          i;
 
 	/* Dereference commonly used data members for quicker access. */
 	vqabuf = vqap->VQABuf;
@@ -2878,11 +2878,11 @@ static void Load_AudFrame(VQAHandleP *vqap)
 	VQALoader   *loader;
 	VQAAudio    *audio;
 	VQAConfig   *config;
-	static long lastplayblock = -1;
-	static long myblock = 0;
-	static long firsttime = 1;
-	long        numblocks;
-	long        i;
+	static int lastplayblock = -1;
+	static int myblock = 0;
+	static int firsttime = 1;
+	int        numblocks;
+	int        i;
 
 	/* Dereference commonly used data members for quicker access. */
 	vqabuf = vqap->VQABuf;

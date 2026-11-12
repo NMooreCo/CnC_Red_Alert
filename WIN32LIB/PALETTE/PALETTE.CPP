@@ -45,9 +45,9 @@
 ********************************* Includes **********************************
 */
 #include <mem.h>
-#include "wwstd.h"
-#include "palette.h"
-#include "timer.h"
+#include "WWSTD.H"
+#include "PALETTE.H"
+#include "TIMER.H"
 
 /*
 ********************************* Constants *********************************
@@ -56,7 +56,7 @@
 /*
 ********************************** Globals **********************************
 */
-extern "C" extern unsigned char  CurrentPalette[];		/* in pal.asm */
+extern "C" unsigned char  CurrentPalette[];		/* in pal.asm */
 
 /*
 ******************************** Prototypes *********************************
@@ -91,8 +91,8 @@ void __cdecl Set_Palette(void *palette)
 		Set_Palette_Range(palette);
 	#else
 		Copy_Palette(palette,CurrentPalette);
-   	LoadRGB4(&Main_Screen->ViewPort,palette,32L);
-	   LoadRGB4(AltVPort,palette,32L);
+   	LoadRGB4(&Main_Screen->ViewPort,palette,32);
+	   LoadRGB4(AltVPort,palette,32);
 	#endif
 
 }	/* end of Set_Palette */
@@ -159,7 +159,7 @@ void Fade_Palette_To(void *palette1, unsigned int delay, void (*callback)() )
 {
 	BOOL	changed;	// Flag that palette has changed this tick.
 	short	jump;		// Gun values to jump per palette set.
-	unsigned long	timer;		// Tick count timer used for timing.
+	unsigned int	timer;		// Tick count timer used for timing.
 	short	ticksper;	// The ticks (fixed point) per bit jump.
 	int	tickaccum;
 
@@ -245,7 +245,7 @@ PRIVATE void __cdecl Determine_Bump_Rate(void *palette, int delay, short *ticks,
 	int diff;		// Maximum color gun difference.
 	int tp;			// Temporary tick accumulator.
 	int index;		// Color gun working index.
-	long t;			// Working tick intermediate value.
+	int t;			// Working tick intermediate value.
 	int adiff;		// Absolute difference between guns.
 
 	/*
@@ -267,10 +267,10 @@ PRIVATE void __cdecl Determine_Bump_Rate(void *palette, int delay, short *ticks,
 	time more accurately; the caller must shift the accumulated value down
 	8 bits to determine the actual elapsed time!
 	------------------------------------------------------------------------*/
-	t = ((long)delay) << 8;
+	t = ((int)delay) << 8;
 	if (diff) {
 		t /= diff;
-		t = MIN((long)t, (long)0x7FFF);
+		t = MIN((int)t, (int)0x7FFF);
 	}
 	*ticks = (short)t;
 
@@ -377,6 +377,3 @@ PRIVATE BOOL __cdecl Bump_Palette(void *palette1, unsigned int step)
 void (*cb_ptr)(void);	// callback function pointer
 
 /**************************** End of palette.cpp ***************************/
-
-
-

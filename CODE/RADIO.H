@@ -38,7 +38,7 @@
 #ifndef RADIO_H
 #define RADIO_H
 
-#include	"mission.h"
+#include	"MISSION.H"
 
 class ObjectClass;
 class TechnoClass;
@@ -89,8 +89,8 @@ class RadioClass : public MissionClass {
 		TechnoClass * Contact_With_Whom(void) const {return (TechnoClass *)Radio;};
 
 		// Inherited from base class(es).
-		virtual RadioMessageType Receive_Message(RadioClass * from, RadioMessageType message, long & param);
-		virtual RadioMessageType Transmit_Message(RadioMessageType message, long & param=LParam, RadioClass * to=NULL);
+		virtual RadioMessageType Receive_Message(RadioClass * from, RadioMessageType message, int & param);
+		virtual RadioMessageType Transmit_Message(RadioMessageType message, int & param=LParam, RadioClass * to=NULL);
 		virtual RadioMessageType Transmit_Message(RadioMessageType message, RadioClass * to);
 		#ifdef CHEAT_KEYS
 		virtual void Debug_Dump(MonoClass *mono) const;

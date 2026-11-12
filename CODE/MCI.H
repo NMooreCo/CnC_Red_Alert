@@ -33,13 +33,13 @@
 *
 ****************************************************************************/
 
-#include "function.h"
+#include "FUNCTION.H"
 
 #ifdef MCIMPEG
 #include <windows.h>
 #include <mmsystem.h>
 #include <digitalv.h>
-#include "watcom.h"
+#include "WATCOM.H"
 
 /* MCIDevice - MCI device capabilities and description
  *
@@ -59,7 +59,7 @@ typedef struct _MCIDevice
 	{
 	char name[64];
 	char description[64];
-	unsigned long type;
+	unsigned int type;
 	bool canEject;
 	bool canPlay;
 	bool canRecord;
@@ -94,14 +94,14 @@ class MCI
 		bool GetDeviceDescription(const char* name, MCIDevice* caps);
 
 		// Get type name (IE: Digital Video) from type ID (IE: MCI_DEVTYPE_DIGITAL_VIDEO)
-		const char* GetDeviceTypeName(unsigned long type);
+		const char* GetDeviceTypeName(unsigned int type);
 
 		// Get device product name
 		bool GetProductName(MCIDEVICEID id, char* buffer);
 
 		// Get device capability
-		bool GetCapability(MCIDEVICEID id, unsigned long capItem,
-				unsigned long* result);
+		bool GetCapability(MCIDEVICEID id, unsigned int capItem,
+				unsigned int* result);
 	};
 
 #endif // MCIMPEG

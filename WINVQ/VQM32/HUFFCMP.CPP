@@ -46,8 +46,8 @@
 *
 ****************************************************************************/
 
-#include <mem.h>
-#include "huffman.h"
+#include <MEM.H>
+#include "HUFFMAN.H"
 
 
 /****************************************************************************
@@ -80,14 +80,14 @@
 *
 ****************************************************************************/
 
-long __cdecl HuffCompress(unsigned char *data, unsigned char *buffer,
-		long length, char *temp)
+int __cdecl HuffCompress(unsigned char *data, unsigned char *buffer,
+		int length, char *temp)
 {
 	#if(1)
 	TreeNode *nodes;
 	HuffCode *codes;
-	long     size;
-	long     root;
+	int     size;
+	int     root;
 
 	/* Initialize variables */
 	nodes = (TreeNode *)temp;
@@ -113,24 +113,24 @@ long __cdecl HuffCompress(unsigned char *data, unsigned char *buffer,
 	#else
 	TreeNode      *nodes;
 	HuffCode      *codes;
-	unsigned long *counts;
-	unsigned long max_count;
-	long          i;
-	long          size;
-	long          first;
-	long          last;
-	long          next;
-	unsigned long symbol;
-	unsigned long mask;
+	unsigned int *counts;
+	unsigned int max_count;
+	int          i;
+	int          size;
+	int          first;
+	int          last;
+	int          next;
+	unsigned int symbol;
+	unsigned int mask;
 
 	/* Initialize variables. */
 	nodes = (TreeNode *)temp;
 	temp += (514 * sizeof(TreeNode));
-	counts = (unsigned long *)temp;
+	counts = (unsigned int *)temp;
 	codes = (HuffCode *)temp;
 
 	/* Zero the initial counts. */
-	memset(temp, 0, 256 * sizeof(unsigned long));
+	memset(temp, 0, 256 * sizeof(unsigned int));
 	size = 0;
 
 	/*-------------------------------------------------------------------------
@@ -165,7 +165,7 @@ long __cdecl HuffCompress(unsigned char *data, unsigned char *buffer,
 
 	/* Scale down the counts. */
 	for (i = 0; i < 256; i++) {
-		nodes[i].count = (unsigned long)(counts[i] / max_count);
+		nodes[i].count = (unsigned int)(counts[i] / max_count);
 
 		/* Make sure that a node with a non-zero count does not get scaled
 		 * down to zero.
@@ -316,7 +316,7 @@ long __cdecl HuffCompress(unsigned char *data, unsigned char *buffer,
 			symbol = HUFF_EOS;
 		}
 
-		mask = 1L << (codes[symbol].bits - 1);
+		mask = 1 << (codes[symbol].bits - 1);
 
 		while (mask != 0) {
 
@@ -380,10 +380,10 @@ long __cdecl HuffCompress(unsigned char *data, unsigned char *buffer,
 *
 ****************************************************************************/
 
-void __cdecl HuffCount(unsigned char *data, TreeNode *nodes, long length,
-		long zero)
+void __cdecl HuffCount(unsigned char *data, TreeNode *nodes, int length,
+		int zero)
 {
-	long i;
+	int i;
 
 	/* Zero any previous counts. */
 	if (zero) {
@@ -426,12 +426,12 @@ void __cdecl HuffCount(unsigned char *data, TreeNode *nodes, long length,
 
 void __cdecl HuffScaleCounts(TreeNode *nodes)
 {
-	unsigned long max_count;
-	unsigned long unscaled;
-	long          i;
-	long          first;
-	long          last;
-	long          next;
+	unsigned int max_count;
+	unsigned int unscaled;
+	int          i;
+	int          first;
+	int          last;
+	int          next;
 
 	/* Scale down the counts so they fit in an 8 bit value. This is done in
 	 * order to limit the size of the codes to 16 bits.
@@ -500,13 +500,13 @@ void __cdecl HuffScaleCounts(TreeNode *nodes)
 *
 ****************************************************************************/
 
-long __cdecl RLEHuffCounts(TreeNode *nodes, unsigned char *buffer)
+int __cdecl RLEHuffCounts(TreeNode *nodes, unsigned char *buffer)
 {
-	long i;
-	long first;
-	long last;
-	long next;
-	long size = 0;
+	int i;
+	int first;
+	int last;
+	int next;
+	int size = 0;
 
 	/* Find the first occurance of a non-zero count. */
 	first = 0;
@@ -649,14 +649,14 @@ void __cdecl ConvertToCodes(TreeNode *nodes, HuffCode *codes,
 *
 ****************************************************************************/
 
-long __cdecl HuffEncode(unsigned char *data, unsigned char *buffer,
-		HuffCode *codes, long length)
+int __cdecl HuffEncode(unsigned char *data, unsigned char *buffer,
+		HuffCode *codes, int length)
 {
-	long          i;
-	long          size;
-	long          next;
-	unsigned long mask;
-	unsigned long symbol;
+	int          i;
+	int          size;
+	int          next;
+	unsigned int mask;
+	unsigned int symbol;
 
 	/* Initialize */
 	*buffer = 0;
@@ -670,7 +670,7 @@ long __cdecl HuffEncode(unsigned char *data, unsigned char *buffer,
 			symbol = HUFF_EOS;
 		}
 
-		mask = 1L << (codes[symbol].bits - 1);
+		mask = 1 << (codes[symbol].bits - 1);
 
 		while (mask != 0) {
 

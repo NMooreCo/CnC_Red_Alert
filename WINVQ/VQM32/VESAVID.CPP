@@ -46,17 +46,17 @@
 ****************************************************************************/
 
 #include <stdio.h>
-#include <mem.h>
+#include <MEM.H>
 #include <dos.h>
 
 #ifndef __WATCOMC__
 #include <pldos32.h>
 #include <pharlap.h>
 #else
-#include "realmode.h"
+#include "REALMODE.H"
 #endif
 
-#include "vesavid.h"
+#include "VESAVID.H"
 
 /*---------------------------------------------------------------------------
  * PRIVATE DECLARATIONS
@@ -106,13 +106,13 @@ static VESAModeInfo _ModeInfo;
 *
 ****************************************************************************/
 
-long InitVESA(void)
+int InitVESA(void)
 {
 	#ifdef __WATCOMC__
 	union REGS   r;
 	struct SREGS sr;
 	RMInfo       rmi;
-	long         error = -1;
+	int         error = -1;
 
 	/* Allocate real-mode memory for VESA structure. */
 	r.x.eax = 0x0100;
@@ -166,8 +166,8 @@ long InitVESA(void)
 	#else  /* __WATCOMC__ */
 
 	unsigned short rseg;
-	long           paras;
-	long           error = -1;
+	int           paras;
+	int           error = -1;
 
 	/* Calculate size of VESAInfo structure in paragraphs */
 	paras = (sizeof(VESAInfo) + 15) >> 4;
@@ -297,7 +297,7 @@ void UninitVESA(void)
 *
 ****************************************************************************/
 
-VESAModeInfo *SetVESAMode(long mode)
+VESAModeInfo *SetVESAMode(int mode)
 {
 	VESAModeInfo *vminfo;
 
@@ -359,7 +359,7 @@ VESAModeInfo *SetVESAMode(long mode)
 *
 ****************************************************************************/
 
-VESAModeInfo *ReadVESAModeInfo(long mode)
+VESAModeInfo *ReadVESAModeInfo(int mode)
 {
 	VESAModeInfo *vminfo = NULL;
 
@@ -441,7 +441,7 @@ VESAModeInfo *ReadVESAModeInfo(long mode)
 *
 ****************************************************************************/
 
-void SetVESAWindow(long grain)
+void SetVESAWindow(int grain)
 {
 	#ifdef __WATCOMC__
 	#else  /* __WATCOMC__ */

@@ -55,9 +55,9 @@ typedef  unsigned int   UINT;
 typedef  unsigned char  BYTE;
 typedef  unsigned       WORD;
 #ifndef  LONG
-typedef  signed long    LONG;
+typedef  signed int    LONG;
 #endif
-typedef  unsigned long  DWORD;
+typedef  unsigned int  DWORD;
 
 typedef  BYTE  *        PBYTE;
 typedef  char near *    PSTR;
