@@ -23,7 +23,7 @@ Working:
 - campaign missions (tested: first Allied mission), skirmish against the computer;
 - saving and loading games;
 - sound effects, speech and music;
-- window or fullscreen, scaled with the original aspect ratio.
+- window or fullscreen, scaled up, optionally stretched to 4:3 as on a CRT monitor.
 
 Not available:
 
@@ -32,8 +32,8 @@ Not available:
 - The DVD edition's MPEG movies (the original VQA movies are played instead).
 - LAN ("Network") games go through emulated Winsock on UDP. They are untested.
 
-Tested on Linux (x86-64). The code is written to be portable to other SDL2 platforms,
-but nothing else has been tried yet.
+Tested on Linux (x86-64); CI builds it with GCC and Clang. The code is written to be
+portable to other SDL2 platforms, but nothing else has been tried yet.
 
 ## Building
 
@@ -109,7 +109,7 @@ Alt+Enter switches between window and fullscreen. Environment variables:
 | `RA_ASPECT=1` | Stretch 640x400 to 4:3, as a CRT monitor showed it. |
 | `RA_NO_SOUND=1` | Disable sound. |
 | `RA_DEBUG=1` | Print the game's debug messages to the console. |
-| `RA_NO_MESSAGEBOX=1` | Don't show message boxes; take their default answer (for automated runs). |
+| `RA_NO_MESSAGEBOX=1` | Don't show system message boxes (start-up errors and warnings); take their default answer. For automated runs. |
 | `RA_SCREENSHOT=file.bmp` | Save one screenshot, `RA_SCREENSHOT_DELAY` milliseconds after start. |
 
 ## Modding

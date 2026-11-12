@@ -246,7 +246,12 @@ int VectorClass<T>::operator == (VectorClass<T> const & vector) const
 template<class T>
 inline int VectorClass<T>::ID(T const * ptr)
 {
-	return((int)(ptr - &(*this)[0]));		// RA_PORT: was done on pointers truncated to 32 bits.
+	/*
+	**	RA_PORT: was done on pointers truncated to 32 bits. (Cells call this from their
+	**	constructor while the vector is first being allocated, hence the check.)
+	*/
+	if (Vector == NULL) return(0);
+	return((int)(ptr - Vector));
 }
 
 

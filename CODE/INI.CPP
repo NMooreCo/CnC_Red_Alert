@@ -1009,8 +1009,14 @@ int INIClass::Get_String(char const * section, char const * entry, char const * 
 		buffer[0] = '\0';
 		return(0);
 	} else {
-		strncpy(buffer, defvalue, size);
-		buffer[size-1] = '\0';
+		/*
+		**	RA_PORT: callers often pass the buffer itself as the default value, so the copy
+		**	may overlap (was strncpy).
+		*/
+		size_t len = strlen(defvalue);
+		if (len > (size_t)size-1) len = size-1;
+		memmove(buffer, defvalue, len);
+		memset(buffer+len, '\0', size-len);
 		strtrim(buffer);
 		return(strlen(buffer));
 	}

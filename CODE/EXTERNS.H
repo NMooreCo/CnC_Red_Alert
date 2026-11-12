@@ -113,7 +113,7 @@ extern int NameIDOverride[25];
 #endif
 
 #ifdef WIN32
-extern bool					GameInFocus;
+extern BOOL					GameInFocus;		// RA_PORT: BOOL (int), as the library declares it.
 extern unsigned char 	*InterpolatedPalettes[100];
 extern BOOL					PalettesRead;
 extern unsigned			PaletteCounter;
@@ -144,7 +144,11 @@ extern GraphicBufferClass &	VisiblePage;
 /*
 **	Dynamic global variables (these change or are initialized at run time).
 */
+#ifdef RA_PORT
+extern MissionControlClass * const	MissionControl;		// Also valid at MISSION_NONE (-1), see GLOBALS.CPP.
+#else
 extern MissionControlClass		MissionControl[MISSION_COUNT];
+#endif
 extern char const *				TutorialText[225];
 extern Buffer *					TheaterBuffer;
 extern GetCDClass					CDList;

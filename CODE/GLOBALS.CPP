@@ -195,7 +195,7 @@ int						AllDone;
 **	This is true if the game is the currently in focus windows app
 **
 */
-bool GameInFocus = false;
+BOOL GameInFocus = FALSE;			// RA_PORT: BOOL (int), as the library declares it.
 
 #endif
 
@@ -220,7 +220,17 @@ int NameIDOverride[25];
 **	These are the mission control structures. They hold the information about
 **	how the missions should behave in the system.
 */
+#ifdef RA_PORT
+/*
+**	Objects without a mission (MISSION_NONE, -1) look up MissionControl[Mission] in a few
+**	places, which read whatever preceded the array in the original. Give index -1 an entry
+**	of its own, with the default settings (no special behaviour).
+*/
+static MissionControlClass MissionControlStorage[MISSION_COUNT + 1];
+extern MissionControlClass * const MissionControl = &MissionControlStorage[1];
+#else
 MissionControlClass MissionControl[MISSION_COUNT];
+#endif
 
 
 /***************************************************************************

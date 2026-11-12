@@ -40,7 +40,7 @@ void strtrim(char * buffer)
 			source++;
 		}
 		if (source != buffer) {
-			strcpy(buffer, source);
+			memmove(buffer, source, strlen(source)+1);		// RA_PORT: the strings overlap (was strcpy).
 		}
 
 		/*

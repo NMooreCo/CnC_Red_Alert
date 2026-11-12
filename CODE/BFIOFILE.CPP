@@ -330,7 +330,7 @@ void BufferIOFileClass::Free(void)
 {
 	if (Buffer) {
 		if (IsAllocated) {
-			delete [] Buffer;
+			delete [] (char *)Buffer;
 			IsAllocated = false;
 		}
 

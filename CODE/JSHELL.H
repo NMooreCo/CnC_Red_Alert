@@ -203,30 +203,34 @@ T _rotl(T X, int n)
 **	Modern port: C++ versions of the inline assembly bit helpers. "array" is an array of
 **	32 bit little endian words, exactly as the Watcom "bt/bts/btr/bsf" code addressed it.
 */
+/*
+**	Bit N is bit (N & 7) of byte N / 8, as the x86 bit instructions numbered them in memory.
+**	Bytes are used (not 32 bit words) so that a bit array is never read past its last byte.
+*/
 inline void Set_Bit(void * array, int bit, int value)
 {
-	unsigned int * ptr = ((unsigned int *)array) + ((unsigned)bit >> 5);
-	unsigned int mask = 1U << (bit & 0x1F);
+	unsigned char * ptr = ((unsigned char *)array) + ((unsigned)bit >> 3);
+	unsigned char mask = (unsigned char)(1U << (bit & 0x07));
 	if (value) {
 		*ptr |= mask;
 	} else {
-		*ptr &= ~mask;
+		*ptr &= (unsigned char)~mask;
 	}
 }
 
 inline int Get_Bit(void const * array, int bit)
 {
-	unsigned int const * ptr = ((unsigned int const *)array) + ((unsigned)bit >> 5);
-	return((*ptr >> (bit & 0x1F)) & 1);
+	unsigned char const * ptr = ((unsigned char const *)array) + ((unsigned)bit >> 3);
+	return((*ptr >> (bit & 0x07)) & 1);
 }
 
 inline int First_True_Bit(void const * array)
 {
-	unsigned int const * ptr = (unsigned int const *)array;
+	unsigned char const * ptr = (unsigned char const *)array;
 	int base = 0;
 	while (*ptr == 0) {
 		ptr++;
-		base += 32;
+		base += 8;
 	}
 	unsigned int value = *ptr;
 	int bit = 0;
@@ -239,13 +243,13 @@ inline int First_True_Bit(void const * array)
 
 inline int First_False_Bit(void const * array)
 {
-	unsigned int const * ptr = (unsigned int const *)array;
+	unsigned char const * ptr = (unsigned char const *)array;
 	int base = 0;
-	while (*ptr == 0xFFFFFFFFU) {
+	while (*ptr == 0xFF) {
 		ptr++;
-		base += 32;
+		base += 8;
 	}
-	unsigned int value = ~*ptr;
+	unsigned int value = (unsigned char)~*ptr;
 	int bit = 0;
 	while (!(value & 1)) {
 		value >>= 1;
@@ -419,7 +423,7 @@ class FrameTimerClass
 
 
 #ifndef WIN32
-extern bool TimerSystemOn;
+extern BOOL TimerSystemOn;		// RA_PORT: BOOL (int), as the library defines it.
 extern "C" {
 	int Get_System_Tick_Count(void);
 	int Get_User_Tick_Count(void);

@@ -167,6 +167,9 @@ class List : public GenericList {
 	public:
 		T * First(void) const {return((T*)GenericList::First());}
 		T * Last(void) const {return((T*)GenericList::Last());}
+
+		// RA_PORT: delete the nodes as what they are (GenericNode has no virtual destructor).
+		void Delete(void) {while (GenericList::First()->Is_Valid()) delete First();}
 };
 
 
