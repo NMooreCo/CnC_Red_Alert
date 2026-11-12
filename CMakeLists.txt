@@ -24,6 +24,9 @@
 #
 cmake_minimum_required(VERSION 3.16)
 project(RedAlert LANGUAGES C CXX)
+if(WIN32)
+	enable_language(RC)		# The program's icon and version information (CODE/RAPORT.RC).
+endif()
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -58,11 +61,12 @@ if(MSVC)
 	)
 	target_compile_definitions(ra_common INTERFACE _CRT_SECURE_NO_WARNINGS _CRT_NONSTDC_NO_WARNINGS)
 else()
+	# (Only for C and C++: on Windows the resource compiler gets the targets' options too.)
 	target_compile_options(ra_common INTERFACE
-		-include ${CMAKE_SOURCE_DIR}/compat/portable.h
-		-fsigned-char				# Watcom /j : char is signed.
-		-fwrapv						# Legacy code relies on 2's complement wrap around.
-		-fno-strict-aliasing		# Legacy code type puns freely.
+		$<$<COMPILE_LANGUAGE:C,CXX>:-include ${CMAKE_SOURCE_DIR}/compat/portable.h>
+		$<$<COMPILE_LANGUAGE:C,CXX>:-fsigned-char>				# Watcom /j : char is signed.
+		$<$<COMPILE_LANGUAGE:C,CXX>:-fwrapv>						# Legacy code relies on 2's complement wrap around.
+		$<$<COMPILE_LANGUAGE:C,CXX>:-fno-strict-aliasing>		# Legacy code type puns freely.
 	)
 	if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 		target_compile_options(ra_common INTERFACE $<$<COMPILE_LANGUAGE:CXX>:-fpermissive>)
@@ -71,12 +75,21 @@ else()
 		target_compile_options(ra_common INTERFACE $<$<COMPILE_LANGUAGE:CXX>:-Wno-c++11-narrowing>)
 	endif()
 	if(NOT RA_WARNINGS)
-		target_compile_options(ra_common INTERFACE -w)
+		target_compile_options(ra_common INTERFACE $<$<COMPILE_LANGUAGE:C,CXX>:-w>)
+	endif()
+	if(MINGW)
+		# Lay bit-fields out as GCC does elsewhere, not as Microsoft's compiler does (MinGW's
+		# default), so that network packets and saved games are the same as on Linux.
+		target_compile_options(ra_common INTERFACE $<$<COMPILE_LANGUAGE:C,CXX>:-mno-ms-bitfields>)
 	endif()
 	if(RA_SANITIZE)
 		# -fsanitize-recover=address: with ASAN_OPTIONS=halt_on_error=0 a run reports every
 		# error and keeps going (by default it still stops at the first).
-		target_compile_options(ra_common INTERFACE -fsanitize=address,undefined -fsanitize-recover=address -fno-omit-frame-pointer)
+		target_compile_options(ra_common INTERFACE
+			$<$<COMPILE_LANGUAGE:C,CXX>:-fsanitize=address,undefined>
+			$<$<COMPILE_LANGUAGE:C,CXX>:-fsanitize-recover=address>
+			$<$<COMPILE_LANGUAGE:C,CXX>:-fno-omit-frame-pointer>
+		)
 		target_link_options(ra_common INTERFACE -fsanitize=address,undefined -fsanitize-recover=address)
 	endif()
 endif()
@@ -94,9 +107,9 @@ target_compile_definitions(ra_game_defs INTERFACE
 if(NOT MSVC)
 	# Watcom sized each enum to the smallest integer type that holds its values (it had no -ei),
 	# and data files and structures depend on that (e.g. 2 byte map template numbers).
-	target_compile_options(ra_game_defs INTERFACE -fshort-enums)
+	target_compile_options(ra_game_defs INTERFACE $<$<COMPILE_LANGUAGE:C,CXX>:-fshort-enums>)
 	# A few checks of the form "this != NULL" are relied on (GenericNode::Is_Valid).
-	target_compile_options(ra_game_defs INTERFACE -fno-delete-null-pointer-checks)
+	target_compile_options(ra_game_defs INTERFACE $<$<COMPILE_LANGUAGE:C,CXX>:-fno-delete-null-pointer-checks>)
 	# The game's pooled classes have an operator new that returns NULL when the pool is full,
 	# and the code checks for that. Pre-standard compilers skipped the constructor then;
 	# modern ones assume operator new never returns NULL unless told otherwise.
@@ -282,6 +295,7 @@ if(WIN32)
 	# A Windows (not console) program. Its own main() is the entry point (MinGW's start-up
 	# code calls it), so SDL2main isn't used.
 	set_target_properties(redalert PROPERTIES WIN32_EXECUTABLE ON)
+	target_sources(redalert PRIVATE CODE/RAPORT.RC)
 	target_link_libraries(redalert PRIVATE win32lib winvq ra_platform ra_game_defs)
 	if(MINGW)
 		# Link the C and C++ runtime in, so that the program only needs SDL2.dll next to it.

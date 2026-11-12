@@ -2,8 +2,8 @@
 
 This is the Command & Conquer Red Alert source code released by Electronic Arts,
 ported so that it builds with a modern compiler (GCC or Clang, 64-bit) and runs on
-current systems through [SDL2](https://www.libsdl.org/). It is meant to be a base for
-modding and extending the game.
+current systems, Linux and Windows, through [SDL2](https://www.libsdl.org/). It is meant
+to be a base for modding and extending the game.
 
 The game logic is the original code, with the Windows 95 version's code path
 (640x400 hi-res graphics). What changed is what sits around it:
@@ -42,8 +42,11 @@ Not tested:
 - Playing missions through by hand: the campaigns were tested by an automated player
   that wins each mission after a few seconds, under AddressSanitizer and UBSan.
 
-Tested on Linux (x86-64); CI builds it with GCC and Clang. The code is written to be
-portable to other SDL2 platforms, but nothing else has been tried yet.
+Tested on Linux (x86-64); CI builds it with GCC and Clang. The Windows version (64-bit,
+built with MinGW-w64) was tested under Wine 9: menus, movies with sound, a mission,
+saving and loading, a LAN game against the Linux version, the installer and uninstaller.
+It has not been tried on a real Windows machine yet. The code is written to be portable
+to other SDL2 platforms (macOS...), but nothing else has been tried.
 
 ## Building
 
@@ -60,6 +63,54 @@ cmake --build build
 
 This produces `build/redalert`. To build with Clang, set `CC=clang CXX=clang++` when
 running the first `cmake` command.
+
+### Windows
+
+The Windows version is cross-compiled with MinGW-w64, from Linux (or WSL on Windows).
+You also need SDL2's MinGW development package, `SDL2-devel-2.30.x-mingw.tar.gz` from
+[SDL's releases](https://github.com/libsdl-org/SDL/releases), unpacked somewhere:
+
+```sh
+sudo apt install cmake ninja-build mingw-w64
+cmake -S . -B build-win -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+    -DCMAKE_TOOLCHAIN_FILE=cmake/mingw-w64-x86_64.cmake \
+    -DCMAKE_PREFIX_PATH=/path/to/SDL2-2.30.9/x86_64-w64-mingw32
+cmake --build build-win
+```
+
+This produces `build-win/redalert.exe`, which needs `SDL2.dll` (in the package's
+`x86_64-w64-mingw32/bin`) next to it. The C and C++ runtimes are linked in.
+
+CI builds the Windows version on every push: the program and an installer are under the
+run's artifacts in the repository's Actions tab.
+
+### Windows installer
+
+`tools/windows/make-installer.sh` makes an installer from a Windows build (it needs NSIS:
+`sudo apt install nsis`):
+
+```sh
+tools/windows/make-installer.sh build-win
+```
+
+The installer installs the game for the current user (in
+`%LOCALAPPDATA%\Programs\Red Alert`; the game writes its settings and saved games next
+to its data, so it needs a folder of its own), with Start menu and desktop shortcuts and
+an uninstaller. It asks for the game discs and copies the data from them: real discs,
+disc images (`.iso`; Windows opens them as a drive when you double-click them) or
+folders holding a disc's files.
+
+Alternatively, the installer can contain the game data itself, from a data directory
+like the one described under Game data, and EA's license agreement for it (the file
+`EA Product EULA RedAlert1.rtf` in EA's freeware download):
+
+```sh
+tools/windows/make-installer.sh --data ~/redalert-data \
+    --eula "EA Product EULA RedAlert1.rtf" build-win
+```
+
+Such an installer is for your own computers only: EA's license lets you use the game,
+but not distribute it, so don't publish an installer that contains the data.
 
 Build options (`-D<option>=ON`):
 
@@ -118,9 +169,12 @@ RA_DATA_DIR=~/redalert-data ./build/redalert
 ```
 
 If `RA_DATA_DIR` isn't set, the game looks for `REDALERT.MIX` in the current
-directory and then next to the executable.
+directory and then next to the executable. On Windows the simplest is to put the data
+next to `redalert.exe`, as the installer does.
 
-Alt+Enter switches between window and fullscreen. Environment variables:
+Alt+Enter switches between window and fullscreen. Environment variables (on Windows,
+set them in a command prompt with `set NAME=value` before starting `redalert.exe` from
+it; the game's messages then appear in that window):
 
 | Variable | Effect |
 | --- | --- |
@@ -190,6 +244,10 @@ differently from today's:
   all game code; the stand-in Windows headers use the natural layout.
 - **Enums are as small as their values allow** (`-fshort-enums`), as with Watcom.
   For example, `TemplateType` is 2 bytes, which the scenario map data relies on.
+- **Bit-fields are laid out the same everywhere**: the Windows build uses
+  `-mno-ms-bitfields`, so that network packets and saved games (raw copies of the game
+  objects, full of bit-field flags) are the same on Windows and Linux, and players on
+  both can play together.
 - **`long` was replaced by `int`** where the code meant 32 bits. Use `intptr_t` or
   `uintptr_t` to keep a pointer in an integer.
 - **`bool` was an `int` typedef** in the original (Watcom 10.6 had no `bool`), and a few
@@ -197,8 +255,18 @@ differently from today's:
   Those now use `int`; watch for the same when you see `bool` holding more than
   true/false.
 - **String literals are writable**, as they were with Watcom; a few places modify
-  them. The program's read-only data is made writable at start-up on ELF systems
-  (`compat/compat.cpp`).
+  them. The program's read-only data is made writable at start-up, on ELF systems and
+  on Windows (`compat/compat.cpp`).
+- **The order in which global objects are constructed differs between systems** (GCC on
+  Linux follows the link order, MinGW the reverse). A global object that the
+  constructors of other files' global objects use must be constant-initialized, or be
+  marked `RA_CONSTRUCT_EARLY`. AddressSanitizer finds such uses: run a `RA_SANITIZE`
+  build with `ASAN_OPTIONS=check_initialization_order=1:strict_init_order=1`. (It still
+  reports `DisplayClass::TacButton` and `ScrollClass::Counter`, which are marked.)
+- On Windows the program is linked with the real system libraries too, so the Win32
+  functions the port emulates must not clash with them: the ones exported under the
+  same name get other link names (see the top of `compat/include/windows.h`). Network
+  games use the real Winsock there.
 - **`operator new` may return NULL** for the pooled object classes (units, bullets,
   animations...) when their pool is full; the code checks, and `-fcheck-new` makes the
   compiler do so too.

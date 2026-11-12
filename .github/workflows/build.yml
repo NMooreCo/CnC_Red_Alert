@@ -42,3 +42,55 @@ jobs:
         with:
           name: redalert-linux-x86_64
           path: build/redalert
+
+  windows:
+    name: Windows (MinGW-w64 cross-compile)
+    runs-on: ubuntu-24.04
+    env:
+      SDL2_VERSION: 2.30.9
+      SDL2_SHA256: b188d165dc4a0372042bff3d0c18e9bb90772581e92a7b8b47b521b47714f75c
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build mingw-w64 nsis
+
+      - name: Get SDL2 for MinGW
+        run: |
+          curl -fsSL -o sdl2.tar.gz "https://github.com/libsdl-org/SDL/releases/download/release-${SDL2_VERSION}/SDL2-devel-${SDL2_VERSION}-mingw.tar.gz"
+          echo "${SDL2_SHA256}  sdl2.tar.gz" | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/sdl2"
+          tar -xzf sdl2.tar.gz -C "$RUNNER_TEMP/sdl2"
+
+      - name: Configure
+        run: >
+          cmake -S . -B build-win -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo
+          -DCMAKE_TOOLCHAIN_FILE=cmake/mingw-w64-x86_64.cmake
+          -DCMAKE_PREFIX_PATH="$RUNNER_TEMP/sdl2/SDL2-${SDL2_VERSION}/x86_64-w64-mingw32"
+
+      - name: Build
+        run: cmake --build build-win
+
+      - name: Build the installer (without the game data)
+        run: tools/windows/make-installer.sh --out build-win/redalert-setup.exe build-win
+
+      - name: Collect the program
+        run: |
+          mkdir -p redalert-windows
+          cp build-win/redalert.exe "$RUNNER_TEMP/sdl2/SDL2-${SDL2_VERSION}/x86_64-w64-mingw32/bin/SDL2.dll" \
+            "$RUNNER_TEMP/sdl2/SDL2-${SDL2_VERSION}/README-SDL.txt" README.md LICENSE.md redalert-windows/
+          x86_64-w64-mingw32-strip redalert-windows/redalert.exe
+
+      - name: Upload the program
+        uses: actions/upload-artifact@v4
+        with:
+          name: redalert-windows-x86_64
+          path: redalert-windows
+
+      - name: Upload the installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: redalert-windows-installer
+          path: build-win/redalert-setup.exe
