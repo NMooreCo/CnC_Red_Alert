@@ -138,6 +138,18 @@
 #endif
 
 /*
+**	C++ doesn't define the order in which the global objects of different files are
+**	constructed, and it does differ: GCC on Linux follows the link order, MinGW the reverse.
+**	A global object that other global objects' constructors use is marked RA_CONSTRUCT_EARLY,
+**	which has it constructed before all the others.
+*/
+#if defined(__GNUC__) || defined(__clang__)
+#  define RA_CONSTRUCT_EARLY __attribute__((init_priority(1000)))
+#else
+#  define RA_CONSTRUCT_EARLY
+#endif
+
+/*
 **	Byte order helpers. The data files are little endian.
 */
 #if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)

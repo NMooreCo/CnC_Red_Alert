@@ -50,7 +50,16 @@ struct AsyncSocket {
 	Uint32	LastWrite;		// When FD_WRITE was last posted.
 };
 
-static std::vector<AsyncSocket> AsyncSockets;
+/*
+**	The registered sockets. (Created on first use: the game's global objects use Winsock in
+**	their constructors, and those may run before this file's.)
+*/
+static std::vector<AsyncSocket> & Async_Sockets(void)
+{
+	static std::vector<AsyncSocket> * sockets = new std::vector<AsyncSocket>;
+	return(*sockets);
+}
+#define AsyncSockets		Async_Sockets()
 
 enum {
 	SOCKET_READABLE = 0x01,

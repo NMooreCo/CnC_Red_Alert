@@ -113,6 +113,27 @@ __attribute__((constructor(101))) static void Writable_String_Literals(void)
 		}
 	}
 }
+
+/*
+**	A Windows program (as opposed to a console program) has no standard output or error.
+**	Started from a console window, it uses that one, so that its messages can be seen there
+**	(those of RA_EXTRACT, for instance). Output that was redirected is left alone.
+*/
+extern "C" __declspec(dllimport) void * __stdcall GetStdHandle(unsigned long which);
+extern "C" __declspec(dllimport) int __stdcall AttachConsole(unsigned long process);
+
+__attribute__((constructor(102))) static void Use_Parent_Console(void)
+{
+	const unsigned long STD_OUTPUT = (unsigned long)-11;
+	const unsigned long STD_ERROR = (unsigned long)-12;
+	const unsigned long PARENT_PROCESS = (unsigned long)-1;
+	bool no_output = (GetStdHandle(STD_OUTPUT) == NULL);
+	bool no_error = (GetStdHandle(STD_ERROR) == NULL);
+	if ((no_output || no_error) && AttachConsole(PARENT_PROCESS)) {
+		if (no_output) freopen("CONOUT$", "w", stdout);
+		if (no_error) freopen("CONOUT$", "w", stderr);
+	}
+}
 #endif
 
 

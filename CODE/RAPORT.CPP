@@ -104,13 +104,30 @@ bool Port_Extract_Files(void)
  *       1. the directory named by the RA_DATA_DIR environment variable,                      *
  *       2. the current directory, if it holds REDALERT.MIX,                                  *
  *       3. the directory holding the executable, if it holds REDALERT.MIX.                   *
+ *    Without the data the game can't run: it says so in a message box and exits.             *
  *=============================================================================================*/
+static void Data_Not_Found(char const * data_dir)
+{
+	char text[1024];
+	if (data_dir != NULL) {
+		snprintf(text, sizeof(text), "The game data files were not found in \"%s\" (named by RA_DATA_DIR).", data_dir);
+	} else {
+		snprintf(text, sizeof(text), "The game data files were not found.");
+	}
+	strncat(text,
+		"\n\nRed Alert needs REDALERT.MIX, and the MAIN.MIX of each disc in a folder named after it: "
+		"CD1 for the Allied disc, CD2 for the Soviet disc. Put them in the folder of the game, "
+		"or set RA_DATA_DIR to the folder that holds them.", sizeof(text) - strlen(text) - 1);
+	MessageBox(NULL, text, "Red Alert", MB_OK | MB_ICONSTOP);		// (Also printed on the console.)
+	exit(EXIT_FAILURE);
+}
+
 void Port_Select_Data_Directory(int , char * [])
 {
 	char const * env = getenv("RA_DATA_DIR");
 	if (env != NULL && *env) {
-		if (!SetCurrentDirectory(env)) {
-			fprintf(stderr, "Red Alert: unable to change to RA_DATA_DIR \"%s\".\n", env);
+		if (!SetCurrentDirectory(env) || GetFileAttributes("REDALERT.MIX") == INVALID_FILE_ATTRIBUTES) {
+			Data_Not_Found(env);
 		}
 		return;
 	}
@@ -120,17 +137,14 @@ void Port_Select_Data_Directory(int , char * [])
 	char const * base = Platform_Get_Base_Path();
 	if (base != NULL && *base) {
 		char path[_MAX_PATH];
-		sprintf(path, "%sREDALERT.MIX", base);
+		snprintf(path, sizeof(path), "%sREDALERT.MIX", base);
 		if (GetFileAttributes(path) != INVALID_FILE_ATTRIBUTES) {
 			SetCurrentDirectory(base);
 			return;
 		}
 	}
 
-	fprintf(stderr,
-		"Red Alert: the game data files were not found.\n"
-		"  Run the game from the directory that holds REDALERT.MIX (and MAIN.MIX or\n"
-		"  CD1/MAIN.MIX, CD2/MAIN.MIX), or set RA_DATA_DIR to that directory.\n");
+	Data_Not_Found(NULL);
 }
 
 

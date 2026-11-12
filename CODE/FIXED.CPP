@@ -56,6 +56,7 @@ const fixed fixed::_3_4(3, 4);		// 3/4
 const fixed fixed::_2_3(2, 3);		// 2/3
 
 
+#ifndef RA_PORT		// Defined in FIXED.H.
 fixed::fixed(int numerator, int denominator)
 {
 	if (denominator == 0) {
@@ -64,6 +65,7 @@ fixed::fixed(int numerator, int denominator)
 		Data.Raw = (unsigned short)((unsigned)(numerator * 256) / (unsigned)denominator);
 	}
 }
+#endif
 
 
 /***********************************************************************************************

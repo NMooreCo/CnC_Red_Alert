@@ -126,7 +126,7 @@ BooleanVectorClass DisplayClass::CellRedraw;
 /*
 ** The main button that intercepts user input to the map
 */
-DisplayClass::TacticalClass DisplayClass::TacButton;
+DisplayClass::TacticalClass DisplayClass::TacButton RA_CONSTRUCT_EARLY;		// RA_PORT: before Map, whose constructor sets it up.
 
 
 static int const TEX_X = 0;

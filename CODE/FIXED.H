@@ -88,7 +88,14 @@ class fixed
 		fixed(void) {}
 
 		// Convenient constructor if numerator and denominator components are known.
+#ifdef RA_PORT
+		// constexpr, so that the constants below (_1_2...) are set at compile time: other
+		// global objects' constructors use them, and the order in which the constructors of
+		// different files run isn't defined (it differs between Linux and Windows).
+		constexpr fixed(int numerator, int denominator) : Data{(unsigned short)((denominator == 0) ? 0 : (unsigned)(numerator * 256) / (unsigned)denominator)} {}
+#else
 		fixed(int numerator, int denominator);
+#endif
 
 		// Conversion constructor to get fixed point from integer.
 		fixed(int value) {Data.Composite.Fraction = 0;Data.Composite.Whole = (unsigned char)value;}
@@ -215,6 +222,9 @@ class fixed
 
 	private:
 		union {
+#ifdef RA_PORT
+			unsigned short Raw;		// First, for the constexpr constructor.
+#endif
 			struct {
 #ifdef RA_BIG_ENDIAN
 				unsigned char Whole;
@@ -224,7 +234,9 @@ class fixed
 				unsigned char Whole;
 #endif
 			} Composite;
+#ifndef RA_PORT
 			unsigned short Raw;
+#endif
 		} Data;
 };
 

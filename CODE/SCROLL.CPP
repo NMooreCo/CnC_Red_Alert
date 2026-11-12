@@ -46,7 +46,7 @@
 #define	SCROLL_DELAY	2
 #endif
 
-CDTimerClass<SystemTimerClass> ScrollClass::Counter;
+CDTimerClass<SystemTimerClass> ScrollClass::Counter RA_CONSTRUCT_EARLY;		// RA_PORT: before Map, whose constructor sets it.
 
 
 /***********************************************************************************************
