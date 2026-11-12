@@ -20,7 +20,10 @@ Working:
 
 - intro and briefing movies (VQA), with sound;
 - main menu, dialogs, sidebar, mouse cursor;
-- campaign missions (tested: first Allied mission), skirmish against the computer;
+- both campaigns, Allied and Soviet: every mission loads and runs, and so does
+  everything between missions (closing movie, score screen, map selection, briefing),
+  losing and replaying a mission, and the ending with the credits;
+- skirmish against the computer, including the end-of-game score table;
 - saving and loading games;
 - LAN games ("Network" in the multiplayer menu), over UDP: tested with two players;
 - sound effects, speech and music;
@@ -31,6 +34,13 @@ Not available:
 - Modem / serial games (the serial library was not released), and Westwood Online
   internet games (the service no longer exists).
 - The DVD edition's MPEG movies (the original VQA movies are played instead).
+
+Not tested:
+
+- The Counterstrike and Aftermath expansions (they are not part of EA's freeware
+  release).
+- Playing missions through by hand: the campaigns were tested by an automated player
+  that wins each mission after a few seconds, under AddressSanitizer and UBSan.
 
 Tested on Linux (x86-64); CI builds it with GCC and Clang. The code is written to be
 portable to other SDL2 platforms, but nothing else has been tried yet.
