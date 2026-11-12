@@ -86,6 +86,11 @@ target_compile_definitions(ra_game_defs INTERFACE
 	RA_PORT=1				# Marks code added/changed for the modern port
 	RA_PACK_STRUCTS=1		# Byte packed structures, as Watcom /zp1 (see compat/portable.h)
 )
+if(NOT MSVC)
+	# Watcom sized each enum to the smallest integer type that holds its values (it had no -ei),
+	# and data files and structures depend on that (e.g. 2 byte map template numbers).
+	target_compile_options(ra_game_defs INTERFACE -fshort-enums)
+endif()
 if(RA_LANGUAGE_GERMAN)
 	target_compile_definitions(ra_game_defs INTERFACE GERMAN=1)
 elseif(RA_LANGUAGE_FRENCH)

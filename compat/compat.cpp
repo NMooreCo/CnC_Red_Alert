@@ -42,6 +42,47 @@
 
 
 /***************************************************************************************
+**	Writable string literals.
+**
+**	The game was written for Watcom C/C++, whose string literals were writable, and it does
+**	modify some of them in place (file names patched with a digit, upper cased names...).
+**	Modern compilers put literals in read only memory, so such code would crash. Make the
+**	program's own read only data writable at start up, before any of the game runs.
+**	Shared libraries and code are not affected.
+*/
+#if defined(__linux__) || defined(__FreeBSD__)
+#include <link.h>
+#include <sys/mman.h>
+
+static int Make_Program_Data_Writable(struct dl_phdr_info * info, size_t, void * data)
+{
+	int * done = (int *)data;
+	if (*done) return(1);		// The first object reported is the program itself.
+	*done = 1;
+
+	uintptr_t page = (uintptr_t)sysconf(_SC_PAGESIZE);
+	for (int index = 0; index < info->dlpi_phnum; index++) {
+		ElfW(Phdr) const & header = info->dlpi_phdr[index];
+		if (header.p_type == PT_LOAD && !(header.p_flags & PF_W) && !(header.p_flags & PF_X)) {
+			uintptr_t start = (uintptr_t)info->dlpi_addr + header.p_vaddr;
+			uintptr_t end = start + header.p_memsz;
+			start &= ~(page - 1);
+			end = (end + page - 1) & ~(page - 1);
+			mprotect((void *)start, end - start, PROT_READ | PROT_WRITE);
+		}
+	}
+	return(1);
+}
+
+__attribute__((constructor(101))) static void Writable_String_Literals(void)
+{
+	int done = 0;
+	dl_iterate_phdr(Make_Program_Data_Writable, &done);
+}
+#endif
+
+
+/***************************************************************************************
 **	String functions.
 */
 #if !defined(_WIN32)
