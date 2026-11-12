@@ -289,6 +289,7 @@ int main(int argc, char * argv[])
 	unsigned drivecount = 0;
 	char oldpath[PATH_MAX];
 	getcwd(oldpath, sizeof(oldpath));
+	Port_Allow_Debugger();
 	Port_Select_Data_Directory(argc, argv);
 #endif
 

@@ -32,6 +32,27 @@
 
 
 /***********************************************************************************************
+ * Port_Allow_Debugger -- Let a debugger attach for automated tests (RA_ALLOW_PTRACE=1).       *
+ *                                                                                             *
+ *    The test tools in tools/autotest read and set game variables by attaching gdb for a     *
+ *    moment. Linux distributions usually allow that only to the process's parent (Yama      *
+ *    ptrace_scope 1), unless the process opts in, which this does when asked to.             *
+ *=============================================================================================*/
+#ifdef __linux__
+#include <sys/prctl.h>
+#endif
+void Port_Allow_Debugger(void)
+{
+#if defined(__linux__) && defined(PR_SET_PTRACER)
+	char const * env = getenv("RA_ALLOW_PTRACE");
+	if (env != NULL && atoi(env) != 0) {
+		prctl(PR_SET_PTRACER, PR_SET_PTRACER_ANY, 0, 0, 0);
+	}
+#endif
+}
+
+
+/***********************************************************************************************
  * Port_Extract_Files -- Copy files out of the game's MIX archives.                            *
  *                                                                                             *
  *    RA_EXTRACT=NAME[,NAME...] writes each named file, as the game sees it, to the directory  *

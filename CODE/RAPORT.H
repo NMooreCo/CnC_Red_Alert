@@ -23,6 +23,7 @@
 #define RAPORT_H
 
 void	Port_Select_Data_Directory(int argc, char * argv[]);
+void	Port_Allow_Debugger(void);
 
 /*
 **	CONQUER.CPP: RA_EXTRACT=NAME[,NAME...] copies files out of the MIX archives and exits.

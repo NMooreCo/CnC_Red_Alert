@@ -172,6 +172,14 @@ For anything beyond that, the code is yours to change. Where things are:
 Changes made for the port are marked with `RA_PORT` (as `#ifdef RA_PORT` blocks or in
 comments), so the original code stays recognizable next to them.
 
+## Automated tests
+
+`tools/autotest/` has scripts that play the game with no one at the keyboard, on a
+virtual display: one plays through a campaign (winning each mission and going through
+every screen in between), one runs a long skirmish between computer players. Run them
+after a change, ideally with a `RA_SANITIZE` build; see
+[tools/autotest/README.md](tools/autotest/README.md).
+
 ## Porting notes
 
 Things to know when you change the code, because the original compiler behaved
