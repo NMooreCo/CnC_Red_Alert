@@ -74,8 +74,10 @@ else()
 		target_compile_options(ra_common INTERFACE -w)
 	endif()
 	if(RA_SANITIZE)
-		target_compile_options(ra_common INTERFACE -fsanitize=address,undefined -fno-omit-frame-pointer)
-		target_link_options(ra_common INTERFACE -fsanitize=address,undefined)
+		# -fsanitize-recover=address: with ASAN_OPTIONS=halt_on_error=0 a run reports every
+		# error and keeps going (by default it still stops at the first).
+		target_compile_options(ra_common INTERFACE -fsanitize=address,undefined -fsanitize-recover=address -fno-omit-frame-pointer)
+		target_link_options(ra_common INTERFACE -fsanitize=address,undefined -fsanitize-recover=address)
 	endif()
 endif()
 

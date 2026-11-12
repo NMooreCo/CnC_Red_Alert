@@ -67,7 +67,7 @@ Build options (`-D<option>=ON`):
 | --- | --- |
 | `RA_LANGUAGE_GERMAN`, `RA_LANGUAGE_FRENCH` | Build a German or French version (the data must match). |
 | `RA_WARNINGS` | Show compiler warnings (off by default: the 1996 code produces thousands). |
-| `RA_SANITIZE` | Build with AddressSanitizer and UndefinedBehaviorSanitizer. |
+| `RA_SANITIZE` | Build with AddressSanitizer and UndefinedBehaviorSanitizer. With `ASAN_OPTIONS=halt_on_error=0` a run reports every memory error instead of stopping at the first. |
 
 ## Game data
 
