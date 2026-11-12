@@ -1320,7 +1320,7 @@ bool BGMessageBox(char const * msg, int btn1, int btn2)
 {
 #define BUFFSIZE 511
 	char buffer[BUFFSIZE];
-	bool retval;
+	int retval;								// RA_PORT: 0, 1 or 2 ("bool" was an int typedef).
 	bool process;								// loop while true
 	KeyNumType input;							// user input
 	int selection;

@@ -848,6 +848,15 @@ bool Select_Game(bool fade)
 									break;
 
 							}
+#ifdef RA_PORT
+							/*
+							**	Each campaign is on its own disc (Allied = CD1, Soviet = CD2).
+							*/
+							if (!Force_CD_Available(Scen.ScenarioName[2] == 'U' ? 1 : 0)) {
+								selection = SEL_NONE;
+								continue;
+							}
+#endif
 #ifdef FIXIT_ANTS
 						}
 #endif

@@ -4394,6 +4394,36 @@ bool Force_CD_Available( int cd_desired )
 		}
 	}
 
+	/*
+	**	A specific disc that isn't there while other discs are: tell the player where its
+	**	MAIN.MIX goes and fail, so that the game backs out (as when the original's "insert
+	**	disc" request was cancelled). Without any disc directories, a MAIN.MIX in the data
+	**	directory is assumed to be the right one.
+	*/
+	if (cd_desired >= 0 && cd_desired < 4 && !Port_CD_Present(cd_desired)) {	// (0 is the Allied disc, whatever CD_SOVIET says.)
+		bool any = false;
+		for (int cd = 0; cd < 4; cd++) {
+			if (Port_CD_Present(cd)) any = true;
+		}
+		if (any) {
+			static char const * _disc_name[] = {"Allied disc", "Soviet disc", "Counterstrike disc", "Aftermath disc"};
+			char buffer[200];
+			sprintf(buffer, "This needs the %s of Red Alert. Put its MAIN.MIX into the %s directory of the game data.", _disc_name[cd_desired], _CD_Volume_Label[cd_desired]);
+
+			GraphicViewPortClass * oldpage = Set_Logic_Page(SeenBuff);
+			if (PaletteClass::CurrentPalette[1].Red_Component() + PaletteClass::CurrentPalette[1].Blue_Component() + PaletteClass::CurrentPalette[1].Green_Component() == 0) {
+				GamePalette.Set();
+			}
+			Keyboard->Clear();
+			int hidden = Get_Mouse_State();
+			while (Get_Mouse_State()) Show_Mouse();
+			WWMessageBox().Process(buffer, TXT_OK);
+			while (hidden--) Hide_Mouse();
+			Set_Logic_Page(oldpage);
+			return(false);
+		}
+	}
+
 	if (cd_desired == CD_ANY) {
 		if (!Port_CD_Present(Port_Current_CD)) {
 			Port_Current_CD = -1;

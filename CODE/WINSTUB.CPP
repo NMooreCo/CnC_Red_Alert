@@ -949,7 +949,7 @@ GraphicBufferClass* Read_PCX_File(char* name, char* palette, void *Buff, int Siz
 	}
 
 	if ( palette ) {
-		file_handle.Seek (- (256 * sizeof ( RGB )) , SEEK_END );
+		file_handle.Seek (- (int)(256 * sizeof ( RGB )) , SEEK_END );
 		file_handle.Read (palette , 256 * sizeof ( RGB ));
 
 		pal = ( RGB * ) palette;

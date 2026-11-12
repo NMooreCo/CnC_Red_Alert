@@ -54,13 +54,14 @@ class CCINIClass : public INIClass
 	public:
 		CCINIClass(void) : IsDigestPresent(false) {}
 
-		bool Load(FileClass & file, bool withdigest);
-		bool Load(Straw & file, bool withdigest);
+		// RA_PORT: int, not bool: 2 means the message digest didn't match ("bool" was an int typedef).
+		int Load(FileClass & file, bool withdigest);
+		int Load(Straw & file, bool withdigest);
 		int Save(FileClass & file, bool withdigest) const;
 		int Save(Pipe & pipe, bool withdigest) const;
 		// The original compiler allowed temporaries to bind to these non-const references.
-		bool Load(FileClass && file, bool withdigest) {return(Load((FileClass &)file, withdigest));}
-		bool Load(Straw && file, bool withdigest) {return(Load((Straw &)file, withdigest));}
+		int Load(FileClass && file, bool withdigest) {return(Load((FileClass &)file, withdigest));}
+		int Load(Straw && file, bool withdigest) {return(Load((Straw &)file, withdigest));}
 		int Save(FileClass && file, bool withdigest) const {return(Save((FileClass &)file, withdigest));}
 		int Save(Pipe && pipe, bool withdigest) const {return(Save((Pipe &)pipe, withdigest));}
 

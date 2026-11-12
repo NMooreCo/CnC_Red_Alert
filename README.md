@@ -120,6 +120,9 @@ data directory before looking inside the MIX archives. Extract `RULES.INI` from
 `REDALERT.MIX` to change units, weapons, costs, and so on. The same goes for
 scenarios (`SCG01EA.INI`...), shapes and other files.
 
+Scenario files carry a message digest. If you edit one of the original scenarios, delete
+its `[Digest]` section, or the game rejects it as corrupt (as the original did).
+
 For anything beyond that, the code is yours to change. Where things are:
 
 | Directory | Contents |
@@ -145,6 +148,10 @@ differently from today's:
   For example, `TemplateType` is 2 bytes, which the scenario map data relies on.
 - **`long` was replaced by `int`** where the code meant 32 bits. Use `intptr_t` or
   `uintptr_t` to keep a pointer in an integer.
+- **`bool` was an `int` typedef** in the original (Watcom 10.6 had no `bool`), and a few
+  places kept other values in it (a message box's button number, the shutdown state).
+  Those now use `int`; watch for the same when you see `bool` holding more than
+  true/false.
 - **String literals are writable**, as they were with Watcom; a few places modify
   them. The program's read-only data is made writable at start-up on ELF systems
   (`compat/compat.cpp`).
