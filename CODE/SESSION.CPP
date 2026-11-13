@@ -331,7 +331,11 @@ int SessionClass::Create_Connections(void)
 {
 	int i;
 
+#ifdef RA_ENHANCE
+	if (Net_Type() != GAME_IPX && Net_Type() != GAME_INTERNET) {		// RA_ENHANCE: a co-op mission's too (COOP.CPP).
+#else
 	if (Session.Type != GAME_IPX && Session.Type != GAME_INTERNET) {
+#endif
 		return (0);
 	}
 
@@ -1554,6 +1558,7 @@ void SessionClass::Read_Scenario_Descriptions (void)
 	**	RA_ENHANCE: the random maps (RANDMAP.CPP), at the end of the list.
 	*/
 	Random_Map_Add_Entries();
+	Coop_Add_Missions();		// RA_ENHANCE: the campaign missions, for network games (COOP.CPP).
 #endif
 }
 

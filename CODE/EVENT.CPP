@@ -48,6 +48,14 @@
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 #include "FUNCTION.H"
+/*
+**	RA_ENHANCE: an order is from this player's network identity (Local_Event_ID), and is
+**	carried out for the house Event_House gives: in a co-op mission, the side's (COOP.CPP).
+*/
+#ifndef RA_ENHANCE
+#define	Local_Event_ID()	(PlayerPtr->ID)
+#define	Event_House(id)		(Houses.Raw_Ptr(id))
+#endif
 #ifdef WIN32
 #include "CCDDE.H"
 #endif	//WIN32
@@ -153,7 +161,7 @@ char * EventClass::EventNames[EventClass::LAST_EVENT] = {
  *=============================================================================================*/
 EventClass::EventClass(SpecialClass data)
 {
-	ID = PlayerPtr->ID;
+	ID = Local_Event_ID();
 	Type = SPECIAL;
 	Frame = ::Frame;
 	Data.Options.Data = data;
@@ -179,7 +187,7 @@ EventClass::EventClass(SpecialClass data)
  *=============================================================================================*/
 EventClass::EventClass(EventType type, TargetClass target)
 {
-	ID = PlayerPtr->ID;
+	ID = Local_Event_ID();
 	Type = type;
 	Frame = ::Frame;
 	Data.Target.Whom = target;
@@ -188,7 +196,7 @@ EventClass::EventClass(EventType type, TargetClass target)
 
 EventClass::EventClass(EventType type, CELL cell)
 {
-	ID = PlayerPtr->ID;
+	ID = Local_Event_ID();
 	Type = type;
 	Frame = ::Frame;
 	Data.SellCell.Cell = cell;
@@ -212,7 +220,7 @@ EventClass::EventClass(EventType type, CELL cell)
  *=============================================================================================*/
 EventClass::EventClass(EventType type)
 {
-	ID = PlayerPtr->ID;
+	ID = Local_Event_ID();
 	Type = type;
 	Frame = ::Frame;
 }
@@ -233,7 +241,7 @@ EventClass::EventClass(EventType type)
  *=============================================================================================*/
 EventClass::EventClass(EventType type, int val)
 {
-	ID = PlayerPtr->ID;
+	ID = Local_Event_ID();
 	Type = type;
 	Data.General.Value = val;
 	Frame = ::Frame;
@@ -261,7 +269,7 @@ EventClass::EventClass(EventType type, int val)
  *=============================================================================================*/
 EventClass::EventClass(EventType type, TargetClass src, TargetClass dest)
 {
-	ID = PlayerPtr->ID;
+	ID = Local_Event_ID();
 	Type = type;
 	Frame = ::Frame;
 	Data.NavCom.Whom = src;
@@ -287,7 +295,7 @@ EventClass::EventClass(EventType type, TargetClass src, TargetClass dest)
  *=============================================================================================*/
 EventClass::EventClass(AnimType anim, HousesType owner, COORDINATE coord)
 {
-	ID = PlayerPtr->ID;
+	ID = Local_Event_ID();
 	Type = ANIMATION;
 	Frame = ::Frame;
 	Data.Anim.What = anim;
@@ -319,7 +327,7 @@ EventClass::EventClass(AnimType anim, HousesType owner, COORDINATE coord)
  *=============================================================================================*/
 EventClass::EventClass(TargetClass src, MissionType mission, TargetClass target, TargetClass destination)
 {
-	ID = PlayerPtr->ID;
+	ID = Local_Event_ID();
 	Type = MEGAMISSION;
 	Frame = ::Frame;
 	Data.MegaMission.Whom = src;
@@ -356,7 +364,7 @@ EventClass::EventClass(TargetClass src, MissionType mission, TargetClass target,
  *=============================================================================================*/
 EventClass::EventClass(TargetClass src, MissionType mission, TargetClass target, TargetClass destination, SpeedType speed, MPHType maxspeed)
 {
-	ID = PlayerPtr->ID;
+	ID = Local_Event_ID();
 	Type = MEGAMISSION_F;
 	Frame = ::Frame;
 	Data.MegaMission_F.Whom = src;
@@ -389,7 +397,7 @@ EventClass::EventClass(TargetClass src, MissionType mission, TargetClass target,
  *=============================================================================================*/
 EventClass::EventClass(EventType type, RTTIType object, int id)
 {
-	ID = PlayerPtr->ID;
+	ID = Local_Event_ID();
 	Type = type;
 	Frame = ::Frame;
 	Data.Specific.Type = object;
@@ -419,7 +427,7 @@ EventClass::EventClass(EventType type, RTTIType object, int id)
  *=============================================================================================*/
 EventClass::EventClass(EventType type, RTTIType object, CELL cell)
 {
-	ID = PlayerPtr->ID;
+	ID = Local_Event_ID();
 	Type = type;
 	Frame = ::Frame;
 	Data.Place.Type = object;
@@ -447,7 +455,7 @@ EventClass::EventClass(EventType type, RTTIType object, CELL cell)
  *=============================================================================================*/
 EventClass::EventClass(EventType type, int id, CELL cell)
 {
-	ID = PlayerPtr->ID;
+	ID = Local_Event_ID();
 	Type = type;
 	Frame = ::Frame;
 	Data.Special.ID 	= id;
@@ -472,7 +480,7 @@ EventClass::EventClass(EventType type, int id, CELL cell)
  *=============================================================================================*/
 EventClass::EventClass(EventType type, void * ptr, unsigned int size)
 {
-	ID = PlayerPtr->ID;
+	ID = Local_Event_ID();
 	Type = type;
 	Frame = ::Frame;
 	Data.Variable.Pointer = ptr;
@@ -527,10 +535,10 @@ void EventClass::Execute(void)
 		*/
 		case ALLY:
 			house = Houses.Raw_Ptr(Data.General.Value);
-			if (Houses.Raw_Ptr(ID)->Is_Ally(house)) {
-				Houses.Raw_Ptr(ID)->Make_Enemy((HousesType)Data.General.Value);
+			if (Event_House(ID)->Is_Ally(house)) {
+				Event_House(ID)->Make_Enemy((HousesType)Data.General.Value);
 			} else {
-				Houses.Raw_Ptr(ID)->Make_Ally((HousesType)Data.General.Value);
+				Event_House(ID)->Make_Ally((HousesType)Data.General.Value);
 			}
 			break;
 
@@ -538,7 +546,7 @@ void EventClass::Execute(void)
 		**	Special self destruct action requested. This is active in the multiplayer mode.
 		*/
 		case DESTRUCT:
-			Houses.Raw_Ptr(ID)->Flag_To_Die();
+			Event_House(ID)->Flag_To_Die();
 			break;
 
 		/*
@@ -549,7 +557,7 @@ void EventClass::Execute(void)
 		case SPECIAL:
 			{
 				Special = Data.Options.Data;
-				HouseClass * house = Houses.Raw_Ptr(ID);
+				HouseClass * house = Event_House(ID);
 
 				sprintf(txt, Text_String(TXT_SPECIAL_WARNING), house->Name());
 				Session.Messages.Add_Message(NULL, 0, txt,
@@ -576,13 +584,13 @@ void EventClass::Execute(void)
 		*/
 		case SELL:
 			techno = Data.Target.Whom.As_Techno();
-			if (techno && techno->IsActive && techno->House == Houses.Raw_Ptr(ID)) {
+			if (techno && techno->IsActive && techno->House == Event_House(ID)) {
 				if (techno->What_Am_I() == RTTI_BUILDING || (techno->What_Am_I() == RTTI_UNIT && Map[techno->Center_Coord()].Cell_Building() != 0)) {
 					techno->Sell_Back(-1);
 				}
 			} else {
 //				if (Is_Target_Cell(Data.Target.Whom)) {
-//					Houses.Raw_Ptr(ID)->Sell_Wall(As_Cell(Data.Target.Whom));
+//					Event_House(ID)->Sell_Wall(As_Cell(Data.Target.Whom));
 //				}
 			}
 			break;
@@ -592,7 +600,7 @@ void EventClass::Execute(void)
 		*/
 		case SELLCELL:
 //			cell = Data.SellCell.Cell;
-			Houses.Raw_Ptr(ID)->Sell_Wall(Data.SellCell.Cell);
+			Event_House(ID)->Sell_Wall(Data.SellCell.Cell);
 			break;
 
 		/*
@@ -615,7 +623,7 @@ void EventClass::Execute(void)
 		**	exact factory and real object pointer to use.
 		*/
 		case PLACE:
-			Houses.Raw_Ptr(ID)->Place_Object(Data.Place.Type, Data.Place.Cell);
+			Event_House(ID)->Place_Object(Data.Place.Type, Data.Place.Cell);
 			break;
 
 		/*
@@ -624,7 +632,7 @@ void EventClass::Execute(void)
 		**	what factory to use.
 		*/
 		case PRODUCE:
-			Houses.Raw_Ptr(ID)->Begin_Production(Data.Specific.Type, Data.Specific.ID);
+			Event_House(ID)->Begin_Production(Data.Specific.Type, Data.Specific.ID);
 			break;
 
 		/*
@@ -632,7 +640,7 @@ void EventClass::Execute(void)
 		**	object type, the factory can be inferred.
 		*/
 		case SUSPEND:
-			Houses.Raw_Ptr(ID)->Suspend_Production(Data.Specific.Type);
+			Event_House(ID)->Suspend_Production(Data.Specific.Type);
 			break;
 
 		/*
@@ -640,7 +648,7 @@ void EventClass::Execute(void)
 		**	object type. From the object type, the exact factory can be inferred.
 		*/
 		case ABANDON:
-			Houses.Raw_Ptr(ID)->Abandon_Production(Data.Specific.Type);
+			Event_House(ID)->Abandon_Production(Data.Specific.Type);
 			break;
 
 		/*
@@ -836,7 +844,7 @@ void EventClass::Execute(void)
 		** care of it.
 		*/
 		case SPECIAL_PLACE:
-			Houses.Raw_Ptr(ID)->Place_Special_Blast((SpecialWeaponType)Data.Special.ID, Data.Special.Cell);
+			Event_House(ID)->Place_Special_Blast((SpecialWeaponType)Data.Special.ID, Data.Special.Cell);
 			break;
 
 		/*
@@ -919,7 +927,7 @@ void EventClass::Execute(void)
 			for (i=0;i<Data.Variable.Size;i++) {
 				printf("%d\n", ((char *)Data.Variable.Pointer)[i]);
 			}
-			if (ID != PlayerPtr->ID) {
+			if (ID != Local_Event_ID()) {
 				delete [] (char *)Data.Variable.Pointer;
 			}
 			break;
@@ -981,7 +989,7 @@ void EventClass::Execute(void)
 
 #ifdef FIXIT_VERSION_3		//	Stalemate games.
 		case PROPOSE_DRAW:
-			if( ID == PlayerPtr->ID )
+			if( ID == Local_Event_ID() )
 			{
 				if( Scen.bOtherProposesDraw )
 				{
@@ -1016,7 +1024,7 @@ void EventClass::Execute(void)
 			break;
 
 		case RETRACT_DRAW:
-			if( ID == PlayerPtr->ID )
+			if( ID == Local_Event_ID() )
 			{
 				Scen.bLocalProposesDraw = false;
 				Session.Messages.Add_Message( NULL, 0, TXT_WOL_DRAW_RETRACTED_LOCAL, PCOLOR_GOLD, TPF_6PT_GRAD|TPF_USE_GRAD_PAL|TPF_FULLSHADOW, Rule.MessageDelay * TICKS_PER_MINUTE );

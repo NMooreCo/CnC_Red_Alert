@@ -135,6 +135,15 @@ void GameOptionsClass::Process(void)
 		if (Session.Type != GAME_NORMAL && !_constants[index].Multiplay) {
 			continue;
 		}
+#ifdef RA_ENHANCE
+		/*
+		**	RA_ENHANCE: in a co-op mission (COOP.CPP), as in a network game, but with the
+		**	briefing; and it can't be saved, and a player can't resign alone.
+		*/
+		if (Coop_Is_On() && ((!_constants[index].Multiplay && _constants[index].ID != BUTTON_RESTATE) || text == TXT_SAVE_MISSION || text == TXT_DELETE_MISSION)) {
+			continue;
+		}
+#endif
 
 		if ( (Session.Type == GAME_SKIRMISH ||
 					Session.Type == GAME_INTERNET) && text == TXT_SAVE_MISSION) {
@@ -272,7 +281,11 @@ void GameOptionsClass::Process(void)
 		/*
 		**	Invoke game callback.
 		*/
+#ifdef RA_ENHANCE
+		if (Game_Pauses_In_Dialogs()) {		// RA_ENHANCE: not in a co-op mission (COOP.CPP).
+#else
 		if (Session.Type == GAME_NORMAL || Session.Type == GAME_SKIRMISH) {
+#endif
 			Call_Back();
 		} else {
 			if (Main_Loop()) {
@@ -446,6 +459,13 @@ void GameOptionsClass::Process(void)
 
 			switch (selection) {
 				case BUTTON_RESTATE:
+#ifdef RA_ENHANCE
+					if (Coop_Is_On()) {		// RA_ENHANCE: over the map, as the game goes on (COOP.CPP).
+						Coop_Show_Briefing();
+						process = false;
+						break;
+					}
+#endif
 					display = true;
 					if (!Restate_Mission(Scen.ScenarioName, TXT_VIDEO, TXT_RESUME_MISSION/*KOTXT_OPTIONS*/)) {
 						BreakoutAllowed = true;
@@ -502,7 +522,11 @@ void GameOptionsClass::Process(void)
 					break;
 
 				case (BUTTON_QUIT):
+#ifdef RA_ENHANCE
+					if (Session.Type == GAME_NORMAL && !Coop_Is_On()) {		// RA_ENHANCE: a co-op mission can't be restarted alone.
+#else
 					if (Session.Type == GAME_NORMAL) {
+#endif
 						switch (WWMessageBox().Process(TXT_CONFIRM_EXIT, TXT_ABORT, TXT_CANCEL, TXT_RESTART)) {
 							case 1:
 								display = true;

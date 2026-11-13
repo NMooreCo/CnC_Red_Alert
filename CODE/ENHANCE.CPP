@@ -423,7 +423,11 @@ void Enhancements_Dialog(void)
 		/*
 		**	The game carries on underneath in a network game.
 		*/
+#ifdef RA_ENHANCE
+		if (Game_Pauses_In_Dialogs()) {		// RA_ENHANCE: not in a co-op mission (COOP.CPP).
+#else
 		if (Session.Type == GAME_NORMAL || Session.Type == GAME_SKIRMISH) {
+#endif
 			Call_Back();
 		} else {
 			if (Main_Loop()) {
@@ -1367,8 +1371,6 @@ void Veterancy_Draw(TechnoClass const * techno, GraphicViewPortClass & window, i
 	}
 }
 
-#endif
-
 
 /***********************************************************************************************
  * Net_Connect_Command -- The lobby's /connect command: look for games at an address too.      *
@@ -1540,3 +1542,5 @@ void Enhancements_Restore(void)
 	Survival_Restore();
 	Loaded_Free();
 }
+
+#endif

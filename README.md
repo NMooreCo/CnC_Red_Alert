@@ -318,6 +318,17 @@ make more waves. In a network game, the players are allies against the waves.
 **Co-op** is an option of network games: the players start allied with each other, against
 the computer players (allied with each other too).
 
+**Co-op campaign**: at the very end of the network games' scenario list come the campaign
+missions ("Co-op Allied 1: In the thick of it" and so on). The players of a game on one
+play it together, as its side: they share its forces, its base and its money, and each can
+give any order. The mission plays as it does for one player (its enemies, its triggers,
+its rules), at normal difficulty, without the movies. Its briefing shows over the map at the
+start, for a minute (the options menu's briefing button shows it again), since the game
+can't stop for it. When it's won or lost, everyone goes back to the menus (the host can
+then choose the next one). It can't be saved; a player who leaves leaves the others to
+finish it. The game stays in step between the players as a network game does, and they can
+send each other messages (F1-F8) as in one.
+
 **Random maps**: at the end of the skirmish and network games' scenario lists, "Random Map:
 Small (2-4)", "Medium (4-6)" and "Large (6-8)" make a new map each time you choose one
 (choose it again for another). It's saved as `RANDOMS.MPR`, `RANDOMM.MPR` or

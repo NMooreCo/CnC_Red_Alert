@@ -270,7 +270,11 @@ int LoadOptionsClass::Process(void)
 		/*
 		**	Invoke game callback.
 		*/
+#ifdef RA_ENHANCE
+		if (Game_Pauses_In_Dialogs()) {		// RA_ENHANCE: not in a co-op mission (COOP.CPP).
+#else
 		if (Session.Type == GAME_NORMAL || Session.Type == GAME_SKIRMISH) {
+#endif
 			Call_Back();
 		} else {
 			if (Main_Loop()) {

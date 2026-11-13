@@ -462,6 +462,9 @@ void Main_Game(int argc, char * argv[])
 			Session.RecordFile.Close();
 		}
 
+#ifdef RA_ENHANCE
+		Coop_End();		// RA_ENHANCE: a co-op mission was a network game: shut the network down (COOP.CPP).
+#endif
 		if (Session.Type == GAME_NULL_MODEM || Session.Type == GAME_MODEM) {
 			if (!Session.Play) {
 				Modem_Signoff();
@@ -1178,6 +1181,8 @@ static void Message_Input(KeyNumType &input)
 	if (Session.Type != GAME_NORMAL && Session.Type != GAME_SKIRMISH && 
 		( ( input >= KN_F1 && input < (KN_F1 + Session.MaxPlayers) ) || input == PAGE_RESPOND_KEY ) && 
 		!Session.Messages.Is_Edit()) {
+#elif defined(RA_ENHANCE)
+	if (Net_Type() != GAME_NORMAL && Net_Type() != GAME_SKIRMISH && input >= KN_F1 && input < (KN_F1 + Session.MaxPlayers) && !Session.Messages.Is_Edit()) {		// RA_ENHANCE: co-op missions too.
 #else
 	if (Session.Type != GAME_NORMAL && Session.Type != GAME_SKIRMISH && input >= KN_F1 && input < (KN_F1 + Session.MaxPlayers) && !Session.Messages.Is_Edit()) {
 #endif
@@ -1197,7 +1202,11 @@ static void Message_Input(KeyNumType &input)
 
 				Map.Flag_To_Redraw(false);
 			}
+#ifdef RA_ENHANCE
+		} else if ((Net_Type() == GAME_IPX || Net_Type() == GAME_INTERNET) && !Session.Messages.Is_Edit()) {		// RA_ENHANCE: co-op missions too.
+#else
 		} else if ((Session.Type == GAME_IPX || Session.Type == GAME_INTERNET) && !Session.Messages.Is_Edit()) {
+#endif
 		/*
 		**	For a network game:
 		**	F1-F7 = "To <name> (house):" (only allowed if we're not in ObiWan mode)
@@ -1358,7 +1367,11 @@ static void Message_Input(KeyNumType &input)
 	/*
 	**	Send a message
 	*/
+#ifdef RA_ENHANCE
+	if ((rc==3 || rc==4) && Net_Type() != GAME_NORMAL && Net_Type() != GAME_SKIRMISH) {		// RA_ENHANCE: co-op missions too.
+#else
 	if ((rc==3 || rc==4) && Session.Type != GAME_NORMAL && Session.Type != GAME_SKIRMISH) {
+#endif
 		/*
 		**	Serial game: fill in a SerialPacketType & send it.
 		**	(Note: The size of the SerialPacketType.Command must be the same as
@@ -1392,7 +1405,11 @@ static void Message_Input(KeyNumType &input)
 	}
 #endif
 			strcpy(Session.LastMessage, serial_packet->Message.Message);
+#ifdef RA_ENHANCE
+		} else if (Net_Type() == GAME_IPX || Net_Type() == GAME_INTERNET) {		// RA_ENHANCE: co-op missions too.
+#else
 		} else if (Session.Type == GAME_IPX || Session.Type == GAME_INTERNET) {
+#endif
 #ifdef WOLAPI_INTEGRATION
 			NetNumType blip;
 			NetNodeType blop;
@@ -1653,7 +1670,11 @@ void Call_Back(void)
 	/*
 	**	Network maintenance.
 	*/
+#ifdef RA_ENHANCE
+	if (Net_Type() == GAME_IPX || Net_Type() == GAME_INTERNET) {		// RA_ENHANCE: co-op missions too (COOP.CPP).
+#else
 	if (Session.Type == GAME_IPX || Session.Type == GAME_INTERNET) {
+#endif
 		IPX_Call_Back();
 	}
 
@@ -2245,7 +2266,11 @@ Mono_Set_Cursor(0,0);
 	/*
 	**	Setup the timer so that the Main_Loop function processes at the correct rate.
 	*/
+#ifdef RA_ENHANCE
+	if (Net_Type() != GAME_NORMAL && Net_Type() != GAME_SKIRMISH &&		// RA_ENHANCE: a co-op mission keeps the network's pace.
+#else
 	if (Session.Type != GAME_NORMAL && Session.Type != GAME_SKIRMISH &&
+#endif
 		Session.CommProtocol == COMM_PROTOCOL_MULTI_E_COMP) {
 
 		//

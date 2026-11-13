@@ -156,7 +156,11 @@ void Special_Dialog(bool simple)
 	bool process = true;
 	while (process) {
 
+#ifdef RA_ENHANCE
+		if (Session.Type == GAME_NORMAL && !Coop_Is_On()) {		// RA_ENHANCE: not in a co-op mission (COOP.CPP).
+#else
 		if (Session.Type == GAME_NORMAL) {
+#endif
 			Call_Back();
 		} else {
 			if (Main_Loop()) {

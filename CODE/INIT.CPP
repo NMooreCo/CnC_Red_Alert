@@ -1461,6 +1461,9 @@ bool Select_Game(bool fade)
 	/*
 	** Initialize the random number generator(s)
 	*/
+#ifdef RA_ENHANCE
+	Coop_Begin();		// RA_ENHANCE: a campaign mission in a network game is played together (COOP.CPP).
+#endif
 	Init_Random();
 
 	/*
@@ -1539,9 +1542,16 @@ bool Select_Game(bool fade)
 		}
 		Show_Mouse();
 //Mono_Printf("About to call Start Scenario with %s\n", Scen.ScenarioName);
+#ifdef RA_ENHANCE
+		if (!Start_Scenario(Scen.ScenarioName, !Coop_Is_On())) {		// RA_ENHANCE: no movies for a co-op mission.
+			return(false);
+		}
+		Coop_Assign();
+#else
 		if (!Start_Scenario(Scen.ScenarioName)) {
 			return(false);
 		}
+#endif
 		if (Special.IsFromInstall) Show_Mouse();
 		Special.IsFromInstall = false;
 	}
@@ -1553,7 +1563,11 @@ bool Select_Game(bool fade)
 	*/
 	Session.Messages.Init(
 		Map.TacPixelX, Map.TacPixelY, 	// x,y for messages
+#ifdef RA_ENHANCE
+		Coop_Is_On() ? MAX_NUM_MESSAGES : 6,	// max # msgs (RA_ENHANCE: room for a co-op mission's briefing)
+#else
 		6, 										// max # msgs
+#endif
 		MAX_MESSAGE_LENGTH-14,				// max msg length
 		7 * RESFACTOR,							// font height in pixels
 		-1, -1, 									// x,y for edit line (appears above msgs)
@@ -1566,7 +1580,11 @@ bool Select_Game(bool fade)
 		(320-SIDEBAR_WID));	// Width in pixels of buffer
 #endif
 
+#ifdef RA_ENHANCE
+	if (Net_Type() != GAME_NORMAL && Net_Type() != GAME_SKIRMISH &&		// RA_ENHANCE: and a co-op mission's (COOP.CPP).
+#else
 	if (Session.Type != GAME_NORMAL && Session.Type != GAME_SKIRMISH &&
+#endif
 		!Session.Play) {
 		if (Session.Type == GAME_TEN) {
 #if(TEN)
@@ -1580,6 +1598,9 @@ bool Select_Game(bool fade)
 			Session.Create_Connections();
 		}
 	}
+#ifdef RA_ENHANCE
+	Coop_Show_Briefing();		// RA_ENHANCE: a co-op mission's briefing, over the map (COOP.CPP).
+#endif
 
 
 	/*
@@ -2552,8 +2573,13 @@ void Init_Random(void)
 	** in the connection dialogs.  For single-player games, AND if we're not playing
 	** back a recording, init the Seed to a random value.
 	*/
+#ifdef RA_ENHANCE
+	if ((Session.Type == GAME_NORMAL && !Coop_Is_On()) || Session.Type == GAME_SKIRMISH &&		// RA_ENHANCE: a co-op mission has the host's seed.
+		!Session.Play) {
+#else
 	if (Session.Type == GAME_NORMAL || Session.Type == GAME_SKIRMISH &&
 		!Session.Play) {
+#endif
 
 		/*
 		** Set the optional user-specified seed

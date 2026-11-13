@@ -369,7 +369,11 @@ Theme.Stop();
 	if (Scen.BriefMovie != VQ_NONE) {
 		sprintf(buffer, "%s.VQA", VQName[Scen.BriefMovie]);
 	}
+#ifdef RA_ENHANCE
+	if (Session.Type == GAME_NORMAL && !Coop_Is_On() && (Scen.BriefMovie == VQ_NONE || !CCFileClass(buffer).Is_Available())) {
+#else
 	if (Session.Type == GAME_NORMAL && (Scen.BriefMovie == VQ_NONE || !CCFileClass(buffer).Is_Available())) {
+#endif
 		/*
 		** Make sure the mouse is visible before showing the restatement.
 		*/
@@ -853,6 +857,18 @@ void Do_Win(void)
 		}
 	}
 
+#ifdef RA_ENHANCE
+	/*
+	**	RA_ENHANCE: a co-op mission ends here, for everyone (COOP.CPP).
+	*/
+	if (Coop_Is_On()) {
+		Coop_End();
+		GameActive = 0;
+		Show_Mouse();
+		return;
+	}
+#endif
+
 	/*
 	** Stop here if this is a multiplayer game.
 	*/
@@ -1110,6 +1126,18 @@ void Do_Lose(void)
 	while (CountDownTimer || Is_Speaking()) {
 		Call_Back();
 	}
+
+#ifdef RA_ENHANCE
+	/*
+	**	RA_ENHANCE: a co-op mission ends here, for everyone (COOP.CPP).
+	*/
+	if (Coop_Is_On()) {
+		Coop_End();
+		GameActive = 0;
+		Show_Mouse();
+		return;
+	}
+#endif
 
 	/*
 	** Stop here if this is a multiplayer game.

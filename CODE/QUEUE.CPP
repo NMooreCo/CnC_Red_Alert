@@ -78,6 +78,15 @@
  *   Check_Mirror -- Checks mirror memory                                  *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 #include	"FUNCTION.H"
+/*
+**	RA_ENHANCE: the network code takes the network's game type (Net_Type) and this player's
+**	network identity (Local_Event_ID): in a co-op mission, the game is a single player
+**	game to the rest of the code (COOP.CPP).
+*/
+#ifndef RA_ENHANCE
+#define	Net_Type()			(Session.Type)
+#define	Local_Event_ID()	(PlayerPtr->ID)
+#endif
 
 #ifdef WOLAPI_INTEGRATION
 //#include "WolDebug.h"
@@ -360,7 +369,7 @@ void Queue_AI(void)
 
 	else {
 
-		switch (Session.Type) {
+		switch (Net_Type()) {
 
 			case GAME_SKIRMISH:
 			case GAME_NORMAL:
@@ -553,7 +562,7 @@ static void Queue_AI_Normal(void)
  *=========================================================================*/
 static void Queue_AI_Multiplayer(void)
 {
-	if(Session.Type == GAME_SKIRMISH) return;
+	if(Net_Type() == GAME_SKIRMISH) return;
 
 	//........................................................................
 	// Enums:
@@ -565,7 +574,7 @@ static void Queue_AI_Multiplayer(void)
 		FRAMESYNC_TIMEOUT = (15*60),	// timeout waiting for frame sync packet
 	};
 
-	int timeout_factor = (Session.Type == GAME_INTERNET) ? 6 : 1;
+	int timeout_factor = (Net_Type() == GAME_INTERNET) ? 6 : 1;
 
 	//........................................................................
 	// Variables for sending, receiving & parsing packets:
@@ -603,24 +612,24 @@ static void Queue_AI_Multiplayer(void)
 	//------------------------------------------------------------------------
 	//	Initialize the packet buffer pointer & its max size
 	//------------------------------------------------------------------------
-	if (Session.Type == GAME_MODEM || Session.Type == GAME_NULL_MODEM) {
+	if (Net_Type() == GAME_MODEM || Net_Type() == GAME_NULL_MODEM) {
 		multi_packet_buf = NullModem.BuildBuf;
 		multi_packet_max = NullModem.MaxLen - sizeof (CommHeaderType);
 		net = &NullModem;
-	} else if (Session.Type == GAME_IPX || Session.Type == GAME_INTERNET) {
+	} else if (Net_Type() == GAME_IPX || Net_Type() == GAME_INTERNET) {
 		multi_packet_buf = Session.MetaPacket;
 		multi_packet_max = Session.MetaSize;
 		net = &Ipx;
 	}
 #if(TEN)
-	else if (Session.Type == GAME_TEN) {
+	else if (Net_Type() == GAME_TEN) {
 		multi_packet_buf = Session.TenPacket;
 		multi_packet_max = Session.TenSize;
 		net = Ten;
 	}
 #endif
 #if(MPATH)
-	else if (Session.Type == GAME_MPATH) {
+	else if (Net_Type() == GAME_MPATH) {
 		multi_packet_buf = Session.MPathPacket;
 		multi_packet_max = Session.MPathSize;
 		net = MPath;
@@ -689,7 +698,7 @@ static void Queue_AI_Multiplayer(void)
 
 		if (rc != RC_NORMAL) {
 #ifdef WIN32
-			if (Session.Type == GAME_INTERNET){
+			if (Net_Type() == GAME_INTERNET){
 				Register_Game_End_Time();
 			}
 #endif	//WIN32
@@ -826,7 +835,7 @@ static void Queue_AI_Multiplayer(void)
 
 	if (rc != RC_NORMAL) {
 #ifdef WIN32
-			if (Session.Type == GAME_INTERNET){
+			if (Net_Type() == GAME_INTERNET){
 				Register_Game_End_Time();
 #ifdef WOLAPI_INTEGRATION
 				//	New rule - if you cancel a waiting to reconnect dialog, you lose.
@@ -860,7 +869,7 @@ static void Queue_AI_Multiplayer(void)
 	if (!Execute_DoList(Session.MaxPlayers, HOUSE_MULTI1, net, &skip_crc,
 		their_frame, their_sent, their_recv)) {
 #ifdef WIN32
-		if (Session.Type == GAME_INTERNET){
+		if (Net_Type() == GAME_INTERNET){
 			Register_Game_End_Time();
 		}
 #endif	//WIN32
@@ -1004,7 +1013,7 @@ static RetcodeType Wait_For_Players(int first_time, ConnManClass *net,
 #ifdef WOLAPI_INTEGRATION
 				//	"Reconnecting" dialog is about to be shown.
 				//	At this point, begin wolapi "disconnect pinging", if appropriate.
-				if( Session.Type == GAME_INTERNET && pWolapi && pWolapi->GameInfoCurrent.bTournament )
+				if( Net_Type() == GAME_INTERNET && pWolapi && pWolapi->GameInfoCurrent.bTournament )
 					pWolapi->Init_DisconnectPinging();
 #endif
 			}
@@ -1017,7 +1026,7 @@ static RetcodeType Wait_For_Players(int first_time, ConnManClass *net,
 
 #ifdef WOLAPI_INTEGRATION
 				//	Continue wolapi "disconnect pinging", if appropriate.
-				if( Session.Type == GAME_INTERNET && pWolapi && pWolapi->bDoingDisconnectPinging )
+				if( Net_Type() == GAME_INTERNET && pWolapi && pWolapi->bDoingDisconnectPinging )
 					pWolapi->Pump_DisconnectPinging();
 #endif
 		}
@@ -1049,9 +1058,9 @@ static RetcodeType Wait_For_Players(int first_time, ConnManClass *net,
 				}
 #ifdef FIXIT_MULTI_SAVE
 #ifdef FIXIT_VERSION_3
-				else if ((Session.Type == GAME_MODEM || Session.Type == GAME_NULL_MODEM) ) {
+				else if ((Net_Type() == GAME_MODEM || Net_Type() == GAME_NULL_MODEM) ) {
 #else
-				else if ((Session.Type == GAME_MODEM || Session.Type == GAME_NULL_MODEM) &&
+				else if ((Net_Type() == GAME_MODEM || Net_Type() == GAME_NULL_MODEM) &&
 					        PlayingAgainstVersion != VERSION_RED_ALERT_104) {
 #endif
 					if (WWMessageBox().Process (TXT_ASK_EMERGENCY_SAVE_NOT_RESPONDING,
@@ -1092,7 +1101,7 @@ static RetcodeType Wait_For_Players(int first_time, ConnManClass *net,
 		messages_this_loop = 0;
 		message_limit = 5;
 
-		if (Session.Type == GAME_TEN || Session.Type == GAME_MPATH) {
+		if (Net_Type() == GAME_TEN || Net_Type() == GAME_MPATH) {
 			message_limit = 9999;
 		}
 
@@ -1111,7 +1120,7 @@ static RetcodeType Wait_For_Players(int first_time, ConnManClass *net,
 			//------------------------------------------------------------------
 			// Special processing for a modem game: process SERIAL packets
 			//------------------------------------------------------------------
-			if (Session.Type == GAME_MODEM || Session.Type == GAME_NULL_MODEM) {
+			if (Net_Type() == GAME_MODEM || Net_Type() == GAME_NULL_MODEM) {
 				rc = Process_Serial_Packet(multi_packet_buf, first_time);
 				//...............................................................
 				// SERIAL packet received & processed
@@ -1299,7 +1308,7 @@ static void Generate_Timing_Event(ConnManClass *net, int my_sent)
 	// For now, TEN & MPATH don't measure the net's response time, so there's
 	// no point in adjusting our timing.  Do nothing.
 	//
-	if (Session.Type == GAME_TEN || Session.Type == GAME_MPATH) {
+	if (Net_Type() == GAME_TEN || Net_Type() == GAME_MPATH) {
 		return;
 	}
 
@@ -1339,14 +1348,14 @@ static void Generate_Timing_Event(ConnManClass *net, int my_sent)
 			// response time.
 			//..................................................................
 			else {
-				if (Session.Type == GAME_MODEM || Session.Type == GAME_NULL_MODEM) {
+				if (Net_Type() == GAME_MODEM || Net_Type() == GAME_NULL_MODEM) {
 					ev.Data.FrameInfo.Delay = max( (resp_time / 8),
 						 MODEM_MIN_MAX_AHEAD );
-				} else if (Session.Type == GAME_IPX || Session.Type == GAME_INTERNET) {
+				} else if (Net_Type() == GAME_IPX || Net_Type() == GAME_INTERNET) {
 					ev.Data.FrameInfo.Delay = max( (resp_time / 8),
 						 NETWORK_MIN_MAX_AHEAD );
 				}
-				else if (Session.Type == GAME_TEN || Session.Type == GAME_MPATH) {
+				else if (Net_Type() == GAME_TEN || Net_Type() == GAME_MPATH) {
 					ev.Data.FrameInfo.Delay = max( (resp_time / 8),
 						 MODEM_MIN_MAX_AHEAD );
 				}
@@ -1468,7 +1477,7 @@ static void Generate_Real_Timing_Event(ConnManClass *net, int my_sent)
 	//
 	//net->Set_Timing (resp_time + 10, -1, (resp_time * 4)+15);
 
-	if (Session.Type == GAME_INTERNET) {
+	if (Net_Type() == GAME_INTERNET) {
 		net->Set_Timing (resp_time + 10, -1, ((resp_time + 10)* 8)+15);
 	}else{
 		net->Set_Timing (resp_time + 10, -1, (resp_time * 4)+15);
@@ -1512,7 +1521,7 @@ static void Generate_Process_Time_Event(ConnManClass *net)
 	// connection timeout to allow for about 4 retries.
 	//
 	//net->Set_Timing (resp_time + 10, -1, (resp_time * 4)+15);
-	if (Session.Type == GAME_INTERNET) {
+	if (Net_Type() == GAME_INTERNET) {
 		net->Set_Timing (resp_time + 10, -1, ((resp_time + 10)* 8)+15);
 	}else{
 		net->Set_Timing (resp_time + 10, -1, (resp_time * 4)+15);
@@ -1660,7 +1669,7 @@ static int Send_Packets(ConnManClass *net, char *multi_packet_buf,
 	//
 	// 10/21/96 5:12PM - ST
 	//
-	if (Session.Type == GAME_INTERNET || Session.Type == GAME_MODEM || Session.Type == GAME_NULL_MODEM){
+	if (Net_Type() == GAME_INTERNET || Net_Type() == GAME_MODEM || Net_Type() == GAME_NULL_MODEM){
 		cap = OutList.Count;
 		do_once = 0;
 	}
@@ -1750,7 +1759,7 @@ static void Send_FrameSync(ConnManClass *net, int cmd_count)
 	else {
 		packet.Frame = Frame + Session.MaxAhead;
 	}
-	packet.ID = PlayerPtr->ID;
+	packet.ID = Local_Event_ID();
 	packet.Data.FrameInfo.CRC = ScenarioCRC;
 	packet.Data.FrameInfo.CommandCount = cmd_count;
 	packet.Data.FrameInfo.Delay = Session.MaxAhead;
@@ -2043,7 +2052,7 @@ static RetcodeType Process_Serial_Packet(char *multi_packet_buf,
 
 	if (event->Type <= EventClass::EMPTY || event->Type >= EventClass::LAST_EVENT) return (RC_SERIAL_PROCESSED);
 
-	if (event->ID == PlayerPtr->ID) {
+	if (event->ID == Local_Event_ID()) {
 		return (RC_HUNG_UP);
 	}
 
@@ -2245,7 +2254,7 @@ static int Handle_Timeout(ConnManClass *net, int *their_frame,
 	//------------------------------------------------------------------------
 	// For modem, attempt to reconnect; if that fails, save the game & bail.
 	//------------------------------------------------------------------------
-	if (Session.Type == GAME_MODEM || Session.Type == GAME_NULL_MODEM) {
+	if (Net_Type() == GAME_MODEM || Net_Type() == GAME_NULL_MODEM) {
 		if ( net->Num_Connections() ) {
 			if (!Reconnect_Modem()) {
 #ifndef FIXIT_MULTI_SAVE
@@ -2269,8 +2278,8 @@ static int Handle_Timeout(ConnManClass *net, int *their_frame,
 	//------------------------------------------------------------------------
 	//	For network, destroy the oldest connection
 	//------------------------------------------------------------------------
-	else if (Session.Type == GAME_IPX || Session.Type == GAME_INTERNET ||
-		Session.Type == GAME_TEN || Session.Type == GAME_MPATH) {
+	else if (Net_Type() == GAME_IPX || Net_Type() == GAME_INTERNET ||
+		Net_Type() == GAME_TEN || Net_Type() == GAME_MPATH) {
 		j = 0x7fffffff;
 		oldest_index = 0;
 		for (i = 0; i < net->Num_Connections(); i++) {
@@ -2286,7 +2295,7 @@ static int Handle_Timeout(ConnManClass *net, int *their_frame,
 		** Send the game statistics packet now if the game is effectivly over
 		*/
 		if (Session.Players.Count() == 2 &&
-				Session.Type == GAME_INTERNET &&
+				Net_Type() == GAME_INTERNET &&
 				!GameStatisticsPacketSent) {
 			Register_Game_End_Time();
 			ConnectionLost = true;
@@ -2300,16 +2309,16 @@ static int Handle_Timeout(ConnManClass *net, int *their_frame,
 				their_sent[i] = their_sent[i+1];
 				their_recv[i] = their_recv[i+1];
 			}
-			if (Session.Type == GAME_IPX || Session.Type == GAME_INTERNET) {
+			if (Net_Type() == GAME_IPX || Net_Type() == GAME_INTERNET) {
 				Destroy_Connection(id,1);
 			}
 #if(TEN)
-			else if (Session.Type == GAME_TEN) {
+			else if (Net_Type() == GAME_TEN) {
 				Destroy_TEN_Connection(id,1);
 			}
 #endif
 #if(MPATH)
-			else if (Session.Type == GAME_MPATH) {
+			else if (Net_Type() == GAME_MPATH) {
 				Destroy_MPATH_Connection(id,1);
 			}
 #endif
@@ -2348,7 +2357,7 @@ static void Stop_Game(void)
 		MonoClass::Disable();
 	}
 #ifdef WIN32
-	if (Session.Type == GAME_INTERNET){
+	if (Net_Type() == GAME_INTERNET){
 		ConnectionLost = true;
 		Send_Statistics_Packet();			//	Stop_Game()
 	}
@@ -2414,7 +2423,7 @@ static int Build_Send_Packet(void *buf, int bufsize, int frame_delay,
 	//........................................................................
 	// Fill in the rest of the event
 	//........................................................................
-	finfo->ID = PlayerPtr->ID;
+	finfo->ID = Local_Event_ID();
 	finfo->Data.FrameInfo.CRC = GameCRC;
 	finfo->Data.FrameInfo.CommandCount = num_cmds;
 	finfo->Data.FrameInfo.Delay = frame_delay;
@@ -2523,7 +2532,7 @@ static int Add_Uncompressed_Events(void *buf, int bufsize, int frame_delay,
 		//.....................................................................
 		// Set the event's ID
 		//.....................................................................
-		OutList.First().ID = PlayerPtr->ID;
+		OutList.First().ID = Local_Event_ID();
 
 		//.....................................................................
 		// Transfer the event in OutList to DoList, un-queue the OutList
@@ -2757,7 +2766,7 @@ static int Add_Compressed_Events(void *buf, int bufsize, int frame_delay,
 		//.....................................................................
 		// Set the event's ID
 		//.....................................................................
-		OutList.First().ID = PlayerPtr->ID;
+		OutList.First().ID = Local_Event_ID();
 
 		//.....................................................................
 		// Transfer the event in OutList to DoList, un-queue the OutList event.
@@ -3321,8 +3330,8 @@ static int Execute_DoList(int max_houses, HousesType base_house,
 				// (Hack: disable this check for solo or skirmish mode.)
 				//...............................................................
 				if (Frame > DoList[j].Frame && DoList[j].Type !=
-					EventClass::FRAMEINFO && Session.Type != GAME_NORMAL &&
-					Session.Type != GAME_SKIRMISH) {
+					EventClass::FRAMEINFO && Net_Type() != GAME_NORMAL &&
+					Net_Type() != GAME_SKIRMISH) {
 
 #if(TEN)
 					Send_TEN_Packet_Too_Late();
@@ -3368,7 +3377,7 @@ static int Execute_DoList(int max_houses, HousesType base_house,
 						** Send the game statistics packet now since the game is effectivly over
 						*/
 						if (Session.Players.Count() == 2 &&
-								Session.Type == GAME_INTERNET &&
+								Net_Type() == GAME_INTERNET &&
 								!GameStatisticsPacketSent) {
 							Register_Game_End_Time();
 							Send_Statistics_Packet();		//	Event - player aborted, and there were only 2 left.
@@ -3386,7 +3395,7 @@ static int Execute_DoList(int max_houses, HousesType base_house,
 						}
 					}
 
-					if (DoList[j].ID == PlayerPtr->ID) {
+					if (DoList[j].ID == Local_Event_ID()) {
 						DoList[j].Execute();
 					} else if (DoList[j].Type==EventClass::EXIT) {
 					//............................................................
@@ -3394,13 +3403,13 @@ static int Execute_DoList(int max_houses, HousesType base_house,
 					//	for that player.  The HousesType for this event is the
 					// connection ID.
 					//............................................................
-						if (Session.Type == GAME_MODEM ||
-							Session.Type == GAME_NULL_MODEM) {
+						if (Net_Type() == GAME_MODEM ||
+							Net_Type() == GAME_NULL_MODEM) {
 							Destroy_Null_Connection( house, 0 );
-						} else if ((Session.Type == GAME_IPX ||
-							Session.Type == GAME_INTERNET ||
-							Session.Type == GAME_TEN ||
-							Session.Type == GAME_MPATH) && net) {
+						} else if ((Net_Type() == GAME_IPX ||
+							Net_Type() == GAME_INTERNET ||
+							Net_Type() == GAME_TEN ||
+							Net_Type() == GAME_MPATH) && net) {
 							index = net->Connection_Index (house);
 							if (index != -1) {
 								for (k = index; k < net->Num_Connections() - 1; k++) {
@@ -3408,17 +3417,17 @@ static int Execute_DoList(int max_houses, HousesType base_house,
 									their_sent[k] = their_sent[k+1];
 									their_recv[k] = their_recv[k+1];
 								}
-								if (Session.Type == GAME_IPX ||
-									Session.Type == GAME_INTERNET) {
+								if (Net_Type() == GAME_IPX ||
+									Net_Type() == GAME_INTERNET) {
 									Destroy_Connection(house,0);
 								}
 #if(TEN)
-								else if (Session.Type == GAME_TEN) {
+								else if (Net_Type() == GAME_TEN) {
 									Destroy_TEN_Connection(house,0);
 								}
 #endif	// TEN
 #if(MPATH)
-								else if (Session.Type == GAME_MPATH) {
+								else if (Net_Type() == GAME_MPATH) {
 									Destroy_MPATH_Connection(house,0);
 								}
 #endif	// MPATH
@@ -3472,28 +3481,28 @@ static int Execute_DoList(int max_houses, HousesType base_house,
 
 							if (WWMessageBox().Process (TXT_OUT_OF_SYNC,
 								TXT_CONTINUE, TXT_STOP) == 0) {
-								if (Session.Type == GAME_MODEM ||
-									Session.Type == GAME_NULL_MODEM) {
+								if (Net_Type() == GAME_MODEM ||
+									Net_Type() == GAME_NULL_MODEM) {
 									Destroy_Null_Connection( house, -1 );
 									Shutdown_Modem();
 									Session.Type = GAME_NORMAL;
 								}
-								else if ((Session.Type == GAME_IPX ||
-									Session.Type == GAME_INTERNET) && net) {
+								else if ((Net_Type() == GAME_IPX ||
+									Net_Type() == GAME_INTERNET) && net) {
 									while (net->Num_Connections()) {
 										Keyboard->Check();
 										Destroy_Connection (net->Connection_ID(0), -1);
 									}
 								}
 #if(TEN)
-								else if (Session.Type == GAME_TEN && net) {
+								else if (Net_Type() == GAME_TEN && net) {
 									while (net->Num_Connections()) {
 										Destroy_TEN_Connection (net->Connection_ID(0), -1);
 									}
 								}
 #endif
 #if(MPATH)
-								else if (Session.Type == GAME_MPATH && net) {
+								else if (Net_Type() == GAME_MPATH && net) {
 									while (net->Num_Connections()) {
 										Destroy_MPATH_Connection (net->Connection_ID(0), -1);
 									}
@@ -3704,7 +3713,7 @@ static void Queue_Playback(void)
 	//	routine didn't write anything the first time through); do this after the
 	//	CRC is computed, since we'll still need a CRC for Frame 0.
 	//------------------------------------------------------------------------
-	if (Frame==0 && Session.Type!=GAME_NORMAL) {
+	if (Frame==0 && Net_Type()!=GAME_NORMAL) {
 		return;
 	}
 
@@ -3713,7 +3722,7 @@ static void Queue_Playback(void)
 	//------------------------------------------------------------------------
 	testframe = ((Frame + (Session.FrameSendRate - 1)) /
 		Session.FrameSendRate) * Session.FrameSendRate;
-	if ( (Session.Type != GAME_NORMAL && Session.Type != GAME_SKIRMISH) &&
+	if ( (Net_Type() != GAME_NORMAL && Net_Type() != GAME_SKIRMISH) &&
 		Session.CommProtocol == COMM_PROTOCOL_MULTI_E_COMP) {
 		if (Frame != testframe) {
 			return;
@@ -3754,7 +3763,7 @@ static void Queue_Playback(void)
 	//------------------------------------------------------------------------
 	// Execute the DoList; if an error occurs, bail out.
 	//------------------------------------------------------------------------
-	if (Session.Type == GAME_NORMAL) {
+	if (Net_Type() == GAME_NORMAL) {
 		max_houses = 1;
 		base_house = PlayerPtr->Class->House;
 	}

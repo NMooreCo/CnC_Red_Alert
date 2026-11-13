@@ -46,6 +46,12 @@ enum {
 };
 
 /*
+**	The game type to the network code: in a co-op campaign mission, the network's, while the
+**	rest of the game sees a single player game (COOP.CPP).
+*/
+GameType	Net_Type(void);
+
+/*
 **	The enhancements that change the rules, as the host of a network game sends them
 **	(EnhancementsClass::NetFlags).
 */
@@ -153,7 +159,7 @@ class EnhancementsClass
 		bool	Is_Smart_AI(void) const {return(Is_Network() ? (NetFlags & NET_ENH_SMART_AI) != 0 : SmartAI && Session.Type == GAME_SKIRMISH);}
 		bool	Is_Support_Powers(void) const {return(Is_Network() ? (NetFlags & NET_ENH_SUPPORT_POWERS) != 0 : SupportPowers && Rules_Apply());}
 		bool	Is_Attack_Move(void) const {return(Is_Network() ? (NetFlags & NET_ENH_ATTACK_MOVE) != 0 : AttackMove && Rules_Apply());}
-		bool	Is_Network(void) const {return(Session.Type != GAME_NORMAL && Session.Type != GAME_SKIRMISH);}
+		bool	Is_Network(void) const {return(Net_Type() != GAME_NORMAL && Net_Type() != GAME_SKIRMISH);}		// A co-op mission too (COOP.CPP).
 
 	private:
 		bool	Rules_Apply(void) const;
@@ -243,6 +249,21 @@ void	Survival_Start(void);
 void	Survival_AI(void);
 void	Survival_Save(Pipe & pipe);
 void	Survival_Restore(void);
+
+/*
+**	The campaign together, in network games (COOP.CPP).
+*/
+bool	Coop_Is_On(void);
+bool	Game_Pauses_In_Dialogs(void);
+int	Local_Event_ID(void);
+HouseClass * Event_House(int id);
+bool	Coop_Is_Mission(char const * filename);
+bool	Coop_Is_Entry(int index);
+void	Coop_Add_Missions(void);
+void	Coop_Begin(void);
+void	Coop_Assign(void);
+void	Coop_Show_Briefing(void);
+void	Coop_End(void);
 
 /*
 **	Random maps, in the skirmish and network games' scenario lists (RANDMAP.CPP).

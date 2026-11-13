@@ -3322,6 +3322,9 @@ int Com_Scenario_Dialog(bool skirmish)
 	Init scenario description list box
 	........................................................................*/
 	for (i = 0; i < Session.Scenarios.Count(); i++) {
+#ifdef RA_ENHANCE
+		if (Coop_Is_Entry(i)) break;		// RA_ENHANCE: co-op missions are for network games (COOP.CPP).
+#endif
 		int j;
 		for (j = 0; EngMisStr[j] != NULL;  j++) {
 			if (!strcmp(Session.Scenarios[i]->Description(), EngMisStr[j])) {
