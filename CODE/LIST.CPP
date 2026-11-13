@@ -423,6 +423,19 @@ void ListClass::Bump(int up)
 }
 
 
+#ifdef RA_ENHANCE
+/***********************************************************************************************
+ * ListClass::Mouse_Wheel -- RA_ENHANCE: the mouse wheel scrolls the list a line per step.     *
+ *=============================================================================================*/
+bool ListClass::Mouse_Wheel(int steps)
+{
+	for (; steps > 0; steps--) Bump(true);
+	for (; steps < 0; steps++) Bump(false);
+	return(true);
+}
+#endif
+
+
 /***********************************************************************************************
  * ListClass::Step -- Moves the list view one line in direction specified.                     *
  *                                                                                             *

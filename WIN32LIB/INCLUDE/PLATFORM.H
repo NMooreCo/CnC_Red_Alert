@@ -46,6 +46,7 @@ void	Video_Set_Cursor(void const * image, int width, int height, int hotx, int h
 void	Video_Show_Cursor(bool show);
 void	Video_Get_Mouse(int & x, int & y);
 void	Video_Set_Mouse(int x, int y);
+int	Video_Take_Mouse_Wheel(void);		// Wheel steps since the last call (up > 0).
 
 /*
 **	Events. Pumps the SDL event queue, feeding keyboard/mouse input into the game's

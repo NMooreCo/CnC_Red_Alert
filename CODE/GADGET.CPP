@@ -541,6 +541,25 @@ KeyNumType GadgetClass::Input(void)
 	   mousey = Get_Mouse_Y();
 	}
 
+#ifdef RA_ENHANCE
+	/*
+	**	RA_ENHANCE: the mouse wheel scrolls the gadget under the mouse that can scroll (a
+	**	list). What no gadget takes is left for the sidebar's strips (Mouse_Wheel_Left).
+	*/
+	{
+		int wheel = Mouse_Wheel_Take();
+		for (GadgetClass * gadget = this; wheel != 0 && gadget != NULL; gadget = gadget->Get_Next()) {
+			if (!gadget->IsDisabled &&
+					mousex >= gadget->X && mousex < gadget->X + gadget->Width &&
+					mousey >= gadget->Y && mousey < gadget->Y + gadget->Height &&
+					gadget->Mouse_Wheel(wheel)) {
+				wheel = 0;
+			}
+		}
+		Mouse_Wheel_Left = wheel;
+	}
+#endif
+
 	/*
 	**	Set the mouse button state flags. These will be passed to the individual
 	**	buttons so that they can determine what action to perform (if any).

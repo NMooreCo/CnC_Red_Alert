@@ -79,6 +79,13 @@ extern EnhancementsClass Enhance;
 void	Enhancements_Dialog(void);		// Options, Game Controls, Enhancements.
 
 /*
+**	The mouse wheel (always on: the original had no wheel). GadgetClass::Input gives it to a
+**	list under the mouse, and leaves the rest in Mouse_Wheel_Left for the sidebar's strips.
+*/
+int	Mouse_Wheel_Take(void);
+extern int	Mouse_Wheel_Left;
+
+/*
 **	Mission select.
 */
 void	Mission_Reached(void);

@@ -76,6 +76,9 @@ class ListClass : public ControlClass
 		virtual int Add_Item(int text);
 		virtual int Add_Scroll_Bar(void);
 		virtual void Bump(int up);
+#ifdef RA_ENHANCE
+		virtual bool Mouse_Wheel(int steps);		// RA_ENHANCE: the wheel scrolls the list.
+#endif
 		virtual int Count(void) const {return List.Count();};
 		virtual int Current_Index(void) const;
 		virtual char const * Current_Item(void) const;
@@ -173,6 +176,13 @@ class TListClass : public ControlClass
 		virtual int Add_Scroll_Bar(void);
 		virtual void Insert_Item(T item);
 		virtual void Bump(int up);
+#ifdef RA_ENHANCE
+		virtual bool Mouse_Wheel(int steps) {		// RA_ENHANCE: the wheel scrolls the list.
+			for (; steps > 0; steps--) Bump(true);
+			for (; steps < 0; steps++) Bump(false);
+			return(true);
+		}
+#endif
 		virtual int Count(void) const {return List.Count();};
 		virtual int Current_Index(void) const;
 		virtual T Current_Item(void) const;

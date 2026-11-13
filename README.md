@@ -234,6 +234,9 @@ Controls**, **Enhancements** (or set them in `REDALERT.INI`, section `[Enhanceme
 Those that change the game rules apply to campaign and skirmish games; network games use
 the original rules for now, as every player would need the same ones.
 
+Conveniences that don't change the game are always on: the mouse wheel scrolls the
+sidebar column under the pointer, and lists in dialogs.
+
 | Enhancement | `REDALERT.INI` | What it does |
 | --- | --- | --- |
 | Veterancy | `Veterancy=yes` | Units earn ranks from their kills: veteran after 3, elite after 7. A veteran deals 20% more damage, takes 20% less and fires 10% faster; an elite unit deals 40% more, takes 35% less, fires 25% faster and repairs itself. Selected units show their rank as chevrons above the health bar. Westwood started on this: every unit has a kill counter ("When it reaches a certain point, the unit improves", `CODE/CREW.H`), but the original game credited each kill to the victim and never used the count. |

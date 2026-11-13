@@ -33,10 +33,18 @@
  *---------------------------------------------------------------------------------------------*/
 
 #include	"FUNCTION.H"
+#include	"PLATFORM.H"
 
 #ifdef RA_ENHANCE
 
 EnhancementsClass Enhance;
+
+int Mouse_Wheel_Left = 0;
+
+int Mouse_Wheel_Take(void)
+{
+	return(Video_Take_Mouse_Wheel());
+}
 
 static char const ENHANCEMENTS[] = "Enhancements";
 static char const VETERANCY[] = "Veterancy";
@@ -344,12 +352,18 @@ bool Mission_Select_Dialog(void)
 			}
 
 			strcpy(_files[count], file);
+			char label[24];
 			if (!found) {
 				strcpy(main_name, name);
 				furthest = count;
-				snprintf(_texts[count], sizeof(_texts[count]), "Mission %d: %s", number, name);
+				snprintf(label, sizeof(label), "Mission %d", number);
 			} else {
-				snprintf(_texts[count], sizeof(_texts[count]), "Mission %d: %s (version %s%c)", number, name, (version[0] == 'W') ? "W" : "", version[1]);
+				snprintf(label, sizeof(label), "Mission %d (version %s%c)", number, (version[0] == 'W') ? "W" : "", version[1]);
+			}
+			if (name[0] != '\0') {
+				snprintf(_texts[count], sizeof(_texts[count]), "%s: %s", label, name);
+			} else {
+				snprintf(_texts[count], sizeof(_texts[count]), "%s", label);
 			}
 			found = true;
 			count++;

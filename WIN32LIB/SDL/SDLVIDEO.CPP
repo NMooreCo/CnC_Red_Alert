@@ -69,6 +69,7 @@ static bool					CursorVisible = false;
 
 static int					MouseX = 0;
 static int					MouseY = 0;
+static int					MouseWheel = 0;		// Wheel steps not taken yet (up > 0).
 static int					LastDrawnMouseX = -1;
 static int					LastDrawnMouseY = -1;
 static bool					HasFocus = true;
@@ -616,6 +617,10 @@ void Platform_Pump_Events(void)
 				Win32_Post_Input(WM_MOUSEMOVE, 0, Mouse_LParam());
 				break;
 
+			case SDL_MOUSEWHEEL:
+				MouseWheel += event.wheel.y;		// The original had no wheel: Video_Take_Mouse_Wheel.
+				break;
+
 			case SDL_MOUSEBUTTONDOWN:
 			case SDL_MOUSEBUTTONUP: {
 				Update_Mouse_Position(event.button.x, event.button.y);
@@ -637,6 +642,13 @@ void Platform_Pump_Events(void)
 	}
 
 	Video_Present();
+}
+
+int Video_Take_Mouse_Wheel(void)
+{
+	int steps = MouseWheel;
+	MouseWheel = 0;
+	return(steps);
 }
 
 bool Platform_Has_Focus(void)

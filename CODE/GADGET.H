@@ -127,6 +127,9 @@ class GadgetClass : public LinkClass
 		virtual void Flag_List_To_Redraw(void) {LastList = 0;};
 		virtual GadgetClass * Remove(void);
 		virtual GadgetClass * Get_Next(void) const;
+#ifdef RA_ENHANCE
+		virtual bool Mouse_Wheel(int ) {return(false);}		// RA_ENHANCE: scroll by wheel steps (up > 0)?
+#endif
 		virtual GadgetClass * Get_Prev(void) const;
 
 		/*

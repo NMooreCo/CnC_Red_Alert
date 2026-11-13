@@ -839,6 +839,23 @@ void SidebarClass::AI(KeyNumType & input, int x, int y)
 		Column[1].AI(input, x, y);
 	}
 
+#ifdef RA_ENHANCE
+	/*
+	**	RA_ENHANCE: the mouse wheel scrolls the strip under the mouse.
+	*/
+	if (Mouse_Wheel_Left != 0 && IsSidebarActive && !Debug_Map) {
+		for (int column = 0; column < COLUMNS; column++) {
+			StripClass const & strip = Column[column];
+			if (x >= strip.X && x < strip.X + StripClass::OBJECT_WIDTH * RESFACTOR &&
+					y >= strip.Y && y < strip.Y + StripClass::MAX_VISIBLE * StripClass::OBJECT_HEIGHT * RESFACTOR) {
+				for (; Mouse_Wheel_Left > 0; Mouse_Wheel_Left--) Scroll(true, column);
+				for (; Mouse_Wheel_Left < 0; Mouse_Wheel_Left++) Scroll(false, column);
+			}
+		}
+		Mouse_Wheel_Left = 0;
+	}
+#endif
+
 #ifdef NEVER
 	if (IsSidebarActive && !Debug_Map) {
 
