@@ -854,6 +854,13 @@ void SidebarClass::AI(KeyNumType & input, int x, int y)
 		}
 		Mouse_Wheel_Left = 0;
 	}
+
+	/*
+	**	RA_ENHANCE: start the next queued unit when its factory is free.
+	*/
+	if (!Debug_Map) {
+		Build_Queue_AI();
+	}
 #endif
 
 #ifdef NEVER
@@ -1855,6 +1862,18 @@ void SidebarClass::StripClass::Draw_It(bool complete)
 				}
 			}
 
+#ifdef RA_ENHANCE
+			/*
+			**	RA_ENHANCE: how many more of this unit are queued.
+			*/
+			if ((unsigned)index < BuildableCount) {
+				int queued = Build_Queue_Count(Buildables[index].BuildableType, Buildables[index].BuildableID);
+				if (queued > 0) {
+					Fancy_Text_Print("+%d", x + ((LEFT_EDGE_OFFSET + OBJECT_WIDTH - 3) * RESFACTOR), y + (1 * RESFACTOR),
+						&ColorRemaps[PCOLOR_GOLD], TBLACK, TPF_6PT_GRAD|TPF_FULLSHADOW|TPF_RIGHT|TPF_BRIGHT_COLOR, queued);
+				}
+			}
+#endif
 		}
 
 		LastSlid = Slid;
@@ -2096,6 +2115,11 @@ int SidebarClass::StripClass::SelectClass::Action(unsigned flags, KeyNumType & k
 			/*
 			**	A right mouse button signals "cancel".
 			*/
+#ifdef RA_ENHANCE
+			if ((flags & RIGHTPRESS) && Build_Queue_Remove(otype, oid)) {
+				Speak(VOX_CANCELED);		// RA_ENHANCE: first, one less queued.
+			} else
+#endif
 			if (flags & RIGHTPRESS) {
 
 				/*
@@ -2137,6 +2161,9 @@ int SidebarClass::StripClass::SelectClass::Action(unsigned flags, KeyNumType & k
 				**	ignore the click.
 				*/
 				if (fnumber == -1 && factory != NULL) {
+#ifdef RA_ENHANCE
+					if (!Build_Queue_Add(otype, oid))		// RA_ENHANCE: or queue it up.
+#endif
 					Speak(VOX_NO_FACTORY);
 					ControlClass::Action(flags, key);
 					return(true);
@@ -2149,6 +2176,9 @@ int SidebarClass::StripClass::SelectClass::Action(unsigned flags, KeyNumType & k
 					**	bail.
 					*/
 					if (factory->Is_Building()) {
+#ifdef RA_ENHANCE
+						if (!Build_Queue_Add(otype, oid))		// RA_ENHANCE: or queue another one.
+#endif
 						Speak(VOX_NO_FACTORY);
 					} else {
 

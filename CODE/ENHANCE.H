@@ -33,6 +33,7 @@ class EnhancementsClass
 		**	The player's choices, kept in REDALERT.INI ([Enhancements]).
 		*/
 		bool Veterancy;			// Units earn ranks from their kills.
+		bool BuildQueue;			// Queue up units at each factory from the sidebar.
 		bool MissionSelect;		// Start a new campaign at any mission reached so far,
 		bool AllMissions;			// or at any mission at all (REDALERT.INI only).
 
@@ -77,6 +78,7 @@ class EnhancementsClass
 extern EnhancementsClass Enhance;
 
 void	Enhancements_Dialog(void);		// Options, Game Controls, Enhancements.
+void	Enhancements_Start_Scenario(void);	// A scenario has started, or a saved game was loaded.
 
 /*
 **	The mouse wheel (always on: the original had no wheel). GadgetClass::Input gives it to a
@@ -90,6 +92,15 @@ extern int	Mouse_Wheel_Left;
 */
 void	Mission_Reached(void);
 bool	Mission_Select_Dialog(void);
+
+/*
+**	Build queue (the sidebar).
+*/
+bool	Build_Queue_Add(RTTIType type, int id);
+bool	Build_Queue_Remove(RTTIType type, int id);
+int	Build_Queue_Count(RTTIType type, int id);
+void	Build_Queue_AI(void);
+void	Build_Queue_Clear(void);
 
 /*
 **	Veterancy. Every unit has always had a kill counter ("When it reaches a certain point, the

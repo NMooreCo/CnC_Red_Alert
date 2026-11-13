@@ -30,6 +30,9 @@
  *                                                                                             *
  *   Mission select: after choosing a side for a new game, start at any mission of that        *
  *   campaign reached so far (the furthest one is kept in REDALERT.INI).                       *
+ *                                                                                             *
+ *   Build queue: click a unit while its factory is busy to queue it; the sidebar starts each  *
+ *   one in turn, as if the player clicked on it when the factory became free.                 *
  *---------------------------------------------------------------------------------------------*/
 
 #include	"FUNCTION.H"
@@ -52,6 +55,7 @@ static char const VETERANCY[] = "Veterancy";
 
 EnhancementsClass::EnhancementsClass(void) :
 	Veterancy(false),
+	BuildQueue(false),
 	MissionSelect(false),
 	AllMissions(false),
 	AlliedMission(0),
@@ -67,6 +71,7 @@ EnhancementsClass::EnhancementsClass(void) :
 void EnhancementsClass::Load_Settings(INIClass const & ini)
 {
 	Veterancy = ini.Get_Bool(ENHANCEMENTS, "Veterancy", Veterancy);
+	BuildQueue = ini.Get_Bool(ENHANCEMENTS, "BuildQueue", BuildQueue);
 	MissionSelect = ini.Get_Bool(ENHANCEMENTS, "MissionSelect", MissionSelect);
 	AllMissions = ini.Get_Bool(ENHANCEMENTS, "AllMissions", AllMissions);
 	AlliedMission = ini.Get_Int(ENHANCEMENTS, "AlliedMission", AlliedMission);
@@ -77,6 +82,7 @@ void EnhancementsClass::Load_Settings(INIClass const & ini)
 void EnhancementsClass::Save_Settings(INIClass & ini) const
 {
 	ini.Put_Bool(ENHANCEMENTS, "Veterancy", Veterancy);
+	ini.Put_Bool(ENHANCEMENTS, "BuildQueue", BuildQueue);
 	ini.Put_Bool(ENHANCEMENTS, "MissionSelect", MissionSelect);
 	if (AllMissions) ini.Put_Bool(ENHANCEMENTS, "AllMissions", AllMissions);
 	ini.Put_Int(ENHANCEMENTS, "AlliedMission", AlliedMission);
@@ -151,6 +157,11 @@ void Enhancements_Dialog(void)
 			"Units become veterans after 3 kills and elite after 7. They deal more damage, take less and fire "
 			"faster, and elite units repair themselves. Selected units show their rank as chevrons.",
 			&Enhance.Veterancy},
+		{"Build queue: line up units at each factory",
+			"Click a unit while its factory is busy to queue it, up to 9 for each factory; the sidebar shows how "
+			"many more are waiting. Right-click takes one off the queue (and then, as before, holds or cancels "
+			"the one being built). Works in network games too.",
+			&Enhance.BuildQueue},
 		{"Mission select: start at a mission you have reached",
 			"When you start a new game and choose a side, you can start at any mission of that campaign "
 			"you have reached so far. (Each mission you play is remembered from now on.)",
@@ -277,6 +288,168 @@ void Enhancements_Dialog(void)
 	}
 	if (changed) {
 		Options.Save_Settings();
+	}
+}
+
+
+/***********************************************************************************************
+ * Enhancements_Start_Scenario -- A scenario has started, or a saved game was loaded.          *
+ *=============================================================================================*/
+void Enhancements_Start_Scenario(void)
+{
+	Mission_Reached();
+	Build_Queue_Clear();
+}
+
+
+/***********************************************************************************************
+ * Build queue -- units waiting for their factory.                                             *
+ *                                                                                             *
+ *    One queue each for infantry, vehicles, ships and aircraft. (Buildings are placed one at  *
+ *    a time, so they aren't queued.) When the factory is free, Build_Queue_AI starts the next *
+ *    one, as if the player had clicked on it: the queue isn't part of the game itself, which  *
+ *    is why it works in network games too. It isn't kept in saved games.                       *
+ *=============================================================================================*/
+enum {BUILD_QUEUE_MAX = 9};
+
+struct BuildQueueType {
+	RTTIType Type;
+	int Count;
+	int ID[BUILD_QUEUE_MAX];
+	bool IsStarting;		// Started the first one: waiting for its production to begin,
+	int StartFrame;		// since this frame.
+};
+
+static BuildQueueType BuildQueues[] = {
+	{RTTI_INFANTRYTYPE, 0, {0}, false, 0},
+	{RTTI_UNITTYPE, 0, {0}, false, 0},
+	{RTTI_VESSELTYPE, 0, {0}, false, 0},
+	{RTTI_AIRCRAFTTYPE, 0, {0}, false, 0}
+};
+
+
+static BuildQueueType * Build_Queue(RTTIType type)
+{
+	for (int index = 0; index < ARRAY_SIZE(BuildQueues); index++) {
+		if (BuildQueues[index].Type == type) return(&BuildQueues[index]);
+	}
+	return(NULL);
+}
+
+
+static void Build_Queue_Redraw(void)
+{
+	Map.Column[0].Flag_To_Redraw();
+	Map.Column[1].Flag_To_Redraw();
+}
+
+
+static void Build_Queue_Take(BuildQueueType * queue, int index)
+{
+	memmove(&queue->ID[index], &queue->ID[index+1], (queue->Count - index - 1) * sizeof(queue->ID[0]));
+	queue->Count--;
+	Build_Queue_Redraw();
+}
+
+
+/*
+**	Queue one more (the sidebar, a left click on a unit whose factory is busy).
+*/
+bool Build_Queue_Add(RTTIType type, int id)
+{
+	BuildQueueType * queue = Enhance.BuildQueue ? Build_Queue(type) : NULL;
+	if (queue == NULL || queue->Count >= BUILD_QUEUE_MAX) return(false);
+
+	queue->ID[queue->Count++] = id;
+	Speak((type == RTTI_INFANTRYTYPE) ? VOX_TRAINING : VOX_BUILDING);
+	Build_Queue_Redraw();
+	return(true);
+}
+
+
+/*
+**	Take the last queued one of these off the queue (the sidebar, a right click).
+*/
+bool Build_Queue_Remove(RTTIType type, int id)
+{
+	BuildQueueType * queue = Build_Queue(type);
+	if (queue == NULL) return(false);
+
+	for (int index = queue->Count-1; index >= 0; index--) {
+		if (queue->ID[index] == id) {
+			Build_Queue_Take(queue, index);
+			return(true);
+		}
+	}
+	return(false);
+}
+
+
+int Build_Queue_Count(RTTIType type, int id)
+{
+	BuildQueueType const * queue = Build_Queue(type);
+	int count = 0;
+	if (queue != NULL) {
+		for (int index = 0; index < queue->Count; index++) {
+			if (queue->ID[index] == id) count++;
+		}
+	}
+	return(count);
+}
+
+
+void Build_Queue_Clear(void)
+{
+	for (int index = 0; index < ARRAY_SIZE(BuildQueues); index++) {
+		BuildQueues[index].Count = 0;
+		BuildQueues[index].IsStarting = false;
+	}
+}
+
+
+/*
+**	Called by the sidebar every time round: start the next one when a factory is free.
+*/
+void Build_Queue_AI(void)
+{
+	if (PlayerPtr == NULL) return;
+
+	for (int index = 0; index < ARRAY_SIZE(BuildQueues); index++) {
+		BuildQueueType * queue = &BuildQueues[index];
+
+		if (!Enhance.BuildQueue && queue->Count > 0) {
+			queue->Count = 0;
+			Build_Queue_Redraw();
+		}
+
+		FactoryClass * factory = PlayerPtr->Fetch_Factory(queue->Type);
+
+		/*
+		**	After starting one, wait for its production to begin (in a network game, that's a
+		**	few frames later), so that the next one isn't started too.
+		*/
+		if (queue->IsStarting) {
+			if (factory != NULL || Frame - queue->StartFrame > 60 || Frame < queue->StartFrame) {
+				queue->IsStarting = false;
+			}
+			continue;
+		}
+		if (factory != NULL || queue->Count == 0) continue;
+
+		/*
+		**	The factory is free: start the next one, if it can still be built (a factory or
+		**	other prerequisite may have been lost since).
+		*/
+		int id = queue->ID[0];
+		Build_Queue_Take(queue, 0);
+
+		TechnoTypeClass const * techno = Fetch_Techno_Type(queue->Type, id);
+		if (techno == NULL || !PlayerPtr->Can_Build(techno, PlayerPtr->ActLike) || PlayerPtr->Is_Hack_Prevented(queue->Type, id)) {
+			continue;
+		}
+		OutList.Add(EventClass(EventClass::PRODUCE, queue->Type, id));
+		queue->IsStarting = true;
+		queue->StartFrame = Frame;
 	}
 }
 

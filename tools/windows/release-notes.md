@@ -24,8 +24,9 @@ Archive; unpack them with [7-Zip](https://www.7-zip.org/) (Windows' own "Extract
 fail on them), then open the `.ISO` files inside.
 
 **Optional enhancements** (all off until you turn them on): in a mission, open **Options**,
-**Game Controls**, **Enhancements**. So far: veterancy (units earn ranks from their kills), and mission select (start a
-new campaign at any mission you have reached).
+**Game Controls**, **Enhancements**. So far: veterancy (units earn ranks from their kills), a build queue (line up units at
+each factory), and mission select (start a new campaign at any mission you have
+reached). The mouse wheel scrolls the sidebar and lists.
 
 Needs 64-bit Windows. Tested under Wine and played on Windows; reports are welcome. See the [README](https://github.com/@REPO@/blob/@BRANCH@/README.md)
 for more, including modding.

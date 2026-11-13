@@ -986,7 +986,7 @@ if(Special.IsFromWChat || SpawnedFromWChat) {
 		Theme.Queue_Song(Scen.TransitTheme);
 	}
 #ifdef RA_ENHANCE
-	Mission_Reached();		// RA_ENHANCE: for mission select
+	Enhancements_Start_Scenario();		// RA_ENHANCE
 #endif
 	return(true);
 }
