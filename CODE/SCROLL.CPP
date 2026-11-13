@@ -48,6 +48,32 @@
 
 CDTimerClass<SystemTimerClass> ScrollClass::Counter RA_CONSTRUCT_EARLY;		// RA_PORT: before Map, whose constructor sets it.
 
+#ifdef RA_PORT
+/*
+**	RA_PORT: the original moved the map one step each time ScrollClass::AI ran, and that is
+**	each time the game loop goes round while it waits for the next game frame: about as often
+**	as the computers of the day could redraw the map. Today the loop goes round hundreds of
+**	times a second, and the map flew past. This paces the steps to the system tick (60 a
+**	second, the clock that also builds up the scrolling speed): it returns the number of steps
+**	due, usually 0 or 1, and more when the game was too busy to scroll for a tick or two.
+*/
+static int Scroll_Steps(void)
+{
+	static unsigned last = 0;
+	SystemTimerClass timer;
+
+	unsigned now = (unsigned)timer();
+	unsigned elapsed = now - last;
+	if (elapsed == 0) return(0);
+	last = now;
+
+	/*
+	**	A longer gap means that scrolling has just begun (or that the game stalled): one step.
+	*/
+	return((elapsed > 4) ? 1 : (int)elapsed);
+}
+#endif
+
 
 /***********************************************************************************************
  * ScrollClass::ScrollClass -- Constructor for the scroll class object.                        *
@@ -198,13 +224,18 @@ void ScrollClass::AI(KeyNumType &input, int x, int y)
 					*/
 					if (Keyboard->Down(KN_LMOUSE) || IsAutoScroll) {
 						distance = _rate[rate];
+#ifdef RA_PORT
+						int steps = Scroll_Steps();		// RA_PORT: at a steady pace, as above.
+						distance *= steps;
+#else
+						int const steps = 1;
+#endif
 
 						if (Debug_Map) {
-							Scroll_Map(direction, distance, true);
+							if (steps) Scroll_Map(direction, distance, true);
 							Counter = SCROLL_DELAY;
 						} else {
-							distance = _rate[rate];
-							Scroll_Map(direction, distance, true);
+							if (steps) Scroll_Map(direction, distance, true);
 
 							if (Counter == 0 && player_scrolled) {
 								Counter = SCROLL_DELAY;

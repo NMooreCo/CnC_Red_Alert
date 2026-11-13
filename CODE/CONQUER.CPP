@@ -2115,6 +2115,27 @@ static void Sync_Delay(void)
 		Color_Cycle();
 		Call_Back();
 
+#ifdef RA_PORT
+		/*
+		**	RA_PORT: the original went round this loop as fast as the computer could redraw the
+		**	map, and parts of the interface move on a step each time round: the radar's opening,
+		**	closing and jamming animations, the sidebar strips sliding, and the edge scrolling
+		**	(which ScrollClass now paces itself). Today the loop can go round hundreds of times a
+		**	second, so they flew by. Go round at most once per system tick (60 times a second).
+		**	In between, keep taking in input, so that the mouse pointer moves smoothly, and give
+		**	the processor away.
+		*/
+		static unsigned _last_tick = 0;
+		SystemTimerClass timer;
+		unsigned tick = (unsigned)timer();
+		if (tick == _last_tick) {
+			Platform_Pump_Events();
+			Platform_Sleep(1);
+			continue;
+		}
+		_last_tick = tick;
+#endif
+
 		if (SpecialDialog == SDLG_NONE) {
 #ifdef WIN32
 			WWMouse->Erase_Mouse(&HidPage, TRUE);

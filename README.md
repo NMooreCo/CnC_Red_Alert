@@ -303,6 +303,13 @@ differently from today's:
 - **`operator new` may return NULL** for the pooled object classes (units, bullets,
   animations...) when their pool is full; the code checks, and `-fcheck-new` makes the
   compiler do so too.
+- **The original ran its interface as fast as the computer could redraw the screen.**
+  While it waits for the next game frame, the game loop takes in input and redraws, over
+  and over, and some things move on a step each time round: edge scrolling, the radar's
+  animations, the sidebar strips sliding. Today's computers would go round hundreds of
+  times a second, so the port goes round at most once per tick of the game's 60 Hz clock
+  (`Sync_Delay` in `CODE/CONQUER.CPP`), and the map scrolls at most one step per tick
+  (`CODE/SCROLL.CPP`). Pace anything new that animates "each time round" with a timer.
 - The game logic runs on the main thread, which also pumps the (emulated) Windows
   message queue. As on Windows, the game's timer callbacks (tick counters, sound
   buffer maintenance) run on another thread: SDL's timer thread. Sound is mixed on
