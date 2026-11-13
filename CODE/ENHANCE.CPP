@@ -33,6 +33,8 @@
  *                                                                                             *
  *   Build queue: click a unit while its factory is busy to queue it; the sidebar starts each  *
  *   one in turn, as if the player clicked on it when the factory became free.                 *
+ *                                                                                             *
+ *   Shared tech: in skirmish games, both sides can build the units and buildings of both.    *
  *---------------------------------------------------------------------------------------------*/
 
 #include	"FUNCTION.H"
@@ -56,6 +58,7 @@ static char const VETERANCY[] = "Veterancy";
 EnhancementsClass::EnhancementsClass(void) :
 	Veterancy(false),
 	BuildQueue(false),
+	SharedTech(false),
 	MissionSelect(false),
 	AllMissions(false),
 	AlliedMission(0),
@@ -72,6 +75,7 @@ void EnhancementsClass::Load_Settings(INIClass const & ini)
 {
 	Veterancy = ini.Get_Bool(ENHANCEMENTS, "Veterancy", Veterancy);
 	BuildQueue = ini.Get_Bool(ENHANCEMENTS, "BuildQueue", BuildQueue);
+	SharedTech = ini.Get_Bool(ENHANCEMENTS, "SharedTech", SharedTech);
 	MissionSelect = ini.Get_Bool(ENHANCEMENTS, "MissionSelect", MissionSelect);
 	AllMissions = ini.Get_Bool(ENHANCEMENTS, "AllMissions", AllMissions);
 	AlliedMission = ini.Get_Int(ENHANCEMENTS, "AlliedMission", AlliedMission);
@@ -83,6 +87,7 @@ void EnhancementsClass::Save_Settings(INIClass & ini) const
 {
 	ini.Put_Bool(ENHANCEMENTS, "Veterancy", Veterancy);
 	ini.Put_Bool(ENHANCEMENTS, "BuildQueue", BuildQueue);
+	ini.Put_Bool(ENHANCEMENTS, "SharedTech", SharedTech);
 	ini.Put_Bool(ENHANCEMENTS, "MissionSelect", MissionSelect);
 	if (AllMissions) ini.Put_Bool(ENHANCEMENTS, "AllMissions", AllMissions);
 	ini.Put_Int(ENHANCEMENTS, "AlliedMission", AlliedMission);
@@ -127,6 +132,37 @@ void EnhancementsClass::Rules(INIClass const & ini)
 
 
 /***********************************************************************************************
+ * EnhancementsClass::Adjust_Objects -- Changes to the object types, after the rules are read. *
+ *                                                                                             *
+ *    Shared tech: every unit and building that either side can build, both sides can build.  *
+ *    The rules set each type's owners afresh whenever a scenario is read, which undoes this.  *
+ *=============================================================================================*/
+template<class T>
+static void Share_Tech(TFixedIHeapClass<T> & types)
+{
+	int const both = HOUSEF_ALLIES | HOUSEF_SOVIET;
+	for (int index = 0; index < types.Count(); index++) {
+		T * type = types.Ptr(index);
+		if (type != NULL && (type->Ownable & both) != 0) {
+			type->Ownable |= both;
+		}
+	}
+}
+
+
+void EnhancementsClass::Adjust_Objects(void)
+{
+	if (Is_Shared_Tech()) {
+		Share_Tech(BuildingTypes);
+		Share_Tech(UnitTypes);
+		Share_Tech(InfantryTypes);
+		Share_Tech(VesselTypes);
+		Share_Tech(AircraftTypes);
+	}
+}
+
+
+/***********************************************************************************************
  * EnhancementsClass::Rules_Apply -- Can enhancements that change the game rules apply?        *
  *                                                                                             *
  *    In a network game, every player's game has to make exactly the same moves, so all of     *
@@ -162,6 +198,11 @@ void Enhancements_Dialog(void)
 			"many more are waiting. Right-click takes one off the queue (and then, as before, holds or cancels "
 			"the one being built). Works in network games too.",
 			&Enhance.BuildQueue},
+		{"Shared tech: both sides can build everything (skirmish)",
+			"In skirmish games, every side can build the units and buildings of both the Allies and the "
+			"Soviets: Tesla coils next to pillboxes, Mammoth tanks next to cruisers. The computer players "
+			"can too.",
+			&Enhance.SharedTech},
 		{"Mission select: start at a mission you have reached",
 			"When you start a new game and choose a side, you can start at any mission of that campaign "
 			"you have reached so far. (Each mission you play is remembered from now on.)",

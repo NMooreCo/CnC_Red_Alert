@@ -2211,6 +2211,7 @@ bool Read_Scenario_INI(char * fname, bool )
 	Enhance.Reset_Rules();
 	Enhance.Rules(RuleINI);
 	Enhance.Rules(ini);
+	Enhance.Adjust_Objects();
 #endif
 	/*
 	** Init the Scenario CRC value

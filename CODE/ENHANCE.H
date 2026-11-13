@@ -34,6 +34,7 @@ class EnhancementsClass
 		*/
 		bool Veterancy;			// Units earn ranks from their kills.
 		bool BuildQueue;			// Queue up units at each factory from the sidebar.
+		bool SharedTech;			// Skirmish: both sides can build everything.
 		bool MissionSelect;		// Start a new campaign at any mission reached so far,
 		bool AllMissions;			// or at any mission at all (REDALERT.INI only).
 
@@ -63,6 +64,7 @@ class EnhancementsClass
 		void	Save_Settings(INIClass & ini) const;
 		void	Reset_Rules(void);
 		void	Rules(INIClass const & ini);
+		void	Adjust_Objects(void);
 
 		/*
 		**	Is the enhancement in effect in this game? Those that change the game rules apply to
@@ -70,6 +72,7 @@ class EnhancementsClass
 		**	same ones, so they are off there for now.
 		*/
 		bool	Is_Veterancy(void) const {return(Veterancy && Rules_Apply());}
+		bool	Is_Shared_Tech(void) const {return(SharedTech && Session.Type == GAME_SKIRMISH);}
 
 	private:
 		bool	Rules_Apply(void) const;

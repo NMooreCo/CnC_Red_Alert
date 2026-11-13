@@ -924,6 +924,7 @@ bool Load_Game(int id)
 	Enhance.Reset_Rules();		// RA_ENHANCE: the enhancements' tuning, as when the scenario started
 	Enhance.Rules(RuleINI);
 	Enhance.Rules(ini);
+	Enhance.Adjust_Objects();
 #endif
 #ifdef FIXIT_CSII	//	ajw - Added runtime check for Aftermath to skirmish mode.
 	if (load_net) {
