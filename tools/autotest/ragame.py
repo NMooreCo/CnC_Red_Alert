@@ -102,14 +102,20 @@ class Game:
         return None
 
     def _geometry(self):
-        if self.window is None and self.find_window() is None:
-            raise RuntimeError('no game window')
-        out = self._run('xdotool', 'getwindowgeometry', '--shell', self.window).stdout
-        g = dict(line.split('=', 1) for line in out.split() if '=' in line)
-        if 'X' not in g:
-            # The window is gone: say why (a negative exit code is the signal that ended the game).
-            raise RuntimeError('the game window is gone (game exit code %s)' % self.proc.poll())
-        return int(g['X']), int(g['Y']), int(g['WIDTH']), int(g['HEIGHT'])
+        for attempt in range(3):
+            if self.window is None and self.find_window() is None:
+                raise RuntimeError('no game window')
+            out = self._run('xdotool', 'getwindowgeometry', '--shell', self.window).stdout
+            g = dict(line.split('=', 1) for line in out.split() if '=' in line)
+            if 'X' in g:
+                return int(g['X']), int(g['Y']), int(g['WIDTH']), int(g['HEIGHT'])
+            # The window is gone. While the game starts up, it can replace its first window
+            # (when it sets the video mode), so look for the game's window again.
+            self.window = None
+            if not self.running():
+                break
+        # Say why (a negative exit code is the signal that ended the game).
+        raise RuntimeError('the game window is gone (game exit code %s)' % self.proc.poll())
 
     def _to_screen(self, x, y):
         """Game coordinates (640x400) to screen coordinates."""
