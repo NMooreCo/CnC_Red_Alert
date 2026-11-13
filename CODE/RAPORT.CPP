@@ -149,6 +149,17 @@ void Port_Select_Data_Directory(int , char * [])
 
 
 /***********************************************************************************************
+ * Processor -- The kind of processor (originally DETPROC.ASM): a Pentium at least, today.    *
+ *                                                                                             *
+ *    Only the developer build (CHEAT_KEYS) asks, to decide on its benchmark timers.           *
+ *=============================================================================================*/
+extern "C" WORD __cdecl Processor(void)
+{
+	return(PROC_PENTIUM);
+}
+
+
+/***********************************************************************************************
  * Get_CPU_Clock -- Returns a high resolution time stamp (originally the RDTSC instruction).  *
  *=============================================================================================*/
 #include <chrono>

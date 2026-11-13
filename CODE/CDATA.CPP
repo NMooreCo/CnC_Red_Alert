@@ -3168,8 +3168,8 @@ void TemplateTypeClass::Display(int x, int y, WindowNumberType window, HousesTyp
 	int	index;
 	bool	scale;		// Should the template be half sized?
 
-	w = Bound(Width, 1, 13);
-	h = Bound(Height, 1, 8);
+	w = Bound((int)Width, 1, 13);		// RA_PORT: (int), for the template's one type.
+	h = Bound((int)Height, 1, 8);
 	scale = (w > 3 || h > 3);
 	if (scale) {
 		x -= (w * ICON_PIXEL_W) / 4;

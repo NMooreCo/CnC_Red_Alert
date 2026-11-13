@@ -2534,6 +2534,22 @@ bool Map_Edit_Loop(void)
 	Call_Back();								// maintains Theme.AI() for music
 	Color_Cycle();
 
+#ifdef RA_PORT
+	/*
+	**	RA_PORT: as Sync_Delay, go round at most once per system tick (60 a second) rather than
+	**	as fast as the computer can, taking in input and giving the processor away in between.
+	*/
+	{
+		static unsigned _last_tick = 0;
+		SystemTimerClass timer;
+		while ((unsigned)timer() == _last_tick) {
+			Platform_Pump_Events();
+			Platform_Sleep(1);
+		}
+		_last_tick = (unsigned)timer();
+	}
+#endif
+
 	return(!GameActive);
 }
 

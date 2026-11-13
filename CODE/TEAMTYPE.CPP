@@ -814,7 +814,8 @@ bool TeamTypeClass::Edit(void)
 		MFCD::Retrieve("EBTN-UP.SHP"),
 		MFCD::Retrieve("EBTN-DN.SHP"));
 	triggerbtn.Add_Item("<NONE>");
-	for (int index = 0; index < TriggerTypes.Count(); index++) {
+	int index;		// RA_PORT: used by later loops too (the old for-scope rule)
+	for (index = 0; index < TriggerTypes.Count(); index++) {
 		triggerbtn.Add_Item(TriggerTypes.Ptr(index)->IniName);
 	}
 	if (Trigger.Is_Valid()) {

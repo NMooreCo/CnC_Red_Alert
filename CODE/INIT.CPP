@@ -1854,6 +1854,27 @@ bool Parse_Command_Line(int argc, char * argv[])
 			}
 		}
 
+#ifdef RA_ENHANCE
+		/*
+		**	RA_ENHANCE: plain switches for what the codes above turn on: the scenario editor and
+		**	the developers' keys (a build with RA_DEVELOPER has them).
+		*/
+#ifdef SCENARIO_EDITOR
+		if (stricmp(string, "-EDITOR") == 0) {
+			Debug_Map = true;
+			Debug_Unshroud = true;
+			Debug_Flag = true;
+			Debug_Playtest = true;
+		}
+#endif
+#ifdef CHEAT_KEYS
+		if (stricmp(string, "-CHEATS") == 0) {
+			Debug_Playtest = true;
+			Debug_Flag = true;
+		}
+#endif
+#endif
+
 		switch (ob) {
 
 #ifdef VIRGIN_CHEAT_KEYS

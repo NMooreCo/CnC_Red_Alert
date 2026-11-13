@@ -514,7 +514,8 @@ bool TriggerTypeClass::Edit(void)
 		MFCD::Retrieve("EBTN-UP.SHP"),
 		MFCD::Retrieve("EBTN-DN.SHP"));
 
-	for (int index = 0; index < TeamTypes.Count(); index++) {
+	int index;		// RA_PORT: used by later loops too (the old for-scope rule)
+	for (index = 0; index < TeamTypes.Count(); index++) {
 		ttype1list.Add_Item(TeamTypes.Ptr(index)->IniName);
 		ttype2list.Add_Item(TeamTypes.Ptr(index)->IniName);
 		ttype3list.Add_Item(TeamTypes.Ptr(index)->IniName);

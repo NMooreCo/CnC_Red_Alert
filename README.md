@@ -69,6 +69,7 @@ Build options (`-D<option>=ON` or `OFF`):
 | Option | Effect |
 | --- | --- |
 | `RA_ENHANCEMENTS` | On by default: build in the optional [enhancements](#enhancements). Each is still off until the player turns it on. |
+| `RA_DEVELOPER` | On by default: build in Westwood's scenario editor and developer keys (`-editor`, `-cheats`; see [Modding](#modding)). |
 | `RA_LANGUAGE_GERMAN`, `RA_LANGUAGE_FRENCH` | Build a German or French version (the data must match). |
 | `RA_WARNINGS` | Show compiler warnings (off by default: the 1996 code produces thousands). |
 | `RA_SANITIZE` | Build with AddressSanitizer and UndefinedBehaviorSanitizer. With `ASAN_OPTIONS=halt_on_error=0` a run reports every memory error instead of stopping at the first. |
@@ -314,6 +315,28 @@ added before the game's own (and kept in memory), so the files in them come firs
 archive named like one of the game's (`CONQUER.MIX`, say) replaces it. The settings and
 saved games stay in the data directory. In a network game, every player needs the same
 mod.
+
+### Westwood's scenario editor and developer keys
+
+Westwood's own internal builds had a scenario editor and developer keys, which the
+released game left out. This port builds them in (CMake option `RA_DEVELOPER`, on by
+default); they stay off unless you ask for them on the command line:
+
+- `-editor` starts in the scenario editor, on the first Allied mission. Right-click for
+  its menu: new, load and save scenario, map size, add game objects, scenario and AI
+  options, and play the scenario. <kbd>Insert</kbd> places objects, <kbd>Delete</kbd>
+  removes the selected one, <kbd>F6</kbd> shows which cells are passable, <kbd>Esc</kbd>
+  ends placing. In a game started with `-editor` or `-cheats`, <kbd>F2</kbd> switches
+  between the editor and the game. Saved scenarios go to the data directory (put them in
+  a mod's folder to use them in a mod).
+- `-cheats` turns on the developer keys in the game: <kbd>Alt</kbd>+<kbd>W</kbd> wins the
+  mission and <kbd>Alt</kbd>+<kbd>L</kbd> loses it, <kbd>P</kbd> charges every special
+  weapon, <kbd>C</kbd> lets you build anything, <kbd>Insert</kbd> copies the selected
+  object and <kbd>Delete</kbd> removes it, <kbd>`</kbd> sets off an explosion under the
+  mouse, <kbd>O</kbd> and <kbd>B</kbd> bring a Hind and a Longbow, <kbd>F3</kbd> shows
+  the map's tile numbers and <kbd>F7</kbd> the selected unit's ranges.
+
+On Windows, add them to the shortcut's target (`redalert.exe -editor`).
 
 For anything beyond that, the code is yours to change. Where things are:
 

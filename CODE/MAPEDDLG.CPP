@@ -1566,7 +1566,8 @@ int MapEditClass::Scenario_Dialog(void)
 	/*
 	**	Fill in the house data for each house that exists.
 	*/
-	for (HousesType h = HOUSE_FIRST; h < HOUSE_COUNT; h++) {
+	HousesType h;		// RA_PORT: used by later loops too (the old for-scope rule)
+	for (h = HOUSE_FIRST; h < HOUSE_COUNT; h++) {
 		HouseClass * hptr = HouseClass::As_Pointer(h);
 		if (hptr) {
 			hdata[h] = hptr->Control;
@@ -1775,7 +1776,8 @@ int MapEditClass::Scenario_Dialog(void)
 		MFCD::Retrieve("EBTN-UP.SHP"),
 		MFCD::Retrieve("EBTN-DN.SHP"));
 	intro.Add_Item("<none>");
-	for (VQType v = VQ_FIRST; v < VQ_COUNT; v++) {
+	VQType v;		// RA_PORT: used by later loops too (the old for-scope rule)
+	for (v = VQ_FIRST; v < VQ_COUNT; v++) {
 		intro.Add_Item(VQName[v]);
 	}
 	intro.Set_Selected_Index((int)Scen.IntroMovie + 1);
