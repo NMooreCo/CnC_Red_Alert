@@ -32,6 +32,9 @@
 **	page is converted through the current palette and presented to the window.
 */
 bool	Video_Init(int width, int height);
+void	Video_Set_Present_Size(int width, int height);		// Show this top left part of the surface.
+bool	Video_Get_Desktop_Size(int & width, int & height);
+void	Video_Start_Fullscreen(bool on);
 void	Video_Shutdown(void);
 void	Video_Register_Visible_Surface(void const * pixels, int width, int height, int pitch);
 void	Video_Mark_Dirty(void);

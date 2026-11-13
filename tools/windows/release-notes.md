@@ -32,6 +32,11 @@ weapons, each with a personality), support powers (artillery barrage, naval bomb
 Chinook reinforcements) and mission select (start a new campaign at any mission you have
 reached). The mouse wheel scrolls the sidebar and lists.
 
+**Bigger battle screen**: more of the battlefield in view. Open `REDALERT.INI` (in the
+game's folder) and add a `[Video]` section with `Resolution=1280x720` (or any size), or
+`Resolution=auto` to fill the screen (it starts fullscreen; Alt+Enter switches). The menus
+stay as they were.
+
 **Survival**, in the skirmish and network game options: hold out against 20 waves of enemy
 forces. **Co-op**, in the network game options: the players together against the computer
 players. In network games, the host's choice of enhancements applies to everyone.

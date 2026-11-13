@@ -184,13 +184,25 @@ void PowerClass::Draw_It(bool complete)
 				}
 
 //				LogicPage->Fill_Rect(POWER_X, POWER_Y, POWER_X+POWER_WIDTH-1, POWER_Y+POWER_HEIGHT-1, LTGREY);
-				CC_Draw_Shape(PowerBarShape, 0, 240 * RESFACTOR, 88 * RESFACTOR, WINDOW_MAIN, flags | SHAPE_NORMAL | SHAPE_WIN_REL, remap);
+				CC_Draw_Shape(PowerBarShape, 0, 240 * RESFACTOR + ScreenDX, 88 * RESFACTOR, WINDOW_MAIN, flags | SHAPE_NORMAL | SHAPE_WIN_REL, remap);
 
 #ifdef WIN32
 				/*
 				** Hires power strip is too big to fit into a shape so it is in two parts
 				*/
-				CC_Draw_Shape(PowerBarShape, 1, 240 * RESFACTOR, (88 * RESFACTOR) + (56*RESFACTOR), WINDOW_MAIN, flags | SHAPE_NORMAL | SHAPE_WIN_REL, remap);
+#ifdef RA_PORT
+				/*
+				**	RA_PORT: on a tall screen, as tall as the sidebar's strips (HIRES.CPP): the
+				**	lower part of the first piece once more for each extra slot, then the second.
+				*/
+				int extra = SidebarClass::StripClass::Extra_Height();
+				for (int band = 0; band < extra; band += 24 * RESFACTOR) {
+					Draw_Shape_Rows(PowerBarShape, 0, 240 * RESFACTOR + ScreenDX, (88+56) * RESFACTOR + band, (56-24) * RESFACTOR, 24 * RESFACTOR, flags | SHAPE_NORMAL, remap);
+				}
+				CC_Draw_Shape(PowerBarShape, 1, 240 * RESFACTOR + ScreenDX, (88 * RESFACTOR) + (56*RESFACTOR) + extra, WINDOW_MAIN, flags | SHAPE_NORMAL | SHAPE_WIN_REL, remap);
+#else
+				CC_Draw_Shape(PowerBarShape, 1, 240 * RESFACTOR + ScreenDX, (88 * RESFACTOR) + (56*RESFACTOR), WINDOW_MAIN, flags | SHAPE_NORMAL | SHAPE_WIN_REL, remap);
+#endif
 #endif
 				/*
 				**	Determine how much the power production exceeds or falls short
@@ -201,6 +213,16 @@ void PowerClass::Draw_It(bool complete)
 				int drain_height  = (DrainHeight == DesiredDrainHeight) ? DrainHeight + (_modtable[DrainBounce] * DrainDir) : DrainHeight;
 				power_height = Bound(power_height, 0, POWER_HEIGHT - 2);
 				drain_height = Bound(drain_height, 0, POWER_HEIGHT - 2);
+#ifdef RA_PORT
+				/*
+				**	RA_PORT: in pixels of the bar as it is drawn (153 high, taller on a tall screen,
+				**	HIRES.CPP). The original scaled them below, only with some power, which left
+				**	the drain marker out of place when there was none.
+				*/
+				power_height = (power_height*(76*RESFACTOR+1+extra)) / (53*RESFACTOR+1);
+				drain_height = (drain_height*(76*RESFACTOR+1+extra)) / (53*RESFACTOR+1);
+				bottom = (175*RESFACTOR)+1+extra;
+#endif
 
 				/*
 				**	Draw the power output graphic on top of the power bar framework.
@@ -225,20 +247,22 @@ void PowerClass::Draw_It(bool complete)
 					**
 					** ST - 5/2/96 11:23AM
 					*/
+#ifndef RA_PORT
 #ifdef WIN32
 					power_height = (power_height*(76*RESFACTOR+1)) / (53*RESFACTOR+1);
 					drain_height = (drain_height*(76*RESFACTOR+1)) / (53*RESFACTOR+1);
 #endif
 					bottom = (175*RESFACTOR)+1;
+#endif
 
-					LogicPage->Fill_Rect(245*RESFACTOR, bottom-power_height, 245*RESFACTOR+1, bottom, color2);
-					LogicPage->Fill_Rect(246*RESFACTOR, bottom-power_height, 246*RESFACTOR+1, bottom, color1);
+					LogicPage->Fill_Rect(245*RESFACTOR + ScreenDX, bottom-power_height, 245*RESFACTOR+1 + ScreenDX, bottom, color2);
+					LogicPage->Fill_Rect(246*RESFACTOR + ScreenDX, bottom-power_height, 246*RESFACTOR+1 + ScreenDX, bottom, color1);
 				}
 
 				/*
 				**	Draw the power drain threshold marker.
 				*/
-				CC_Draw_Shape(PowerShape, 0, (POWER_X * RESFACTOR)+RESFACTOR, bottom - (drain_height + (2 * RESFACTOR)), WINDOW_MAIN, flags | SHAPE_NORMAL, remap);
+				CC_Draw_Shape(PowerShape, 0, (POWER_X * RESFACTOR)+RESFACTOR + ScreenDX, bottom - (drain_height + (2 * RESFACTOR)), WINDOW_MAIN, flags | SHAPE_NORMAL, remap);
 			}
 			LogicPage->Unlock();
 		}

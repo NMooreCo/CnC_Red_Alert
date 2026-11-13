@@ -148,6 +148,30 @@ void ScrollClass::AI(KeyNumType &input, int x, int y)
 					**	Adjust the mouse coordinates to emphasize the
 					**	cardinal directions over the diagonals.
 					*/
+#ifdef RA_PORT
+					/*
+					**	RA_PORT: in terms of the screen's size (HIRES.CPP); the same at 640x400.
+					*/
+					int sw = SeenBuff.Get_Width();
+					int sh = SeenBuff.Get_Height();
+					int margin = 50 * RESFACTOR;
+					int altx = x;
+					if (altx < margin) altx -= (margin-altx);
+					altx = max(altx, 0);
+					if (altx > (sw-margin)) altx += altx-(sw-margin);
+					altx = min(altx, sw);
+					if (altx > margin && altx < (sw-margin)) {
+						altx += ((sw/2)-altx)/2;
+					}
+
+					int alty = y;
+					if (alty < margin) alty -= margin-alty;
+					alty = max(alty, 0);
+					if (alty > (sh-margin)) alty += alty-(sh-margin);
+					alty = min(alty, sh);
+
+					direction = (DirType)Desired_Facing256(sw/2, sh/2, altx, alty);
+#else
 					int altx = x;
 					if (altx < 50 * RESFACTOR) altx -= ((50 * RESFACTOR)-altx);
 					altx = max(altx, 0);
@@ -164,6 +188,7 @@ void ScrollClass::AI(KeyNumType &input, int x, int y)
 					alty = min(alty, 200 * RESFACTOR);
 
 					direction = (DirType)Desired_Facing256((320/2) * RESFACTOR, (200/2) * RESFACTOR, altx, alty);
+#endif
 				}
 
 				int control = Dir_Facing(direction);

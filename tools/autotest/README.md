@@ -48,6 +48,10 @@ with status 1 if there are any. They leave out two kinds of UBSan report that co
 the original code's byte-packed data structures (misaligned accesses) and its object
 pools.
 
+Clicks are given in the game's 640x400 coordinates. With a bigger battle screen
+(`RA_RESOLUTION`), a script sets `Game.logical` to its size while the battle is on (see
+`ragame.py`); the menus stay 640x400.
+
 `campaign.py --start N` begins at mission N (it plays mission 1, then makes the game
 believe it was mission N-1). Soviet mission 7 opens with a scripted trap: a soldier
 shoots the explosive barrels next to your men, and a player has to move them away.

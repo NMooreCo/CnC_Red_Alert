@@ -116,8 +116,14 @@ ShapeButtonClass SidebarClass::Upgrade;
 ShapeButtonClass SidebarClass::Zoom;
 ShapeButtonClass SidebarClass::StripClass::UpButton[COLUMNS];
 ShapeButtonClass SidebarClass::StripClass::DownButton[COLUMNS];
+#ifdef RA_PORT
+SidebarClass::StripClass::SelectClass
+SidebarClass::StripClass::SelectButton[COLUMNS][MAX_SLOTS];
+int SidebarClass::StripClass::Visible = SidebarClass::StripClass::MAX_VISIBLE;
+#else
 SidebarClass::StripClass::SelectClass
 SidebarClass::StripClass::SelectButton[COLUMNS][MAX_VISIBLE];
+#endif
 
 /*
 ** Shape data pointers
@@ -311,7 +317,7 @@ void SidebarClass::Init_IO(void)
 
 		Repair.IsSticky = true;
 		Repair.ID = BUTTON_REPAIR;
-		Repair.X = (0x1f2/2)*RESFACTOR;
+		Repair.X = (0x1f2/2)*RESFACTOR + ScreenDX;
 		Repair.Y = (0x96/2)*RESFACTOR;
 		Repair.IsPressed = false;
 		Repair.IsToggleType = true;
@@ -321,7 +327,7 @@ void SidebarClass::Init_IO(void)
 		Upgrade.IsSticky = true;
 		Upgrade.ID = BUTTON_UPGRADE;
 #ifdef WIN32
-		Upgrade.X = 0x21f;
+		Upgrade.X = 0x21f + ScreenDX;
 #else
 		Upgrade.X = ((0x21f/2)+1)*RESFACTOR;
 #endif
@@ -333,7 +339,7 @@ void SidebarClass::Init_IO(void)
 
 		Zoom.IsSticky = true;
 		Zoom.ID = BUTTON_ZOOM;
-		Zoom.X = (0x24c/2)*RESFACTOR;
+		Zoom.X = (0x24c/2)*RESFACTOR + ScreenDX;
 		Zoom.Y = (0x96/2)*RESFACTOR;
 		Zoom.IsPressed = false;
 		Zoom.Set_Shape(MFCD::Retrieve("MAP.SHP"));
@@ -357,6 +363,40 @@ void SidebarClass::Init_IO(void)
 		}
 	}
 }
+
+
+#ifdef RA_PORT
+/***********************************************************************************************
+ * SidebarClass::Screen_Resized -- Lays the interface out for the screen's size.               *
+ *                                                                                             *
+ *    The sidebar, the radar and the power bar along the right edge (moved by ScreenDX), the   *
+ *    tactical map over the rest (Screen_Game_Mode, HIRES.CPP).                                *
+ *=============================================================================================*/
+void SidebarClass::Screen_Resized(void)
+{
+	RadX = SeenBuff.Get_Width() - RadWidth;
+	RadarButton.X = RadX;
+	PowerButton.X = POWER_X * RESFACTOR + ScreenDX;
+
+	WindowList[WINDOW_SIDEBAR][WINDOWX] = (SIDE_X + 8) * RESFACTOR + ScreenDX;
+	WindowList[WINDOW_SIDEBAR][WINDOWHEIGHT] = (STRIP_VISIBLE * StripClass::OBJECT_HEIGHT) * RESFACTOR;
+	Column[0].X = COLUMN_ONE_X * RESFACTOR + ScreenDX;
+	Column[1].X = COLUMN_TWO_X * RESFACTOR + ScreenDX;
+	Background.X = (SIDE_X + 8) * RESFACTOR + ScreenDX;
+	Background.Height = (SIDE_HEIGHT - 1) * RESFACTOR + (SeenBuff.Get_Height() - 400);
+	PowerButton.Height = POWER_HEIGHT * RESFACTOR + StripClass::Extra_Height();
+
+	/*
+	**	The buttons go where they now belong; the sidebar, if it was up, comes up again, which
+	**	sets the tactical map's size.
+	*/
+	Init_IO();
+	if (!IsSidebarActive) {
+		Set_View_Dimensions(0, 8 * RESFACTOR);
+	}
+	Flag_To_Redraw(true);
+}
+#endif
 
 
 /***********************************************************************************************
@@ -754,6 +794,28 @@ void SidebarClass::Draw_It(bool complete)
 
 	BStart(BENCH_SIDEBAR);
 
+#ifdef RA_PORT
+	/*
+	**	RA_PORT: a map smaller than a big screen (HIRES.CPP) leaves room right of and below the
+	**	tactical map that nothing draws; keep it black (help text can stray into it).
+	*/
+	if (!Debug_Map) {
+		int right = SeenBuff.Get_Width() - (IsSidebarActive ? SIDE_WIDTH * RESFACTOR : 0);
+		int bottom = SeenBuff.Get_Height();
+		int tacright = TacPixelX + Lepton_To_Pixel(TacLeptonWidth);
+		int tacbottom = TacPixelY + Lepton_To_Pixel(TacLeptonHeight);
+		if ((tacright < right || tacbottom < bottom) && LogicPage->Lock()) {
+			if (tacright < right) {
+				LogicPage->Fill_Rect(tacright, TacPixelY, right-1, bottom-1, BLACK);
+			}
+			if (tacbottom < bottom) {
+				LogicPage->Fill_Rect(TacPixelX, tacbottom, min(tacright, right)-1, bottom-1, BLACK);
+			}
+			LogicPage->Unlock();
+		}
+	}
+#endif
+
 	if (IsSidebarActive && (IsToRedraw || complete) && !Debug_Map) {
 		IsToRedraw = false;
 
@@ -766,9 +828,23 @@ void SidebarClass::Draw_It(bool complete)
 			/*
 			** The sidebar shape is too big in 640x400 so it needs to be drawn in three chunks.
 			*/
-			CC_Draw_Shape(SidebarShape, 0, SIDE_X * RESFACTOR, 8*RESFACTOR, WINDOW_MAIN, SHAPE_WIN_REL);
-			CC_Draw_Shape(SidebarMiddleShape, shape, SIDE_X * RESFACTOR, (8+80)*RESFACTOR, WINDOW_MAIN, SHAPE_WIN_REL);
-			CC_Draw_Shape(SidebarBottomShape, shape, SIDE_X * RESFACTOR, (8+80+50)*RESFACTOR, WINDOW_MAIN, SHAPE_WIN_REL);
+			CC_Draw_Shape(SidebarShape, 0, SIDE_X * RESFACTOR + ScreenDX, 8*RESFACTOR, WINDOW_MAIN, SHAPE_WIN_REL);
+			CC_Draw_Shape(SidebarMiddleShape, shape, SIDE_X * RESFACTOR + ScreenDX, (8+80)*RESFACTOR, WINDOW_MAIN, SHAPE_WIN_REL);
+#ifdef RA_PORT
+			/*
+			**	RA_PORT: on a tall screen, the strips have more slots (HIRES.CPP). Under them
+			**	goes the art of the second slot (the last 24 lines of the middle piece) once more
+			**	for each; the bottom piece, with the scroll buttons, comes after.
+			*/
+			int extra = StripClass::Extra_Height();
+			for (int band = 0; band < extra; band += StripClass::OBJECT_HEIGHT * RESFACTOR) {
+				Draw_Shape_Rows(SidebarMiddleShape, shape, SIDE_X * RESFACTOR + ScreenDX, (8+80+50)*RESFACTOR + band,
+					(50 - StripClass::OBJECT_HEIGHT) * RESFACTOR, StripClass::OBJECT_HEIGHT * RESFACTOR);
+			}
+			CC_Draw_Shape(SidebarBottomShape, shape, SIDE_X * RESFACTOR + ScreenDX, (8+80+50)*RESFACTOR + extra, WINDOW_MAIN, SHAPE_WIN_REL);
+#else
+			CC_Draw_Shape(SidebarBottomShape, shape, SIDE_X * RESFACTOR + ScreenDX, (8+80+50)*RESFACTOR, WINDOW_MAIN, SHAPE_WIN_REL);
+#endif
 
 			Repair.Draw_Me(true);
 			Upgrade.Draw_Me(true);
@@ -847,7 +923,7 @@ void SidebarClass::AI(KeyNumType & input, int x, int y)
 		for (int column = 0; column < COLUMNS; column++) {
 			StripClass const & strip = Column[column];
 			if (x >= strip.X && x < strip.X + StripClass::OBJECT_WIDTH * RESFACTOR &&
-					y >= strip.Y && y < strip.Y + StripClass::MAX_VISIBLE * StripClass::OBJECT_HEIGHT * RESFACTOR) {
+					y >= strip.Y && y < strip.Y + STRIP_VISIBLE * StripClass::OBJECT_HEIGHT * RESFACTOR) {
 				for (; Mouse_Wheel_Left > 0; Mouse_Wheel_Left--) Scroll(true, column);
 				for (; Mouse_Wheel_Left < 0; Mouse_Wheel_Left++) Scroll(false, column);
 			}
@@ -1022,7 +1098,15 @@ bool SidebarClass::Activate(int control)
 		**	activate it on the left side of the screen.
 		*/
 		if (IsSidebarActive /*&& X*/) {
+#ifdef RA_PORT
+			/*
+			**	RA_PORT: all the way to the sidebar, part way through a column of cells if need
+			**	be (a width in pixels): the same at 640x400 (HIRES.CPP).
+			*/
+			Set_View_Dimensions(0, 8 * RESFACTOR, -(SeenBuff.Get_Width() - SIDE_WIDTH * RESFACTOR));
+#else
 			Set_View_Dimensions(0, 8 * RESFACTOR, ((320-SIDE_WIDTH)/ICON_PIXEL_W) * RESFACTOR);
+#endif
 			IsToRedraw = true;
 			Help_Text(TXT_NONE);
 			Repair.Zap();
@@ -1211,6 +1295,9 @@ void SidebarClass::StripClass::Init_IO(int id)
 	UpButton[ID].ID = BUTTON_UP+id;
 	UpButton[ID].X = X+(UP_X_OFFSET * RESFACTOR);
 	UpButton[ID].Y = Y+(UP_Y_OFFSET * RESFACTOR);
+#ifdef RA_PORT
+	UpButton[ID].Y += Extra_Height();			// RA_PORT: below the extra slots of a tall screen.
+#endif
 
 #if (FRENCH)
 #ifdef WIN32
@@ -1226,6 +1313,9 @@ void SidebarClass::StripClass::Init_IO(int id)
 	DownButton[ID].ID = BUTTON_DOWN+id;
 	DownButton[ID].X = X+(DOWN_X_OFFSET * RESFACTOR);
 	DownButton[ID].Y = Y+(DOWN_Y_OFFSET * RESFACTOR);
+#ifdef RA_PORT
+	DownButton[ID].Y += Extra_Height();
+#endif
 
 	/*
 	** Buttons are in a slightly different position in the new sidebar
@@ -1235,7 +1325,7 @@ void SidebarClass::StripClass::Init_IO(int id)
 
 	DownButton[ID].Set_Shape(MFCD::Retrieve("STRIPDN.SHP"));
 
-	for (int index = 0; index < MAX_VISIBLE; index++) {
+	for (int index = 0; index < STRIP_VISIBLE; index++) {
 		SelectClass & g = SelectButton[ID][index];
 		g.ID = BUTTON_SELECT;
 		g.X = X;
@@ -1344,7 +1434,7 @@ void SidebarClass::StripClass::Activate(void)
 	DownButton[ID].Zap();
 	Map.Add_A_Button(DownButton[ID]);
 
-	for (int index = 0; index < MAX_VISIBLE; index++) {
+	for (int index = 0; index < STRIP_VISIBLE; index++) {
 		SelectButton[ID][index].Zap();
 		Map.Add_A_Button(SelectButton[ID][index]);
 	}
@@ -1370,7 +1460,7 @@ void SidebarClass::StripClass::Deactivate(void)
 {
 	Map.Remove_A_Button(UpButton[ID]);
 	Map.Remove_A_Button(DownButton[ID]);
-	for (int index = 0; index < MAX_VISIBLE; index++) {
+	for (int index = 0; index < STRIP_VISIBLE; index++) {
 		Map.Remove_A_Button(SelectButton[ID][index]);
 	}
 }
@@ -1438,7 +1528,7 @@ bool SidebarClass::StripClass::Scroll(bool up)
 		if (!TopIndex) return(false);
 		Scroller--;
 	} else {
-		if (TopIndex+MAX_VISIBLE >= BuildableCount) return(false);
+		if (TopIndex+STRIP_VISIBLE >= BuildableCount) return(false);
 		Scroller++;
 	}
 	return(true);
@@ -1515,7 +1605,7 @@ bool SidebarClass::StripClass::AI(KeyNumType & input, int , int )
 	**	logic handler. This might result in up or down scrolling.
 	*/
 	if (!IsScrolling && Scroller) {
-		if (BuildableCount <= MAX_VISIBLE) {
+		if (BuildableCount <= STRIP_VISIBLE) {
 			Scroller = 0;
 		} else {
 
@@ -1536,7 +1626,7 @@ bool SidebarClass::StripClass::AI(KeyNumType & input, int , int )
 				}
 
 			} else {
-				if (TopIndex+MAX_VISIBLE >= BuildableCount) {
+				if (TopIndex+STRIP_VISIBLE >= BuildableCount) {
 					Scroller = 0;
 				} else {
 					Scroller--;
@@ -1687,7 +1777,7 @@ void SidebarClass::StripClass::Draw_It(bool complete)
 		**	Loop through all the buildable objects that are visible in the strip and render
 		**	them. Their Y offset may be adjusted if the strip is in the process of scrolling.
 		*/
-		for (int i = 0; i < MAX_VISIBLE + (IsScrolling ? 1 : 0); i++) {
+		for (int i = 0; i < STRIP_VISIBLE + (IsScrolling ? 1 : 0); i++) {
 			bool production;
 			bool completed;
 			int  stage;

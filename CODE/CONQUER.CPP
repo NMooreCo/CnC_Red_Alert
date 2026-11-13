@@ -297,6 +297,9 @@ void Main_Game(int argc, char * argv[])
 #else
 				TimeQuake = false;
 #endif
+#ifdef RA_PORT
+				Screen_Game_Mode(true);		// RA_PORT: the battle screen (HIRES.CPP).
+#endif
 				if (Main_Loop()) {
 					break;
 				}
@@ -338,6 +341,9 @@ void Main_Game(int argc, char * argv[])
 				/*
 				**	Scenario-editor-mode: call the editor's main loop
 				*/
+#ifdef RA_PORT
+				Screen_Game_Mode(false);		// RA_PORT: the editor is laid out for 640x400 (HIRES.CPP).
+#endif
 				if (Map_Edit_Loop()) {
 					break;
 				}
@@ -357,6 +363,9 @@ void Main_Game(int argc, char * argv[])
 			/*
 			**	Call the game's main loop
 			*/
+#ifdef RA_PORT
+			Screen_Game_Mode(true);		// RA_PORT: the battle screen (HIRES.CPP).
+#endif
 			if (Main_Loop()) {
 				break;
 			}
@@ -2878,6 +2887,9 @@ extern GraphicBufferClass VQ640;
 #endif
 void Play_Movie(char const * name, ThemeType theme, bool clrscrn)
 	{
+#ifdef RA_PORT
+	Screen_Game_Mode(false);		// RA_PORT: movies are 640x400 (HIRES.CPP).
+#endif
 	#ifdef MPEGMOVIE
 	//theme = theme;
 	//clrscrn = clrscrn;

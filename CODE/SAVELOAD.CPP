@@ -782,6 +782,13 @@ bool Load_Game(int id)
 	file.Close();
 	Decode_All_Pointers();
 	Map.Init_IO();
+#ifdef RA_PORT
+	/*
+	**	RA_PORT: the map's layout (where the radar, the sidebar and the tactical map are) came in
+	**	with it, as it was when the game was saved; lay it out for this screen (HIRES.CPP).
+	*/
+	Map.Screen_Resized();
+#endif
 	Map.Flag_To_Redraw(true);
 
 	/*

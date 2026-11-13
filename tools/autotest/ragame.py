@@ -57,6 +57,9 @@ class Game:
         self.proc = subprocess.Popen([binary] + list(args), env=self.env, stdout=self.log,
                                      stderr=subprocess.STDOUT, cwd='/')
         self.window = None
+        # The size of the screen the game is showing: 640x400, except in battle with a bigger
+        # battle screen (RA_RESOLUTION); the window shows it as big as it fits, centred.
+        self.logical = (640, 400)
         atexit.register(self.kill)
         signal.signal(signal.SIGTERM, lambda *a: sys.exit(1))
 
@@ -118,9 +121,13 @@ class Game:
         raise RuntimeError('the game window is gone (game exit code %s)' % self.proc.poll())
 
     def _to_screen(self, x, y):
-        """Game coordinates (640x400) to screen coordinates."""
+        """Game coordinates (in self.logical, normally 640x400) to screen coordinates."""
         wx, wy, ww, wh = self._geometry()
-        return wx + int(x * ww / 640), wy + int(y * wh / 400)
+        lw, lh = self.logical
+        scale = min(ww / lw, wh / lh)
+        ox = (ww - lw * scale) / 2
+        oy = (wh - lh * scale) / 2
+        return wx + int(ox + x * scale), wy + int(oy + y * scale)
 
     def move(self, x, y):
         sx, sy = self._to_screen(x, y)

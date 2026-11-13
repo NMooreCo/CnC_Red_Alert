@@ -39,6 +39,9 @@
 
 #include "RAPORT.H"
 #include	"FUNCTION.H"
+#ifdef RA_PORT
+#include	"PLATFORM.H"
+#endif
 #include	<conio.h>
 #include	<io.h>
 
@@ -502,13 +505,26 @@ int main(int argc, char * argv[])
 
 			ScreenHeight = 400;
 
+#ifdef RA_PORT
+			if (VisiblePage.Get_Height() == 480 && VisiblePage.Get_Width() == 640) {
+#else
 			if (VisiblePage.Get_Height() == 480) {
+#endif
 				SeenBuff.Attach(&VisiblePage, 0, 40, 640, 400);
 				HidPage.Attach(&HiddenPage, 0, 40, 640, 400);
 			} else {
 				SeenBuff.Attach(&VisiblePage, 0, 0, 640, 400);
 				HidPage.Attach(&HiddenPage, 0, 0, 640, 400);
 			}
+#ifdef RA_PORT
+			/*
+			**	RA_PORT: with a bigger battle screen, the menus still show 640x400 (HIRES.CPP).
+			*/
+			if (Hires_Is_On()) {
+				ScreenWidth = 640;
+				Video_Set_Present_Size(640, 400);
+			}
+#endif
 			#endif // MPEGMOVIE - Denzil 6/10/98
 			
 			Options.Adjust_Variables_For_Resolution();
@@ -1033,6 +1049,22 @@ void Read_Setup_Options( RawFileClass *config_file )
 			}
 		}
 	}
+
+#ifdef RA_PORT
+	/*
+	**	RA_PORT: a bigger battle screen ([Video] Resolution or RA_RESOLUTION, HIRES.CPP): the
+	**	pages are made that big.
+	*/
+	INIClass ini;
+	if (config_file->Is_Available()) {
+		ini.Load(*config_file);
+	}
+	Hires_Choose(ini);
+	if (Hires_Is_On()) {
+		ScreenWidth = HiresWidth;
+		ScreenHeight = HiresHeight;
+	}
+#endif
 }
 
 void Get_OS_Version (void)

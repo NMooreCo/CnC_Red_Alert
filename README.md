@@ -210,9 +210,10 @@ it; the game's messages then appear in that window):
 | Variable | Effect |
 | --- | --- |
 | `RA_DATA_DIR` | Directory holding the game data. |
-| `RA_FULLSCREEN=1` | Start fullscreen. |
-| `RA_SCALE=n` | Window size as a multiple of 640x400 (default 2). |
-| `RA_ASPECT=1` | Stretch 640x400 to 4:3, as a CRT monitor showed it. |
+| `RA_FULLSCREEN=1` | Start fullscreen (`0`: in a window, whatever `REDALERT.INI` says). |
+| `RA_RESOLUTION=WxH` | The battle screen's size, such as `1280x720`, or `auto` (see "Bigger battle screen"). |
+| `RA_SCALE=n` | Window size as a multiple of 640x400, or of the battle screen's size (default 2; less if that wouldn't fit). |
+| `RA_ASPECT=1` | Show each pixel 1.2 times taller, as a CRT monitor did (640x400 as 4:3). |
 | `RA_NO_SOUND=1` | Disable sound. |
 | `RA_NO_MOUSE_GRAB=1` | Don't keep the mouse in the game's window while the game is active (it does by default, as the original did, so that the map scrolls when the mouse reaches the window's edges). |
 | `RA_LAN_BROADCAST=a.b.c.d` | Broadcast address(es) for LAN games, comma separated (default 255.255.255.255). An address can also be a name, and have a port (`host:port`). |
@@ -221,6 +222,28 @@ it; the game's messages then appear in that window):
 | `RA_NO_MESSAGEBOX=1` | Don't show system message boxes (start-up errors and warnings); take their default answer. For automated runs. |
 | `RA_SCREENSHOT=file.bmp` | Save one screenshot, `RA_SCREENSHOT_DELAY` milliseconds after start. |
 | `RA_EXTRACT=NAME,...` | Copy the named files out of the MIX archives into the data directory (or `RA_EXTRACT_DIR`), then exit. See Modding. |
+
+## Bigger battle screen
+
+The original showed everything at 640x400. The battle screen can be bigger, so that more
+of the battlefield is in view: in `REDALERT.INI`, add
+
+```ini
+[Video]
+Resolution=1280x720
+```
+
+(or set `RA_RESOLUTION=1280x720`). Any size from 640x400 up works. The sidebar, radar and
+power bar move to the right edge, the map fills the rest, and on a taller screen the
+sidebar's build strips show more items (ten each at 720 lines) before they need
+scrolling. A map smaller than the screen leaves a black margin. The menus, movies, score
+screens and the map of the campaign stay 640x400 and fill the window as before.
+
+`Resolution=auto` picks the size of the desktop divided by the biggest whole number that
+leaves at least 400 lines (960x540 on a 1920x1080 desktop, shown at double size), and
+starts fullscreen. `Fullscreen=yes` (or `no`) in the same section chooses whether the game
+starts fullscreen; Alt+Enter switches at any time. Saved games load on any screen size.
+Network players can each use a different size.
 
 ## LAN and internet games
 

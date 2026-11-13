@@ -554,14 +554,42 @@ void DisplayClass::Set_View_Dimensions(int x, int y, int width, int height)
 {
 	if (width == -1) {
 		TacLeptonWidth = Pixel_To_Lepton(SeenBuff.Get_Width()-x);
+#ifdef RA_PORT
+	} else if (width < -1) {
+		TacLeptonWidth = Pixel_To_Lepton(-width);		// RA_PORT: a width in pixels (HIRES.CPP).
+#endif
 	} else {
 		TacLeptonWidth = width * CELL_LEPTON_W;
 	}
 
+#ifdef RA_PORT
+	/*
+	**	RA_PORT: down to the bottom of the screen, even if that is part way through a row of
+	**	cells (as the right edge could always be): the same at 640x400 (HIRES.CPP).
+	*/
+	if (height == -1) {
+		TacLeptonHeight = Pixel_To_Lepton(SeenBuff.Get_Height()-y);
+	} else {
+		TacLeptonHeight = height * CELL_LEPTON_H;
+	}
+#else
 	if (height == -1) {
 		height = (SeenBuff.Get_Height()-y) / CELL_PIXEL_H;
 	}
 	TacLeptonHeight = height * CELL_LEPTON_H;
+#endif
+
+#ifdef RA_PORT
+	/*
+	**	RA_PORT: on a big screen (HIRES.CPP), no more than the map.
+	*/
+	if (MapCellWidth > 0 && TacLeptonWidth > MapCellWidth * CELL_LEPTON_W) {
+		TacLeptonWidth = MapCellWidth * CELL_LEPTON_W;
+	}
+	if (MapCellHeight > 0 && TacLeptonHeight > MapCellHeight * CELL_LEPTON_H) {
+		TacLeptonHeight = MapCellHeight * CELL_LEPTON_H;
+	}
+#endif
 
 	/*
 	**	Adjust the tactical cell if it is now in an invalid position

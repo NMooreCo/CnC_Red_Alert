@@ -130,6 +130,15 @@ extern GraphicBufferClass		SysMemPage;
 extern LPDIRECTSOUND				SoundObject;
 extern LPDIRECTSOUNDBUFFER		PrimaryBufferPtr;
 extern int							ScreenWidth;
+extern int							ScreenDX;			// RA_PORT: the right side of the battle screen's interface is moved by this much (HIRES.CPP).
+#ifdef RA_PORT
+extern int							HiresWidth;
+extern int							HiresHeight;
+bool	Hires_Is_On(void);
+void	Hires_Choose(INIClass const & ini);
+void	Screen_Game_Mode(bool on);
+void	Draw_Shape_Rows(void const * shape, int frame, int x, int y, int top, int rows, ShapeFlags_Type flags = SHAPE_NORMAL, void const * remap = 0);
+#endif
 extern int							ScreenHeight;
 extern GraphicBufferClass		ModeXBuff;
 

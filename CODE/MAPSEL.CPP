@@ -110,6 +110,9 @@ extern short StreamLowImpact;
 #endif
 char const * Map_Selection(void)
 {
+#ifdef RA_PORT
+	Screen_Game_Mode(false);		// RA_PORT: the map selection is 640x400 (HIRES.CPP).
+#endif
 	static char scenarioname[_MAX_FNAME+_MAX_EXT];
 
 #ifdef FIXIT_ANTS

@@ -129,6 +129,9 @@ class SidebarClass: public PowerClass
 		void Zoom_Mode_Control(void);
 		bool Abandon_Production(RTTIType type, int factory);
 		bool Activate(int control);
+#ifdef RA_PORT
+		void Screen_Resized(void);		// RA_PORT: lays the interface out for the screen's size (HIRES.CPP).
+#endif
 		bool Add(RTTIType type, int ID);
 		bool Sidebar_Click(KeyNumType & input, int x, int y);
 		void Recalc(void);
@@ -195,6 +198,9 @@ class SidebarClass: public PowerClass
 					OBJECT_WIDTH=32,				// Pixel width of each buildable object.
 					STRIP_WIDTH=35,				// Width of strip (not counting border lines).
 					MAX_VISIBLE=4,					// Number of object slots visible at any one time.
+#ifdef RA_PORT
+					MAX_SLOTS=20,					// RA_PORT: the most slots a tall screen shows (Visible).
+#endif
 #ifdef WIN32
 					SCROLL_RATE=12,				// The pixel jump while scrolling (larger is faster).
 #else
@@ -342,7 +348,20 @@ class SidebarClass: public PowerClass
 
 				static ShapeButtonClass UpButton[COLUMNS];
 				static ShapeButtonClass DownButton[COLUMNS];
+#ifdef RA_PORT
+				static SelectClass SelectButton[COLUMNS][MAX_SLOTS];
+
+				/*
+				**	RA_PORT: how many object slots are visible: MAX_VISIBLE, or more on a tall
+				**	battle screen (HIRES.CPP).
+				*/
+				static int Visible;
+				static int Extra_Height(void) {return((Visible - MAX_VISIBLE) * OBJECT_HEIGHT * RESFACTOR);}
+#define	STRIP_VISIBLE	SidebarClass::StripClass::Visible
+#else
+#define	STRIP_VISIBLE	SidebarClass::StripClass::MAX_VISIBLE
 				static SelectClass SelectButton[COLUMNS][MAX_VISIBLE];
+#endif
 
 				/*
 				**	This points to the shapes that are used for the clock overlay. This displays

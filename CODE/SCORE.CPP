@@ -357,6 +357,9 @@ static char const   _redpal[]={0xD0,0xD1,0xD7,0xD3,0xD9,0xD5,0xDA,0xD7,0xDB,0xD9
 static char const _yellowpal[]={0x0,0x0,0xEC,0x0,0xEB,0x0,0xEA,0x0,0xE9,0x0,0x0,0x0,0x0,0x0,0xED,0x0};
 void ScoreClass::Presentation(void)
 {
+#ifdef RA_PORT
+	Screen_Game_Mode(false);		// RA_PORT: the score screen is 640x400 (HIRES.CPP).
+#endif
 #ifdef WIN32
 //	if (Keyboard != NULL) return;
 #endif
@@ -1773,6 +1776,9 @@ extern int CopyType;
 
 void Multi_Score_Presentation(void)
 {
+#ifdef RA_PORT
+	Screen_Game_Mode(false);		// RA_PORT: the score screen is 640x400 (HIRES.CPP).
+#endif
 	char remap[16];
 #ifdef WIN32
 	GraphicBufferClass *pseudoseenbuff = new GraphicBufferClass(320, 200, (void*)NULL);

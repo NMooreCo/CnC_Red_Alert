@@ -114,8 +114,13 @@ int LoadOptionsClass::Process(void)
 	*/
 	int d_dialog_w = 250 * RESFACTOR;											// dialog width
 	int d_dialog_h = 156 * RESFACTOR;											// dialog height
+#ifdef RA_PORT
+	int d_dialog_x = ((SeenBuff.Get_Width() - d_dialog_w) / 2);			// centered x-coord (RA_PORT: on any screen size, HIRES.CPP)
+	int d_dialog_y = ((SeenBuff.Get_Height() - d_dialog_h) / 2);		// centered y-coord
+#else
 	int d_dialog_x = (((320 * RESFACTOR) - d_dialog_w) / 2);				// centered x-coord
 	int d_dialog_y = (((200 * RESFACTOR) - d_dialog_h) / 2);				// centered y-coord
+#endif
 	int d_dialog_cx = d_dialog_x + (d_dialog_w / 2);		// coord of x-center
 
 	int d_txt8_h = 11 * RESFACTOR;												// ht of 8-pt text

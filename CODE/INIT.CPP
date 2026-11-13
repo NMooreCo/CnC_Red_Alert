@@ -481,6 +481,9 @@ bool Select_Game(bool fade)
 //	}
 //	#endif
 
+#ifdef RA_PORT
+	Screen_Game_Mode(false);		// RA_PORT: the menus are 640x400 (HIRES.CPP).
+#endif
 	Show_Mouse();
 
 #ifdef FIXIT_CSII	//	checked - ajw 9/28/98
@@ -1597,6 +1600,9 @@ bool Select_Game(bool fade)
 	Hide_Mouse();
 	BlackPalette.Set(FADE_PALETTE_MEDIUM, Call_Back);
 //	Fade_Palette_To(BlackPalette, FADE_PALETTE_MEDIUM, Call_Back);
+#ifdef RA_PORT
+	Screen_Game_Mode(true);		// RA_PORT: the battle screen, before its first frame (HIRES.CPP).
+#endif
 #ifdef WIN32
 	HiddenPage.Clear();
 	VisiblePage.Clear();

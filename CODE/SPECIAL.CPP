@@ -45,8 +45,13 @@
 #ifdef WIN32
 #define	OPTION_WIDTH	236*2
 #define	OPTION_HEIGHT	162*2
+#ifdef RA_PORT
+#define	OPTION_X			((SeenBuff.Get_Width() - OPTION_WIDTH) / 2)		// RA_PORT: on any screen size (HIRES.CPP).
+#define	OPTION_Y			((SeenBuff.Get_Height() - OPTION_HEIGHT) / 2)
+#else
 #define	OPTION_X			((640 - OPTION_WIDTH) / 2)
 #define	OPTION_Y			(400 - OPTION_HEIGHT) / 2
+#endif
 #else
 #define	OPTION_WIDTH	236
 #define	OPTION_HEIGHT	162

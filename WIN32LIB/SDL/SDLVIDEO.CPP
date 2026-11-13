@@ -50,6 +50,7 @@ static SDL_Texture *		Texture = NULL;
 static int					LogicalWidth = 640;
 static int					LogicalHeight = 400;
 static bool					AspectCorrect = false;
+static bool					StartFullscreen = false;		// Video_Start_Fullscreen.
 
 static unsigned char const *	Surface = NULL;
 static int					SurfaceWidth = 0;
@@ -83,24 +84,28 @@ static char					WindowTitle[128] = "Red Alert";
 /***************************************************************************************
 **	Setup.
 */
+/*
+**	How tall the picture is shown, in pixels of its width. With RA_ASPECT, each pixel is 1.2
+**	times taller, as on a CRT: 640x400 is shown as 4:3. (The 640x480 screen was 4:3 already.)
+*/
+static int Shown_Height(void)
+{
+	if (!AspectCorrect) return(LogicalHeight);
+	if (LogicalWidth == 640 && LogicalHeight == 480) return(480);
+	return((LogicalHeight * 6) / 5);
+}
+
 static void Update_Logical_Size(void)
 {
 	if (Renderer == NULL) return;
-	if (AspectCorrect) {
-		/*
-		**	Present 640x400 as 4:3 (each pixel 1.2 times taller), as on a CRT.
-		*/
-		SDL_RenderSetLogicalSize(Renderer, LogicalWidth, (LogicalWidth * 3) / 4);
-	} else {
-		SDL_RenderSetLogicalSize(Renderer, LogicalWidth, LogicalHeight);
-	}
+	SDL_RenderSetLogicalSize(Renderer, LogicalWidth, Shown_Height());
 }
 
 bool Video_Init(int width, int height)
 {
+	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
+	SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
 	if (!SDL_WasInit(SDL_INIT_VIDEO)) {
-		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
-		SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
 		if (SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0) {
 			fprintf(stderr, "Unable to initialise SDL video: %s\n", SDL_GetError());
 			return(false);
@@ -115,22 +120,32 @@ bool Video_Init(int width, int height)
 		int scale = 2;
 		if (getenv("RA_SCALE")) scale = SDL_max(1, atoi(getenv("RA_SCALE")));
 		int ww = width * scale;
-		int wh = (AspectCorrect ? (width * 3) / 4 : height) * scale;
+		int wh = Shown_Height() * scale;
 
 		/*
-		**	Don't open a window bigger than the desktop.
+		**	Don't open a window bigger than the desktop (less the task bar, and room for the
+		**	window's title bar). If even the smallest scale is too big (a big screen for
+		**	battle), open it maximized: it is shown as big as fits.
 		*/
-		SDL_DisplayMode mode;
-		if (SDL_GetDesktopDisplayMode(0, &mode) == 0) {
-			while (scale > 1 && (ww > mode.w || wh > mode.h)) {
+		bool fits = true;
+		SDL_Rect usable;
+		if (SDL_GetDisplayUsableBounds(0, &usable) == 0) {
+			int const titlebar = 40;
+			while (scale > 1 && (ww > usable.w || wh + titlebar > usable.h)) {
 				scale--;
 				ww = width * scale;
-				wh = (AspectCorrect ? (width * 3) / 4 : height) * scale;
+				wh = Shown_Height() * scale;
 			}
+			fits = (ww <= usable.w && wh + titlebar <= usable.h);
 		}
 
 		Uint32 flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI;
-		if (getenv("RA_FULLSCREEN") && atoi(getenv("RA_FULLSCREEN")) != 0) {
+		if (!fits) {
+			flags |= SDL_WINDOW_MAXIMIZED;
+		}
+		bool full = StartFullscreen;
+		if (getenv("RA_FULLSCREEN")) full = (atoi(getenv("RA_FULLSCREEN")) != 0);
+		if (full) {
 			flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 		}
 		Window = SDL_CreateWindow(WindowTitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, ww, wh, flags);
@@ -176,6 +191,58 @@ bool Video_Init(int width, int height)
 	Dirty = true;
 	return(true);
 }
+
+/*
+**	Show only the top left part of the visible surface (width x height), as the whole of the
+**	window: the game draws its menus at 640x400 on a surface that is bigger when the battle
+**	screen is (higher resolutions). Mouse positions are in the same terms.
+*/
+void Video_Set_Present_Size(int width, int height)
+{
+	if (width == LogicalWidth && height == LogicalHeight) return;
+	LogicalWidth = width;
+	LogicalHeight = height;
+	if (Renderer == NULL) return;
+
+	if (Texture) {
+		SDL_DestroyTexture(Texture);
+		Texture = NULL;
+	}
+	Texture = SDL_CreateTexture(Renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, width, height);
+	Update_Logical_Size();
+	if (MouseX >= width) MouseX = width - 1;
+	if (MouseY >= height) MouseY = height - 1;
+	SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 255);
+	SDL_RenderClear(Renderer);
+	Dirty = true;
+}
+
+
+/*
+**	Open the window full screen (before Video_Init; REDALERT.INI's choice). RA_FULLSCREEN
+**	overrides it.
+*/
+void Video_Start_Fullscreen(bool on)
+{
+	StartFullscreen = on;
+}
+
+
+/*
+**	The size of the desktop, for choosing a resolution that fits it.
+*/
+bool Video_Get_Desktop_Size(int & width, int & height)
+{
+	if (!SDL_WasInit(SDL_INIT_VIDEO)) {
+		if (SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0) return(false);
+	}
+	SDL_DisplayMode mode;
+	if (SDL_GetDesktopDisplayMode(0, &mode) != 0) return(false);
+	width = mode.w;
+	height = mode.h;
+	return(true);
+}
+
 
 void Video_Shutdown(void)
 {
@@ -341,7 +408,7 @@ void Video_Set_Mouse(int x, int y)
 	float sx, sy;
 	SDL_RenderGetViewport(Renderer, &viewport);
 	SDL_RenderGetScale(Renderer, &sx, &sy);
-	int ly = AspectCorrect ? (y * ((LogicalWidth * 3) / 4)) / LogicalHeight : y;
+	int ly = (y * Shown_Height()) / LogicalHeight;
 	int wx = (int)((x + viewport.x) * sx);
 	int wy = (int)((ly + viewport.y) * sy);
 	int ow, oh, ww, wh;
@@ -523,7 +590,7 @@ static void Update_Mouse_Position(int x, int y)
 	**	With a logical renderer size, SDL already reports coordinates in logical pixels.
 	*/
 	if (AspectCorrect) {
-		y = (y * LogicalHeight) / ((LogicalWidth * 3) / 4);
+		y = (y * LogicalHeight) / Shown_Height();
 	}
 	if (x < 0) x = 0;
 	if (y < 0) y = 0;
