@@ -45,8 +45,8 @@ Not tested:
 Tested on Linux (x86-64); CI builds it with GCC and Clang. The Windows version (64-bit,
 built with MinGW-w64) was tested under Wine 9: menus, movies with sound, a mission,
 saving and loading, a LAN game against the Linux version, the installer and uninstaller.
-It has also been installed and played on a Windows PC. The code is written to be portable
-to other SDL2 platforms (macOS...), but nothing else has been tried.
+It has also been installed and played on a Windows PC. CI also builds a macOS version
+(Apple silicon) and checks that it starts up; it hasn't been played on a Mac yet.
 
 ## Building
 
@@ -138,6 +138,19 @@ tools/windows/make-installer.sh --data ~/redalert-data \
 
 Such an installer is for your own computers only: EA's license lets you use the game,
 but not distribute it, so don't publish an installer that contains the data.
+
+### macOS
+
+With [Homebrew](https://brew.sh):
+
+```sh
+brew install cmake ninja sdl2
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo
+cmake --build build
+```
+
+This produces `build/redalert`; run it as on Linux (see [Running](#running)). CI builds it
+on every push (the `redalert-macos-arm64` artifact, which needs Homebrew's SDL2).
 
 ## Game data
 
