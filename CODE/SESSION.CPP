@@ -1447,6 +1447,9 @@ void SessionClass::Read_Scenario_Descriptions (void)
 			file_name = &block.cAlternateFileName[0];
 			if (*file_name == '\0') file_name = &block.cFileName[0];
 //debugprint( "Found MPR '%s'\n", file_name );
+#ifdef RA_ENHANCE
+			if (!Random_Map_Is(file_name)) {		// RA_ENHANCE: the random maps have entries of their own (below).
+#endif
 			CCFileClass file(file_name);
 			INIClass ini;
 			ini.Load(file);
@@ -1454,6 +1457,9 @@ void SessionClass::Read_Scenario_Descriptions (void)
 			ini.Get_String ("Basic", "Name", "No Name", name_buffer, sizeof (name_buffer) );
 			ini.Get_String ("Digest", "1", "No Digest", digest_buffer, sizeof (digest_buffer) );
 			Scenarios.Add (new MultiMission (file_name, name_buffer, digest_buffer,ini.Get_Bool("Basic", "Official", false), false ));
+#ifdef RA_ENHANCE
+			}
+#endif
 		}
 
 		if (FindNextFile(handle, &block) == 0) break;
@@ -1542,6 +1548,13 @@ void SessionClass::Read_Scenario_Descriptions (void)
   #endif
 
 #endif	//WIN32
+
+#ifdef RA_ENHANCE
+	/*
+	**	RA_ENHANCE: the random maps (RANDMAP.CPP), at the end of the list.
+	*/
+	Random_Map_Add_Entries();
+#endif
 }
 
 

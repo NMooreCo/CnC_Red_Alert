@@ -245,6 +245,13 @@ void	Survival_Save(Pipe & pipe);
 void	Survival_Restore(void);
 
 /*
+**	Random maps, in the skirmish and network games' scenario lists (RANDMAP.CPP).
+*/
+void	Random_Map_Add_Entries(void);
+bool	Random_Map_Is(char const * filename);
+bool	Random_Map_Generate(int scenario, bool only_if_missing = false);
+
+/*
 **	The enhancements' state in saved games: after the original's data (SAVELOAD.CPP).
 */
 void	Enhance_Save(Pipe & pipe);

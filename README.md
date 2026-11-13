@@ -282,6 +282,19 @@ make more waves. In a network game, the players are allies against the waves.
 **Co-op** is an option of network games: the players start allied with each other, against
 the computer players (allied with each other too).
 
+**Random maps**: at the end of the skirmish and network games' scenario lists, "Random Map:
+Small (2-4)", "Medium (4-6)" and "Large (6-8)" make a new map each time you choose one
+(choose it again for another). It's saved as `RANDOMS.MPR`, `RANDOMM.MPR` or
+`RANDOML.MPR` in the game's folder, like the maps players made with the editor, so in a
+network game the others get it from the host as the game starts. Red Alert's terrain is
+made of pieces of art that only fit next to some others, so the shorelines, cliffs and
+rivers come from the maps you have: every group of terrain pieces surrounded by clear
+ground in a map of the same theater (a lake, a ridge, a river with its bridges, a rock) can
+go anywhere on clear ground, and one that ran off its map's edge (a coast) can go at the
+same edge of the new map. Each start position gets room for a base and its own ore field,
+with more ore between them and gems in the middle; the terrain is placed so that every
+start can be reached from every other by land; then come clumps of trees.
+
 | Enhancement | `REDALERT.INI` | What it does |
 | --- | --- | --- |
 | Veterancy | `Veterancy=yes` | Units earn ranks from their kills: veteran after 3, elite after 7. A veteran deals 20% more damage, takes 20% less and fires 10% faster; an elite unit deals 40% more, takes 35% less, fires 25% faster and repairs itself. Selected units show their rank as chevrons above the health bar. Westwood started on this: every unit has a kill counter ("When it reaches a certain point, the unit improves", `CODE/CREW.H`), but the original game credited each kill to the victim and never used the count. |

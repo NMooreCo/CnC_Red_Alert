@@ -4592,6 +4592,14 @@ static int Net_New_Dialog(void)
 					Session.Options.ScenarioIndex = scenariolist.Current_Index();
 					transmit = 1;
 				}
+#ifdef RA_ENHANCE
+				/*
+				**	RA_ENHANCE: choosing a random map makes a new one, each time (RANDMAP.CPP).
+				*/
+				if (Random_Map_Generate(scenariolist.Current_Index())) {
+					transmit = 1;
+				}
+#endif
 				break;
 
 #else	//	FIXIT_VERSION_3
@@ -4778,6 +4786,9 @@ static int Net_New_Dialog(void)
 				//...............................................................
 				if (Session.Players.Count() > 1 ) {
 //				if (Session.Players.Count() + Session.Options.AIPlayers > 1 ) {
+#ifdef RA_ENHANCE
+					Random_Map_Generate(Session.Options.ScenarioIndex, true);	// RA_ENHANCE: if there is none yet.
+#endif
 					rc = TRUE;
 					process = FALSE;
 				} else {

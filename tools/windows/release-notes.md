@@ -32,6 +32,10 @@ weapons, each with a personality), support powers (artillery barrage, naval bomb
 Chinook reinforcements) and mission select (start a new campaign at any mission you have
 reached). The mouse wheel scrolls the sidebar and lists.
 
+**Random maps**: at the end of the skirmish and network game map lists, "Random Map: Small",
+"Medium" and "Large" make a new map each time you choose one, from the terrain of the
+game's own maps. Other players get it from the host.
+
 **Bigger battle screen**: more of the battlefield in view. Open `REDALERT.INI` (in the
 game's folder) and add a `[Video]` section with `Resolution=1280x720` (or any size), or
 `Resolution=auto` to fill the screen (it starts fullscreen; Alt+Enter switches). The menus

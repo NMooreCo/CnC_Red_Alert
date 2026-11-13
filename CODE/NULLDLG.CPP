@@ -3718,6 +3718,14 @@ oh_dear_its_a_label:
 					strcpy (Session.Handle, namebuf);
 					transmit = true;
 				}
+#ifdef RA_ENHANCE
+				/*
+				**	RA_ENHANCE: choosing a random map makes a new one, each time (RANDMAP.CPP).
+				*/
+				if (Random_Map_Generate(scenariolist.Current_Index())) {
+					transmit = true;
+				}
+#endif
 				break;
 
 #else	//	FIXIT_VERSION_3		Whoever duplicated Netdlg into Nulldlg should be shot. Wasn't it enough?
@@ -4372,6 +4380,9 @@ oh_dear_its_a_label:
 	if (rc) {
 		Session.NumPlayers = skirmish ? 1 : 2;
 
+#ifdef RA_ENHANCE
+		Random_Map_Generate(Session.Options.ScenarioIndex, true);	// RA_ENHANCE: if there is none yet.
+#endif
 		Scen.Scenario = Session.Options.ScenarioIndex;
 		strcpy (Scen.ScenarioName, Session.Scenarios[Session.Options.ScenarioIndex]->Get_Filename());
 
