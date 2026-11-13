@@ -45,7 +45,7 @@ Not tested:
 Tested on Linux (x86-64); CI builds it with GCC and Clang. The Windows version (64-bit,
 built with MinGW-w64) was tested under Wine 9: menus, movies with sound, a mission,
 saving and loading, a LAN game against the Linux version, the installer and uninstaller.
-It has not been tried on a real Windows machine yet. The code is written to be portable
+It has also been installed and played on a Windows PC. The code is written to be portable
 to other SDL2 platforms (macOS...), but nothing else has been tried.
 
 ## Building
@@ -64,10 +64,11 @@ cmake --build build
 This produces `build/redalert`. To build with Clang, set `CC=clang CXX=clang++` when
 running the first `cmake` command.
 
-Build options (`-D<option>=ON`):
+Build options (`-D<option>=ON` or `OFF`):
 
 | Option | Effect |
 | --- | --- |
+| `RA_ENHANCEMENTS` | On by default: build in the optional [enhancements](#enhancements). Each is still off until the player turns it on. |
 | `RA_LANGUAGE_GERMAN`, `RA_LANGUAGE_FRENCH` | Build a German or French version (the data must match). |
 | `RA_WARNINGS` | Show compiler warnings (off by default: the 1996 code produces thousands). |
 | `RA_SANITIZE` | Build with AddressSanitizer and UndefinedBehaviorSanitizer. With `ASAN_OPTIONS=halt_on_error=0` a run reports every memory error instead of stopping at the first. |
@@ -224,6 +225,38 @@ it; the game's messages then appear in that window):
 Novell IPX, which the original used for network games, no longer exists, so "Network"
 games use UDP broadcasts on port 1234 instead (the original code had this as an unused
 option). Players on the same local network see each other's games in the lobby.
+
+## Enhancements
+
+Optional additions that the original game didn't have. Each one is off until you turn it
+on, so by default the game plays as it always did: in a mission, open **Options**, **Game
+Controls**, **Enhancements** (or set them in `REDALERT.INI`, section `[Enhancements]`).
+Those that change the game rules apply to campaign and skirmish games; network games use
+the original rules for now, as every player would need the same ones.
+
+| Enhancement | `REDALERT.INI` | What it does |
+| --- | --- | --- |
+| Veterancy | `Veterancy=yes` | Units earn ranks from their kills: veteran after 3, elite after 7. A veteran deals 20% more damage, takes 20% less and fires 10% faster; an elite unit deals 40% more, takes 35% less, fires 25% faster and repairs itself. Selected units show their rank as chevrons above the health bar. Westwood started on this: every unit has a kill counter ("When it reaches a certain point, the unit improves", `CODE/CREW.H`), but the original game credited each kill to the victim and never used the count. |
+
+Mods and missions can tune them in `RULES.INI` (a scenario's own sections override
+these). The defaults:
+
+```ini
+[Veterancy]
+VeteranKills=3
+EliteKills=7
+VeteranFirepower=1.2    ; damage dealt, times this
+VeteranArmor=0.8        ; damage taken, times this
+VeteranROF=0.9          ; time between shots, times this
+EliteFirepower=1.4
+EliteArmor=0.65
+EliteROF=0.75
+EliteRepairDelay=60     ; game frames between repair steps of elite units
+EliteRepairStep=0.02    ; part of full strength repaired in each step
+```
+
+The code is in `CODE/ENHANCE.CPP`, and the original code that calls into it is marked
+`RA_ENHANCE`. Build with `-DRA_ENHANCEMENTS=OFF` to leave all of it out.
 
 ## Modding
 

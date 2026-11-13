@@ -696,6 +696,10 @@ void OptionsClass::Load_Settings(void)
 	KeyTeam9 = (KeyNumType)(KeyTeam9 & ~WWKEY_VK_BIT);
 	KeyTeam10 = (KeyNumType)(KeyTeam10 & ~WWKEY_VK_BIT);
 #endif
+
+#ifdef RA_ENHANCE
+	Enhance.Load_Settings(ini);		// RA_ENHANCE: [Enhancements]
+#endif
 }
 
 
@@ -804,6 +808,10 @@ void OptionsClass::Save_Settings (void)
 	ini.Put_Int(HotkeyName, "KeyTeam8", KeyTeam8);
 	ini.Put_Int(HotkeyName, "KeyTeam9", KeyTeam9);
 	ini.Put_Int(HotkeyName, "KeyTeam10", KeyTeam10);
+
+#ifdef RA_ENHANCE
+	Enhance.Save_Settings(ini);		// RA_ENHANCE: [Enhancements]
+#endif
 
 	/*
 	**	Write the INI data out to a file.

@@ -1,0 +1,377 @@
+/*
+**	Command & Conquer Red Alert(tm)
+**	Copyright 2025 Electronic Arts Inc.
+**
+**	This program is free software: you can redistribute it and/or modify
+**	it under the terms of the GNU General Public License as published by
+**	the Free Software Foundation, either version 3 of the License, or
+**	(at your option) any later version.
+**
+**	This program is distributed in the hope that it will be useful,
+**	but WITHOUT ANY WARRANTY; without even the implied warranty of
+**	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+**	GNU General Public License for more details.
+**
+**	You should have received a copy of the GNU General Public License
+**	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+/***********************************************************************************************
+ *                 Project Name : Command & Conquer                                            *
+ *                    File Name : ENHANCE.CPP                                                  *
+ *                                                                                             *
+ *   Optional gameplay enhancements, which the original game didn't have. Each one is off      *
+ *   until the player turns it on (Options, Game Controls, Enhancements, or REDALERT.INI's    *
+ *   [Enhancements] section), so by default the game plays exactly as it always did.          *
+ *                                                                                             *
+ *   Veterancy: units earn ranks from their kills. A veteran deals more damage, takes less    *
+ *   and fires faster; an elite unit more so, and repairs itself. Selected units show their   *
+ *   rank as chevrons. Tuning: RULES.INI [Veterancy] (see Reset_Rules for the keys).           *
+ *---------------------------------------------------------------------------------------------*/
+
+#include	"FUNCTION.H"
+
+#ifdef RA_ENHANCE
+
+EnhancementsClass Enhance;
+
+static char const ENHANCEMENTS[] = "Enhancements";
+static char const VETERANCY[] = "Veterancy";
+
+
+EnhancementsClass::EnhancementsClass(void) :
+	Veterancy(false)
+{
+	Reset_Rules();
+}
+
+
+/***********************************************************************************************
+ * EnhancementsClass::Load_Settings -- The player's choices, from REDALERT.INI.                *
+ *=============================================================================================*/
+void EnhancementsClass::Load_Settings(INIClass const & ini)
+{
+	Veterancy = ini.Get_Bool(ENHANCEMENTS, "Veterancy", Veterancy);
+}
+
+
+void EnhancementsClass::Save_Settings(INIClass & ini) const
+{
+	ini.Put_Bool(ENHANCEMENTS, "Veterancy", Veterancy);
+}
+
+
+/***********************************************************************************************
+ * EnhancementsClass::Reset_Rules -- The default tuning.                                       *
+ *=============================================================================================*/
+void EnhancementsClass::Reset_Rules(void)
+{
+	VeteranKills = 3;
+	EliteKills = 7;
+	VeteranFirepower = fixed(6, 5);		// 1.2
+	VeteranArmor = fixed(4, 5);			// 0.8
+	VeteranROF = fixed(9, 10);				// 0.9
+	EliteFirepower = fixed(7, 5);			// 1.4
+	EliteArmor = fixed(13, 20);			// 0.65
+	EliteROF = fixed(3, 4);					// 0.75
+	EliteRepairDelay = 60;
+	EliteRepairStep = fixed(1, 50);		// 2% of full strength
+}
+
+
+/***********************************************************************************************
+ * EnhancementsClass::Rules -- Tuning from a rules file (RULES.INI, then the scenario).        *
+ *=============================================================================================*/
+void EnhancementsClass::Rules(INIClass const & ini)
+{
+	VeteranKills = ini.Get_Int(VETERANCY, "VeteranKills", VeteranKills);
+	EliteKills = ini.Get_Int(VETERANCY, "EliteKills", EliteKills);
+	VeteranFirepower = ini.Get_Fixed(VETERANCY, "VeteranFirepower", VeteranFirepower);
+	VeteranArmor = ini.Get_Fixed(VETERANCY, "VeteranArmor", VeteranArmor);
+	VeteranROF = ini.Get_Fixed(VETERANCY, "VeteranROF", VeteranROF);
+	EliteFirepower = ini.Get_Fixed(VETERANCY, "EliteFirepower", EliteFirepower);
+	EliteArmor = ini.Get_Fixed(VETERANCY, "EliteArmor", EliteArmor);
+	EliteROF = ini.Get_Fixed(VETERANCY, "EliteROF", EliteROF);
+	EliteRepairDelay = ini.Get_Int(VETERANCY, "EliteRepairDelay", EliteRepairDelay);
+	EliteRepairStep = ini.Get_Fixed(VETERANCY, "EliteRepairStep", EliteRepairStep);
+}
+
+
+/***********************************************************************************************
+ * EnhancementsClass::Rules_Apply -- Can enhancements that change the game rules apply?        *
+ *                                                                                             *
+ *    In a network game, every player's game has to make exactly the same moves, so all of     *
+ *    them would need the same enhancements. Until the host can send its choices to the others, *
+ *    those enhancements apply only to campaign and skirmish games.                             *
+ *=============================================================================================*/
+bool EnhancementsClass::Rules_Apply(void) const
+{
+	return(Session.Type == GAME_NORMAL || Session.Type == GAME_SKIRMISH);
+}
+
+
+/***********************************************************************************************
+ * Enhancements_Dialog -- Turn the enhancements on and off.                                     *
+ *                                                                                             *
+ *    Reached from the in-game Options: Game Controls, Enhancements. A list with a checkbox    *
+ *    for each enhancement, and a description of the one that is highlighted.                 *
+ *=============================================================================================*/
+void Enhancements_Dialog(void)
+{
+	struct EnhancementInfo {
+		char const * Name;
+		char const * About;
+		bool * Setting;
+	};
+	static EnhancementInfo const _list[] = {
+		{"Veterancy: units earn ranks from their kills",
+			"Units become veterans after 3 kills and elite after 7. They deal more damage, take less and fire "
+			"faster, and elite units repair themselves. Selected units show their rank as chevrons.",
+			&Enhance.Veterancy},
+	};
+	int const count = ARRAY_SIZE(_list);
+
+	/*
+	**	Dialog & button dimensions.
+	*/
+	int	d_dialog_w = 260 * RESFACTOR;
+	int	d_dialog_h = 150 * RESFACTOR;
+	int	d_dialog_x = (SeenBuff.Get_Width() - d_dialog_w) / 2;
+	int	d_dialog_y = (SeenBuff.Get_Height() - d_dialog_h) / 2;
+	int	d_margin = 12 * RESFACTOR;
+
+	int	d_list_x = d_dialog_x + d_margin;
+	int	d_list_y = d_dialog_y + 25 * RESFACTOR;
+	int	d_list_w = d_dialog_w - 2 * d_margin;
+	int	d_list_h = 36 * RESFACTOR;
+
+	int	d_text_x = d_list_x;
+	int	d_text_y = d_list_y + d_list_h + 6 * RESFACTOR;
+	int	d_text_w = d_list_w;
+
+	int	d_ok_y = d_dialog_y + d_dialog_h - (9 * RESFACTOR) - (9 * RESFACTOR);
+
+	enum {
+		BUTTON_LIST = 100,
+		BUTTON_OK
+	};
+
+	RemapControlType * scheme = GadgetClass::Get_Color_Scheme();
+
+	CheckListClass list(BUTTON_LIST, d_list_x, d_list_y, d_list_w, d_list_h, TPF_TEXT, MFCD::Retrieve("BTN-UP.SHP"), MFCD::Retrieve("BTN-DN.SHP"));
+	TextButtonClass okbtn(BUTTON_OK, TXT_OK, TPF_BUTTON, 0, d_ok_y);
+	okbtn.X = d_dialog_x + (d_dialog_w - okbtn.Width) / 2;
+
+	for (int index = 0; index < count; index++) {
+		list.Add_Item(_list[index].Name);
+		list.Check_Item(index, *_list[index].Setting);
+	}
+	list.Set_Selected_Index(0);
+
+	GadgetClass * commands = &okbtn;
+	list.Add_Tail(*commands);
+
+	Set_Logic_Page(SeenBuff);
+
+	bool process = true;
+	bool display = true;
+	while (process) {
+
+		/*
+		**	The game carries on underneath in a network game.
+		*/
+		if (Session.Type == GAME_NORMAL || Session.Type == GAME_SKIRMISH) {
+			Call_Back();
+		} else {
+			if (Main_Loop()) {
+				process = false;
+			}
+		}
+
+		#ifdef WIN32
+		if (AllSurfaces.SurfacesRestored) {
+			AllSurfaces.SurfacesRestored = FALSE;
+			display = true;
+		}
+		#endif
+
+		if (display) {
+			Hide_Mouse();
+			Map.Flag_To_Redraw(true);
+			Map.Render();
+			Dialog_Box(d_dialog_x, d_dialog_y, d_dialog_w, d_dialog_h);
+			Draw_Caption("Enhancements", d_dialog_x, d_dialog_y, d_dialog_w);
+
+			/*
+			**	What the highlighted one does, and when they apply.
+			*/
+			int current = list.Current_Index();
+			char text[512];
+			snprintf(text, sizeof(text), "%s\r\r%s", _list[(current >= 0 && current < count) ? current : 0].About,
+				Session.Type == GAME_NORMAL || Session.Type == GAME_SKIRMISH ?
+					"Checked ones apply to campaign and skirmish games." :
+					"Network games use the original rules: these apply to campaign and skirmish games.");
+			int width, height;
+			Format_Window_String(text, d_text_w, width, height);
+			Fancy_Text_Print(text, d_text_x, d_text_y, scheme, TBLACK, TPF_TEXT);
+
+			commands->Flag_List_To_Redraw();
+			commands->Draw_All();
+			Show_Mouse();
+			display = false;
+		}
+
+		KeyNumType input = commands->Input();
+		switch (input) {
+			case (BUTTON_LIST | KN_BUTTON):
+				display = true;		// Show the description of the item clicked.
+				break;
+
+			case (BUTTON_OK | KN_BUTTON):
+			case KN_ESC:
+			case KN_RETURN:
+				process = false;
+				break;
+
+			default:
+				break;
+		}
+	}
+
+	/*
+	**	Keep the choices.
+	*/
+	bool changed = false;
+	for (int index = 0; index < count; index++) {
+		if (*_list[index].Setting != list.Is_Checked(index)) {
+			*_list[index].Setting = list.Is_Checked(index);
+			changed = true;
+		}
+	}
+	if (changed) {
+		Options.Save_Settings();
+	}
+}
+
+
+/***********************************************************************************************
+ * Veterancy_Rank -- The rank of a unit.                                                       *
+ *                                                                                             *
+ *    Only units (infantry, vehicles, ships and aircraft) earn ranks; buildings don't.         *
+ *=============================================================================================*/
+VeterancyType Veterancy_Rank(TechnoClass const * techno)
+{
+	if (techno == NULL || !Enhance.Is_Veterancy() || !techno->Is_Foot()) return(VETERANCY_ROOKIE);
+
+	int kills = techno->Crew.Kills;
+	if (Enhance.EliteKills > 0 && kills >= Enhance.EliteKills) return(VETERANCY_ELITE);
+	if (Enhance.VeteranKills > 0 && kills >= Enhance.VeteranKills) return(VETERANCY_VETERAN);
+	return(VETERANCY_ROOKIE);
+}
+
+
+/***********************************************************************************************
+ * Veterancy_Credit_Kill -- Count a kill for the unit that made it.                            *
+ *                                                                                             *
+ *    The original counted the kill for the victim's crew, which was about to die anyway, so   *
+ *    no unit ever built up kills (TechnoClass::Record_The_Kill). Friendly fire, civilians,    *
+ *    barrels and mines don't count.                                                           *
+ *=============================================================================================*/
+void Veterancy_Credit_Kill(TechnoClass * killer, TechnoClass const * victim)
+{
+	if (killer == NULL || victim == NULL || !killer->IsActive || !killer->Is_Foot()) return;
+	if (killer->House->Is_Ally(victim) || victim->Owner() == HOUSE_NEUTRAL) return;
+	if (victim->What_Am_I() == RTTI_BUILDING) {
+		StructType type = ((BuildingClass const *)victim)->Class->Type;
+		if (type == STRUCT_BARREL || type == STRUCT_BARREL3 || type == STRUCT_APMINE || type == STRUCT_AVMINE) return;
+	}
+
+	VeterancyType before = Veterancy_Rank(killer);
+	killer->Crew.Made_A_Kill();
+	VeterancyType after = Veterancy_Rank(killer);
+
+	if (after != before) {
+		killer->Mark(MARK_CHANGE);
+		if (killer->IsOwnedByPlayer) {
+			Speak((after == VETERANCY_ELITE) ? VOX_UPGRADE_ARMOR : VOX_UPGRADE_FIREPOWER);
+		}
+	}
+}
+
+
+/***********************************************************************************************
+ * Veterancy_Firepower, _Armor, _ROF -- What a unit's rank multiplies.                         *
+ *=============================================================================================*/
+fixed Veterancy_Firepower(TechnoClass const * techno)
+{
+	switch (Veterancy_Rank(techno)) {
+		case VETERANCY_VETERAN:	return(Enhance.VeteranFirepower);
+		case VETERANCY_ELITE:	return(Enhance.EliteFirepower);
+		default:						return(fixed(1));
+	}
+}
+
+
+fixed Veterancy_Armor(TechnoClass const * techno)
+{
+	switch (Veterancy_Rank(techno)) {
+		case VETERANCY_VETERAN:	return(Enhance.VeteranArmor);
+		case VETERANCY_ELITE:	return(Enhance.EliteArmor);
+		default:						return(fixed(1));
+	}
+}
+
+
+fixed Veterancy_ROF(TechnoClass const * techno)
+{
+	switch (Veterancy_Rank(techno)) {
+		case VETERANCY_VETERAN:	return(Enhance.VeteranROF);
+		case VETERANCY_ELITE:	return(Enhance.EliteROF);
+		default:						return(fixed(1));
+	}
+}
+
+
+/***********************************************************************************************
+ * Veterancy_AI -- Elite units repair themselves, a step at a time.                            *
+ *=============================================================================================*/
+void Veterancy_AI(TechnoClass * techno)
+{
+	if (Enhance.EliteRepairDelay <= 0 || (Frame % Enhance.EliteRepairDelay) != 0) return;
+	if (Veterancy_Rank(techno) != VETERANCY_ELITE) return;
+
+	int full = techno->Techno_Type_Class()->MaxStrength;
+	if (techno->Strength <= 0 || techno->Strength >= full) return;
+
+	int step = full * Enhance.EliteRepairStep;
+	if (step < 1) step = 1;
+	techno->Strength = (short)min(full, techno->Strength + step);
+	techno->Mark(MARK_CHANGE);
+}
+
+
+/***********************************************************************************************
+ * Veterancy_Draw -- Draw a selected unit's rank: one chevron for a veteran, two for elite.    *
+ *                                                                                             *
+ * INPUT:   x,y   -- The middle of the bottom of the chevrons, which stack upwards from there   *
+ *                   (just above the unit's health bar).                                       *
+ *=============================================================================================*/
+void Veterancy_Draw(TechnoClass const * techno, GraphicViewPortClass & window, int x, int y)
+{
+	VeterancyType rank = Veterancy_Rank(techno);
+	int count = (rank == VETERANCY_ELITE) ? 2 : (rank == VETERANCY_VETERAN) ? 1 : 0;
+
+	for (int index = 0; index < count; index++) {
+		int top = y - 4 - index * 4;
+
+		/*
+		**	A dark edge under each one, so that they show on snow as well as on dark ground.
+		*/
+		window.Draw_Line(x-3, top+4, x, top+1, BLACK);
+		window.Draw_Line(x, top+1, x+3, top+4, BLACK);
+		window.Draw_Line(x-3, top+3, x, top, YELLOW);
+		window.Draw_Line(x, top, x+3, top+3, YELLOW);
+	}
+}
+
+#endif

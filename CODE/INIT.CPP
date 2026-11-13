@@ -276,6 +276,9 @@ bool Init_Game(int , char * [])
 	*/
 	if (RuleINI.Load(CCFileClass("RULES.INI"), false)) {
 		Rule.Process(RuleINI);
+#ifdef RA_ENHANCE
+		Enhance.Rules(RuleINI);		// RA_ENHANCE: the enhancements' tuning
+#endif
 	}
 #ifdef FIXIT_CSII	//	checked - ajw 9/28/98
 	//  Aftermath runtime change 9/29/98

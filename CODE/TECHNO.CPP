@@ -1181,6 +1181,9 @@ void TechnoClass::Draw_It(int x, int y, WindowNumberType window) const
 			// Lower left corner.
 			draw_window.Draw_Line(x-lx, y+ly, x-lx+dx, y+ly, WHITE);
 			draw_window.Draw_Line(x-lx, y+ly, x-lx, y+ly-dy, WHITE);
+#ifdef RA_ENHANCE
+			Veterancy_Draw(this, draw_window, x+lx-4, y-ly-1);		// RA_ENHANCE: rank chevrons, above the health bar
+#endif
 			if (House->Is_Ally(PlayerPtr) || (SpiedBy & (1<<(PlayerPtr->Class->House)))) {
 				Draw_Pips((x-lx)+5, y+ly-3, window);
 			}
@@ -2355,6 +2358,9 @@ void TechnoClass::AI(void)
 		Strength++;
 		Mark(MARK_CHANGE);
 	}
+#ifdef RA_ENHANCE
+	Veterancy_AI(this);		// RA_ENHANCE: elite units repair themselves.
+#endif
 
 	/*
 	**	Cloaking device processing.
@@ -2864,7 +2870,15 @@ int TechnoClass::Rearm_Delay(bool second, int which) const
 
 	WeaponTypeClass const * weapon = (which == 0) ? Techno_Type_Class()->PrimaryWeapon : Techno_Type_Class()->SecondaryWeapon;
 	if (second && weapon != NULL) {
+#ifdef RA_ENHANCE
+		int delay = weapon->ROF * House->ROFBias;
+		if (Veterancy_Rank(this) != VETERANCY_ROOKIE) {
+			delay = max(1, delay * Veterancy_ROF(this));		// RA_ENHANCE: rank
+		}
+		return(delay);
+#else
 		return(weapon->ROF * House->ROFBias);
+#endif
 	}
 	return(3);
 }
@@ -3084,6 +3098,9 @@ BulletClass * TechnoClass::Fire_At(TARGET target, int which)
 	int firepower = weapon->Attack;
 	if (firepower > 0) {
 		firepower = weapon->Attack * FirepowerBias * House->FirepowerBias;
+#ifdef RA_ENHANCE
+		firepower = firepower * Veterancy_Firepower(this);		// RA_ENHANCE: rank
+#endif
 	}
 
 
@@ -3802,6 +3819,11 @@ ResultType TechnoClass::Take_Damage(int & damage, int distance, WarheadType warh
 	*/
 	if (!forced && damage > 0) {
 		damage = damage * ArmorBias * House->ArmorBias;
+#ifdef RA_ENHANCE
+		if (damage > 0) {
+			damage = max(1, damage * Veterancy_Armor(this));		// RA_ENHANCE: rank
+		}
+#endif
 	}
 
 	if (IronCurtainCountDown == 0) {
@@ -3901,7 +3923,19 @@ void TechnoClass::Record_The_Kill(TechnoClass * source)
 	if (Trigger.Is_Valid()) Trigger->Spring(TEVENT_DESTROYED, this);
 
 	if (source != NULL) {
+#ifdef RA_ENHANCE
+		/*
+		**	RA_ENHANCE: this counted the kill for the victim's crew, which is about to die, so no
+		**	unit ever built up kills. With veterancy on, the unit that made the kill gets it.
+		*/
+		if (Enhance.Is_Veterancy()) {
+			Veterancy_Credit_Kill(source, this);
+		} else {
+			Crew.Made_A_Kill();
+		}
+#else
 		Crew.Made_A_Kill();
+#endif
 
 		House->WhoLastHurtMe = source->Owner();
 

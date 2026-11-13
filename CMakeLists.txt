@@ -40,6 +40,7 @@ option(RA_LANGUAGE_GERMAN "Build the German language version" OFF)
 option(RA_LANGUAGE_FRENCH "Build the French language version" OFF)
 option(RA_WARNINGS "Enable compiler warnings for the legacy code" OFF)
 option(RA_SANITIZE "Build with AddressSanitizer/UBSan (debugging)" OFF)
+option(RA_ENHANCEMENTS "Build in the optional gameplay enhancements (veterancy...); each is off until the player turns it on" ON)
 
 find_package(SDL2 REQUIRED)
 
@@ -125,6 +126,9 @@ elseif(RA_LANGUAGE_FRENCH)
 	target_compile_definitions(ra_game_defs INTERFACE FRENCH=1)
 else()
 	target_compile_definitions(ra_game_defs INTERFACE ENGLISH=1)
+endif()
+if(RA_ENHANCEMENTS)
+	target_compile_definitions(ra_game_defs INTERFACE RA_ENHANCE=1)	# Marks the optional enhancements
 endif()
 target_link_libraries(ra_game_defs INTERFACE ra_common)
 
@@ -276,6 +280,7 @@ set(GAME_SOURCES
 	CODE/WINSTUB.CPP CODE/WRITEPCX.CPP CODE/WSPIPX.CPP CODE/WSPROTO.CPP CODE/WSPUDP.CPP
 	CODE/XPIPE.CPP CODE/XSTRAW.CPP CODE/_WSPROTO.CPP CODE/FIELD.CPP
 	CODE/RAPORT.CPP CODE/WINASM.CPP CODE/WOLSTRNG.CPP
+	CODE/ENHANCE.CPP
 )
 # Not built (services that no longer exist):
 #   TCPIP.CPP INTERNET.CPP   - WChat/Planet Westwood internet games (see CODE/PORTSTUB.CPP)

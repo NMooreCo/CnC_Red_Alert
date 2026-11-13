@@ -1040,5 +1040,8 @@ extern DynamicVectorClass<EgoClass *> whatever;
 #ifdef RA_PORT
 #include	"RAPORT.H"
 #endif
+#ifdef RA_ENHANCE
+#include	"ENHANCE.H"
+#endif
 
 #endif

@@ -23,6 +23,8 @@ The discs are `RedAlert1_AlliedDisc.rar` and `RedAlert1_SovietDisc.rar` on the I
 Archive; unpack them with [7-Zip](https://www.7-zip.org/) (Windows' own "Extract all" may
 fail on them), then open the `.ISO` files inside.
 
-Needs 64-bit Windows. This build has been tested under Wine; reports from Windows
-machines are welcome. See the [README](https://github.com/@REPO@/blob/@BRANCH@/README.md)
+**Optional enhancements** (all off until you turn them on): in a mission, open **Options**,
+**Game Controls**, **Enhancements**. So far: veterancy (units earn ranks from their kills).
+
+Needs 64-bit Windows. Tested under Wine and played on Windows; reports are welcome. See the [README](https://github.com/@REPO@/blob/@BRANCH@/README.md)
 for more, including modding.

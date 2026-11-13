@@ -68,7 +68,11 @@ void GameControlsClass::Process(void)
 	**	Dialog & button dimensions
 	*/
 	int	d_dialog_w = 232 * RESFACTOR;											// dialog width
+#ifdef RA_ENHANCE
+	int	d_dialog_h = (141 + 9 + 5) * RESFACTOR;							// dialog height (RA_ENHANCE: and the Enhancements button)
+#else
 	int	d_dialog_h = 141 * RESFACTOR;											// dialog height
+#endif
 	int	d_dialog_x = ((SeenBuff.Get_Width() - d_dialog_w) / 2);				// dialog x-coord
 	int	d_dialog_y = ((SeenBuff.Get_Height() - d_dialog_h) / 2);				// centered y-coord
 	int	d_dialog_cx = d_dialog_x + (d_dialog_w / 2);		// center x-coord
@@ -105,6 +109,13 @@ void GameControlsClass::Process(void)
 	int	d_sound_h = (9 * RESFACTOR);
 	int	d_sound_x = d_dialog_x + (20 * RESFACTOR);
 	int	d_sound_y = d_visual_y + d_visual_h + d_margin1;
+
+#ifdef RA_ENHANCE
+	int	d_enhance_w = d_sound_w;
+	int	d_enhance_h = d_sound_h;
+	int	d_enhance_x = d_sound_x;
+	int	d_enhance_y = d_sound_y + d_sound_h + d_margin1;
+#endif
 
 	int	d_ok_w = 20 * RESFACTOR;
 	int	d_ok_h = 9 * RESFACTOR;
@@ -148,6 +159,9 @@ void GameControlsClass::Process(void)
 		BUTTON_SCROLLRATE,
 		BUTTON_VISUAL,
 		BUTTON_SOUND,
+#ifdef RA_ENHANCE
+		BUTTON_ENHANCE,
+#endif
 		BUTTON_OK,
 		BUTTON_COUNT,
 		BUTTON_FIRST = BUTTON_SPEED,
@@ -178,6 +192,9 @@ void GameControlsClass::Process(void)
 	SliderClass scrate_btn(BUTTON_SCROLLRATE, d_scroll_x, d_scroll_y, d_scroll_w, d_scroll_h, true);
 	TextButtonClass visual_btn(BUTTON_VISUAL, TXT_VISUAL_CONTROLS, TPF_BUTTON, d_visual_x, d_visual_y, d_visual_w, d_visual_h);
 	TextButtonClass sound_btn(BUTTON_SOUND, TXT_SOUND_CONTROLS, TPF_BUTTON, d_sound_x, d_sound_y, d_sound_w, d_sound_h);
+#ifdef RA_ENHANCE
+	TextButtonClass enhance_btn(BUTTON_ENHANCE, "Enhancements", TPF_BUTTON, d_enhance_x, d_enhance_y, d_enhance_w, d_enhance_h);
+#endif
 	TextButtonClass okbtn(BUTTON_OK, TXT_OPTIONS_MENU, TPF_BUTTON, d_ok_x, d_ok_y);
 	okbtn.X = (SeenBuff.Get_Width()-okbtn.Width)/2;
 
@@ -198,6 +215,9 @@ void GameControlsClass::Process(void)
 	scrate_btn.Add_Tail(*commands);
 	visual_btn.Add_Tail(*commands);
 	sound_btn.Add_Tail(*commands);
+#ifdef RA_ENHANCE
+	enhance_btn.Add_Tail(*commands);
+#endif
 #ifdef WOLAPI_INTEGRATION
 	if( bShowWolapi )
 		wol_btn.Add_Tail(*commands);
@@ -227,6 +247,9 @@ void GameControlsClass::Process(void)
 	buttons[3] = &sound_btn;
 #ifdef WOLAPI_INTEGRATION
 	buttons[4] = &wol_btn;
+	buttons[5] = &okbtn;
+#elif defined(RA_ENHANCE)
+	buttons[4] = &enhance_btn;
 	buttons[5] = &okbtn;
 #else
 	buttons[4] = &okbtn;
@@ -342,6 +365,13 @@ void GameControlsClass::Process(void)
 				selection = BUTTON_OK;
 				pressed = true;
 				break;
+
+#ifdef RA_ENHANCE
+			case (BUTTON_ENHANCE | KN_BUTTON):
+				selection = BUTTON_ENHANCE;
+				pressed = true;
+				break;
+#endif
 
 #ifdef WOLAPI_INTEGRATION
 			case (BUTTON_WOLAPI | KN_BUTTON):
@@ -505,6 +535,15 @@ void GameControlsClass::Process(void)
 						display = true;
 						refresh = true;
 					}
+					break;
+#endif
+
+#ifdef RA_ENHANCE
+				case (BUTTON_ENHANCE):
+					Enhancements_Dialog();
+					process = true;
+					display = true;
+					refresh = true;
 					break;
 #endif
 

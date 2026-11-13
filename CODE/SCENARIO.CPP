@@ -2201,6 +2201,14 @@ bool Read_Scenario_INI(char * fname, bool )
 	Rule.IQ(ini);
 	Rule.Objects(ini);
 	Rule.Difficulty(ini);
+#ifdef RA_ENHANCE
+	/*
+	**	RA_ENHANCE: the enhancements' tuning, from the rules and then this scenario.
+	*/
+	Enhance.Reset_Rules();
+	Enhance.Rules(RuleINI);
+	Enhance.Rules(ini);
+#endif
 	/*
 	** Init the Scenario CRC value
 	*/
