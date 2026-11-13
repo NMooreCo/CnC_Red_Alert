@@ -119,7 +119,12 @@ char const * const SpecialWeaponName[SPC_COUNT] = {
 	"Paratroopers",
 	"Recon Plane",
 	"Iron Curtain",
-	"GPS Satellite"
+	"GPS Satellite",
+#ifdef RA_ENHANCE
+	"Artillery Barrage",
+	"Naval Bombardment",
+	"Chinook Reinforcements",
+#endif
 };
 #endif
 int const SpecialWeaponHelp[SPC_COUNT] = {
@@ -130,7 +135,12 @@ int const SpecialWeaponHelp[SPC_COUNT] = {
 	TXT_PARA_INFANTRY,
 	TXT_SPY_MISSION,
 	TXT_INVUL,
-	TXT_GPS_SATELLITE
+	TXT_GPS_SATELLITE,
+#ifdef RA_ENHANCE
+	TXT_ENH_ARTILLERY,
+	TXT_ENH_BOMBARDMENT,
+	TXT_ENH_AIRDROP,
+#endif
 };
 char const * const SpecialWeaponFile[SPC_COUNT] = {
 	"SONR",
@@ -140,7 +150,12 @@ char const * const SpecialWeaponFile[SPC_COUNT] = {
 	"PINF",
 	"CAM",
 	"INFX",
-	"GPSS"
+	"GPSS",
+#ifdef RA_ENHANCE
+	"ARTY",		// The sidebar pictures of the artillery, the cruiser and the Chinook.
+	"CA",
+	"TRAN",
+#endif
 };
 
 

@@ -35,6 +35,10 @@
  *   one in turn, as if the player clicked on it when the factory became free.                 *
  *                                                                                             *
  *   Shared tech: in skirmish games, both sides can build the units and buildings of both.    *
+ *                                                                                             *
+ *   Support powers: an artillery barrage (with a radar dome and a war factory), a naval       *
+ *   bombardment (radar dome, and naval yard or sub pen) and Chinook reinforcements (helipad   *
+ *   and barracks), in the sidebar like the original special weapons.                          *
  *---------------------------------------------------------------------------------------------*/
 
 #include	"FUNCTION.H"
@@ -59,6 +63,7 @@ EnhancementsClass::EnhancementsClass(void) :
 	Veterancy(false),
 	BuildQueue(false),
 	SharedTech(false),
+	SupportPowers(false),
 	MissionSelect(false),
 	AllMissions(false),
 	AlliedMission(0),
@@ -76,6 +81,7 @@ void EnhancementsClass::Load_Settings(INIClass const & ini)
 	Veterancy = ini.Get_Bool(ENHANCEMENTS, "Veterancy", Veterancy);
 	BuildQueue = ini.Get_Bool(ENHANCEMENTS, "BuildQueue", BuildQueue);
 	SharedTech = ini.Get_Bool(ENHANCEMENTS, "SharedTech", SharedTech);
+	SupportPowers = ini.Get_Bool(ENHANCEMENTS, "SupportPowers", SupportPowers);
 	MissionSelect = ini.Get_Bool(ENHANCEMENTS, "MissionSelect", MissionSelect);
 	AllMissions = ini.Get_Bool(ENHANCEMENTS, "AllMissions", AllMissions);
 	AlliedMission = ini.Get_Int(ENHANCEMENTS, "AlliedMission", AlliedMission);
@@ -88,6 +94,7 @@ void EnhancementsClass::Save_Settings(INIClass & ini) const
 	ini.Put_Bool(ENHANCEMENTS, "Veterancy", Veterancy);
 	ini.Put_Bool(ENHANCEMENTS, "BuildQueue", BuildQueue);
 	ini.Put_Bool(ENHANCEMENTS, "SharedTech", SharedTech);
+	ini.Put_Bool(ENHANCEMENTS, "SupportPowers", SupportPowers);
 	ini.Put_Bool(ENHANCEMENTS, "MissionSelect", MissionSelect);
 	if (AllMissions) ini.Put_Bool(ENHANCEMENTS, "AllMissions", AllMissions);
 	ini.Put_Int(ENHANCEMENTS, "AlliedMission", AlliedMission);
@@ -110,6 +117,17 @@ void EnhancementsClass::Reset_Rules(void)
 	EliteROF = fixed(3, 4);					// 0.75
 	EliteRepairDelay = 60;
 	EliteRepairStep = fixed(1, 50);		// 2% of full strength
+
+	ArtilleryTime = fixed(5);
+	ArtilleryShells = 8;
+	ArtilleryDamage = 150;					// The artillery's 155mm shell.
+	ArtillerySpread = 2;
+	BombardmentTime = fixed(8);
+	BombardmentShells = 6;
+	BombardmentDamage = 400;
+	BombardmentSpread = 3;
+	AirdropTime = fixed(6);
+	AirdropInfantry = 5;
 }
 
 
@@ -128,6 +146,35 @@ void EnhancementsClass::Rules(INIClass const & ini)
 	EliteROF = ini.Get_Fixed(VETERANCY, "EliteROF", EliteROF);
 	EliteRepairDelay = ini.Get_Int(VETERANCY, "EliteRepairDelay", EliteRepairDelay);
 	EliteRepairStep = ini.Get_Fixed(VETERANCY, "EliteRepairStep", EliteRepairStep);
+
+	static char const SUPPORT[] = "SupportPowers";
+	ArtilleryTime = ini.Get_Fixed(SUPPORT, "ArtilleryTime", ArtilleryTime);
+	ArtilleryShells = ini.Get_Int(SUPPORT, "ArtilleryShells", ArtilleryShells);
+	ArtilleryDamage = ini.Get_Int(SUPPORT, "ArtilleryDamage", ArtilleryDamage);
+	ArtillerySpread = ini.Get_Int(SUPPORT, "ArtillerySpread", ArtillerySpread);
+	BombardmentTime = ini.Get_Fixed(SUPPORT, "BombardmentTime", BombardmentTime);
+	BombardmentShells = ini.Get_Int(SUPPORT, "BombardmentShells", BombardmentShells);
+	BombardmentDamage = ini.Get_Int(SUPPORT, "BombardmentDamage", BombardmentDamage);
+	BombardmentSpread = ini.Get_Int(SUPPORT, "BombardmentSpread", BombardmentSpread);
+	AirdropTime = ini.Get_Fixed(SUPPORT, "AirdropTime", AirdropTime);
+	AirdropInfantry = ini.Get_Int(SUPPORT, "AirdropInfantry", AirdropInfantry);
+}
+
+
+/***********************************************************************************************
+ * Enhance_Text -- Texts that the game's string files don't have (TXT_ENH_...).                *
+ *=============================================================================================*/
+char const * Enhance_Text(int string)
+{
+	static char const * const _texts[TXT_ENH_LAST - TXT_ENH_FIRST] = {
+		"Artillery Barrage",
+		"Naval Bombardment",
+		"Chinook Reinforcements"
+	};
+	if (string >= TXT_ENH_FIRST && string < TXT_ENH_LAST) {
+		return(_texts[string - TXT_ENH_FIRST]);
+	}
+	return("");
 }
 
 
@@ -203,6 +250,11 @@ void Enhancements_Dialog(void)
 			"Soviets: Tesla coils next to pillboxes, Mammoth tanks next to cruisers. The computer players "
 			"can too.",
 			&Enhance.SharedTech},
+		{"Support powers: artillery, naval bombardment, Chinook",
+			"New special weapons in the sidebar. An artillery barrage needs a radar dome and a war factory; a "
+			"naval bombardment from off the map, a radar dome and a naval yard or sub pen; Chinook "
+			"reinforcements (five soldiers), a helipad and barracks. The computer players use them too.",
+			&Enhance.SupportPowers},
 		{"Mission select: start at a mission you have reached",
 			"When you start a new game and choose a side, you can start at any mission of that campaign "
 			"you have reached so far. (Each mission you play is remembered from now on.)",
@@ -336,10 +388,186 @@ void Enhancements_Dialog(void)
 /***********************************************************************************************
  * Enhancements_Start_Scenario -- A scenario has started, or a saved game was loaded.          *
  *=============================================================================================*/
+static void Support_Powers_Clear(void);
+
 void Enhancements_Start_Scenario(void)
 {
 	Mission_Reached();
 	Build_Queue_Clear();
+	Support_Powers_Clear();
+}
+
+
+/***********************************************************************************************
+ * Support powers -- an artillery barrage, a naval bombardment, Chinook reinforcements.        *
+ *                                                                                             *
+ *    They work like the original special weapons (HouseClass::SuperWeapon): a building gives  *
+ *    the power, which charges up in the sidebar; the player aims it at the map, which sends a  *
+ *    SPECIAL_PLACE event (DISPLAY.CPP), and HouseClass::Place_Special_Blast fires it here.     *
+ *    The shells of barrages and bombardments land over a few seconds (Support_Powers_Impacts, *
+ *    every game frame); they aren't kept in saved games.                                      *
+ *=============================================================================================*/
+void Support_Powers_Init(HouseClass * house)
+{
+	new (&house->SuperWeapon[SPC_ARTILLERY]) SuperClass(TICKS_PER_MINUTE * Enhance.ArtilleryTime, true, VOX_NONE, VOX_NONE, VOX_NONE, VOX_INSUFFICIENT_POWER);
+	new (&house->SuperWeapon[SPC_BOMBARDMENT]) SuperClass(TICKS_PER_MINUTE * Enhance.BombardmentTime, true, VOX_NONE, VOX_NONE, VOX_NONE, VOX_INSUFFICIENT_POWER);
+	new (&house->SuperWeapon[SPC_AIRDROP]) SuperClass(TICKS_PER_MINUTE * Enhance.AirdropTime, false, VOX_NONE, VOX_NONE, VOX_NONE, VOX_NONE);
+}
+
+
+/*
+**	Give or take away one power, as the house's buildings allow; the computer fires it when ready.
+*/
+static void Support_Power(HouseClass * house, SpecialWeaponType power, bool allowed)
+{
+	SuperClass & super = house->SuperWeapon[power];
+	bool player = (house == PlayerPtr);
+
+	if (super.Is_Present()) {
+		if (!allowed) {
+			if (super.Remove()) {
+				if (player) {
+					if (Map.IsTargettingMode == power) Map.IsTargettingMode = SPC_NONE;
+					Map.Column[1].Flag_To_Redraw();
+				}
+				house->IsRecalcNeeded = true;
+			}
+		} else if (super.Is_Ready() && !house->IsHuman) {
+			house->Special_Weapon_AI(power);
+		}
+	} else if (allowed) {
+		super.Enable(false, player, super.Is_Powered() && house->Power_Fraction() < 1);
+		if (player) {
+			Map.Add(RTTI_SPECIAL, power);
+			Map.Column[1].Flag_To_Redraw();
+		}
+	}
+}
+
+
+void Support_Powers_AI(HouseClass * house)
+{
+	bool on = Enhance.Is_Support_Powers() && !house->IsDefeated && (house->IsHuman || house->IQ >= Rule.IQSuperWeapons);
+	long have = house->ActiveBScan;
+
+	Support_Power(house, SPC_ARTILLERY, on && (have & STRUCTF_RADAR) && (have & STRUCTF_WEAP));
+	Support_Power(house, SPC_BOMBARDMENT, on && (have & STRUCTF_RADAR) && (have & (STRUCTF_SHIP_YARD|STRUCTF_SUB_PEN)));
+	Support_Power(house, SPC_AIRDROP, on && (have & STRUCTF_HELIPAD) && (have & (STRUCTF_TENT|STRUCTF_BARRACKS)));
+}
+
+
+/*
+**	The shells on their way.
+*/
+struct ShellType {
+	int Frame;					// The game frame it lands in.
+	COORDINATE Coord;
+	int Damage;
+	AnimType Anim;
+};
+
+enum {MAX_IMPACTS = 64};
+static ShellType Impacts[MAX_IMPACTS];
+static int ImpactCount = 0;
+
+
+static void Barrage(CELL cell, int shells, int spread, int damage, AnimType anim, int delay, int interval)
+{
+	for (int shell = 0; shell < shells && ImpactCount < MAX_IMPACTS; shell++) {
+		ShellType & impact = Impacts[ImpactCount++];
+		impact.Frame = Frame + delay + shell * interval + Random_Pick(0, interval);
+		impact.Coord = Coord_Scatter(Cell_Coord(cell), Random_Pick(0, spread * CELL_LEPTON_W));
+		impact.Damage = damage;
+		impact.Anim = anim;
+	}
+}
+
+
+static void Support_Powers_Clear(void)
+{
+	ImpactCount = 0;
+}
+
+
+void Support_Powers_Impacts(void)
+{
+	for (int index = 0; index < ImpactCount; ) {
+		if (Frame >= Impacts[index].Frame) {
+			ShellType impact = Impacts[index];
+			Impacts[index] = Impacts[--ImpactCount];
+
+			new AnimClass(impact.Anim, impact.Coord);
+			Explosion_Damage(impact.Coord, impact.Damage, NULL, WARHEAD_HE);
+		} else {
+			index++;
+		}
+	}
+}
+
+
+/*
+**	A Chinook flies in from the house's side of the map with soldiers, lands near the target,
+**	lets them out and flies off again.
+*/
+static void Chinook_Reinforcements(HouseClass * house, CELL cell)
+{
+	AircraftTypeClass const & type = AircraftTypeClass::As_Reference(AIRCRAFT_TRANSPORT);
+
+	ScenarioInit++;
+	AircraftClass * chinook = (AircraftClass *)type.Create_One_Of(house);
+	ScenarioInit--;
+	if (chinook == NULL) return;
+	chinook->IsALoaner = true;
+
+	int count = min(Enhance.AirdropInfantry, type.Max_Passengers());
+	for (int index = 0; index < count; index++) {
+		ScenarioInit++;
+		InfantryClass * soldier = (InfantryClass *)InfantryTypeClass::As_Reference((index % 3 == 2) ? INFANTRY_E3 : INFANTRY_E1).Create_One_Of(house);
+		ScenarioInit--;
+		if (soldier != NULL) {
+			chinook->Attach(soldier);
+		}
+	}
+
+	SourceType source = house->Control.Edge;
+	if (source != SOURCE_NORTH && source != SOURCE_EAST && source != SOURCE_SOUTH && source != SOURCE_WEST) {
+		source = SOURCE_NORTH;
+	}
+	CELL edge = Map.Calculated_Cell(source, -1, -1, SPEED_WINGED);
+
+	ScenarioInit++;
+	bool placed = chinook->Unlimbo(Cell_Coord(edge), DIR_N);
+	ScenarioInit--;
+	if (!placed) {
+		delete chinook;
+		return;
+	}
+	chinook->Assign_Destination(::As_Target(Map.Nearby_Location(cell, SPEED_FOOT)));
+	chinook->Assign_Mission(MISSION_UNLOAD);
+	if (house == PlayerPtr) {
+		Speak(VOX_REINFORCEMENTS);
+	}
+}
+
+
+void Support_Power_Fire(HouseClass * house, SpecialWeaponType power, CELL cell)
+{
+	switch (power) {
+		case SPC_ARTILLERY:
+			Barrage(cell, Enhance.ArtilleryShells, Enhance.ArtillerySpread, Enhance.ArtilleryDamage, ANIM_ART_EXP1, TICKS_PER_SECOND, 3);
+			break;
+
+		case SPC_BOMBARDMENT:
+			Barrage(cell, Enhance.BombardmentShells, Enhance.BombardmentSpread, Enhance.BombardmentDamage, ANIM_FBALL1, TICKS_PER_SECOND * 2, 6);
+			break;
+
+		case SPC_AIRDROP:
+			Chinook_Reinforcements(house, cell);
+			break;
+
+		default:
+			break;
+	}
 }
 
 

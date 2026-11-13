@@ -206,6 +206,10 @@ void LogicClass::AI(void)
 	*/
 	Scen.Do_Fade_AI();
 
+#ifdef RA_ENHANCE
+	Support_Powers_Impacts();		// RA_ENHANCE: the shells of barrages and bombardments.
+#endif
+
 	/*
 	**	Handle any general timer trigger events.
 	*/

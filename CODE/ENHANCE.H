@@ -24,6 +24,18 @@
 #ifndef ENHANCE_H
 #define ENHANCE_H
 
+/*
+**	Texts that the game's string files don't have: Text_String (INLINE.H) gets them from
+**	Enhance_Text.
+*/
+enum {
+	TXT_ENH_FIRST = 20000,
+	TXT_ENH_ARTILLERY = TXT_ENH_FIRST,
+	TXT_ENH_BOMBARDMENT,
+	TXT_ENH_AIRDROP,
+	TXT_ENH_LAST
+};
+
 class EnhancementsClass
 {
 	public:
@@ -35,6 +47,7 @@ class EnhancementsClass
 		bool Veterancy;			// Units earn ranks from their kills.
 		bool BuildQueue;			// Queue up units at each factory from the sidebar.
 		bool SharedTech;			// Skirmish: both sides can build everything.
+		bool SupportPowers;		// Artillery barrage, naval bombardment, Chinook reinforcements.
 		bool MissionSelect;		// Start a new campaign at any mission reached so far,
 		bool AllMissions;			// or at any mission at all (REDALERT.INI only).
 
@@ -60,6 +73,20 @@ class EnhancementsClass
 		int	EliteRepairDelay;		// Game frames between self repair steps of elite units,
 		fixed	EliteRepairStep;		// each repairing this much of full strength.
 
+		/*
+		**	Support powers tuning: RULES.INI [SupportPowers].
+		*/
+		fixed	ArtilleryTime;			// Minutes to recharge.
+		int	ArtilleryShells;
+		int	ArtilleryDamage;		// Of each shell.
+		int	ArtillerySpread;		// Cells from the target.
+		fixed	BombardmentTime;
+		int	BombardmentShells;
+		int	BombardmentDamage;
+		int	BombardmentSpread;
+		fixed	AirdropTime;
+		int	AirdropInfantry;		// Soldiers the Chinook brings (every third one has a rocket launcher).
+
 		void	Load_Settings(INIClass const & ini);
 		void	Save_Settings(INIClass & ini) const;
 		void	Reset_Rules(void);
@@ -73,6 +100,7 @@ class EnhancementsClass
 		*/
 		bool	Is_Veterancy(void) const {return(Veterancy && Rules_Apply());}
 		bool	Is_Shared_Tech(void) const {return(SharedTech && Session.Type == GAME_SKIRMISH);}
+		bool	Is_Support_Powers(void) const {return(SupportPowers && Rules_Apply());}
 
 	private:
 		bool	Rules_Apply(void) const;
@@ -95,6 +123,14 @@ extern int	Mouse_Wheel_Left;
 */
 void	Mission_Reached(void);
 bool	Mission_Select_Dialog(void);
+
+/*
+**	Support powers.
+*/
+void	Support_Powers_Init(HouseClass * house);
+void	Support_Powers_AI(HouseClass * house);
+void	Support_Power_Fire(HouseClass * house, SpecialWeaponType power, CELL cell);
+void	Support_Powers_Impacts(void);
 
 /*
 **	Build queue (the sidebar).

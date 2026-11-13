@@ -2903,6 +2903,18 @@ int DisplayClass::TacticalClass::Action(unsigned flags, KeyNumType & key)
 				action = ACTION_CHRONOSPHERE;
 			}
 
+#ifdef RA_ENHANCE
+			/*
+			**	RA_ENHANCE: the new support powers use the air strike and the paratroopers' pointers.
+			*/
+			if (Map.IsTargettingMode == SPC_ARTILLERY || Map.IsTargettingMode == SPC_BOMBARDMENT) {
+				action = ACTION_PARA_BOMB;
+			}
+			if (Map.IsTargettingMode == SPC_AIRDROP) {
+				action = ACTION_PARA_INFANTRY;
+			}
+#endif
+
 			if (Map.IsTargettingMode == SPC_CHRONO2) {
 				action = ACTION_CHRONO2;
 				if (shadow) action = ACTION_NOMOVE;
@@ -3603,6 +3615,18 @@ void DisplayClass::Mouse_Left_Release(CELL cell, int x, int y, ObjectClass * obj
 					}
 				}
 
+#ifdef RA_ENHANCE
+				/*
+				**	RA_ENHANCE: the new support powers (their pointers are the air strike's and the
+				**	paratroopers').
+				*/
+				if (IsTargettingMode == SPC_ARTILLERY || IsTargettingMode == SPC_BOMBARDMENT || IsTargettingMode == SPC_AIRDROP) {
+					if (action == ACTION_PARA_BOMB || action == ACTION_PARA_INFANTRY) {
+						OutList.Add(EventClass(EventClass::SPECIAL_PLACE, IsTargettingMode, cell));
+					}
+					action = ACTION_NONE;
+				}
+#endif
 				if (action == ACTION_NUKE_BOMB) {
 					OutList.Add(EventClass(EventClass::SPECIAL_PLACE, SPC_NUCLEAR_BOMB, cell));
 				}

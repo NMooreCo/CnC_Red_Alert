@@ -921,8 +921,15 @@ inline FacingType Dir_To_8(DirType facing)
  * HISTORY:                                                                                    *
  *   08/26/1996 JLB : Created.                                                                 *
  *=============================================================================================*/
+#ifdef RA_ENHANCE
+char const * Enhance_Text(int string);		// RA_ENHANCE: texts the game's string files don't have.
+#endif
 inline char const * Text_String(int string)
 {
+#ifdef RA_ENHANCE
+	if (string >= 20000) return(Enhance_Text(string));		// TXT_ENH_FIRST (ENHANCE.H)
+#endif
+
 #ifdef FIXIT_NAME_OVERRIDE
 	if (string < 0 && abs(string) < ARRAY_SIZE(NameOverride)) {
 		return(NameOverride[-(string+1)]);

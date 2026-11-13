@@ -658,6 +658,9 @@ HouseClass::HouseClass(HousesType house) :
 	new (&SuperWeapon[SPC_SPY_MISSION]) SuperClass(TICKS_PER_MINUTE * Rule.SpyTime, false, VOX_NONE, VOX_SPY_PLANE, VOX_NOT_READY, VOX_NOT_READY);
 	new (&SuperWeapon[SPC_IRON_CURTAIN]) SuperClass(TICKS_PER_MINUTE * Rule.IronCurtainTime, true, VOX_IRON_CHARGING, VOX_IRON_READY, VOX_NOT_READY, VOX_INSUFFICIENT_POWER);
 	new (&SuperWeapon[SPC_GPS]) SuperClass(TICKS_PER_MINUTE * Rule.GPSTime, true, VOX_NONE, VOX_NONE, VOX_NOT_READY, VOX_INSUFFICIENT_POWER);
+#ifdef RA_ENHANCE
+	Support_Powers_Init(this);		// RA_ENHANCE: the new support powers.
+#endif
 
 	memset(UnitsKilled, '\0', sizeof(UnitsKilled));
 	memset(BuildingsKilled, '\0', sizeof(BuildingsKilled));
@@ -1745,6 +1748,10 @@ void HouseClass::Super_Weapon_Handler(void)
 			}
 		}
 	}
+
+#ifdef RA_ENHANCE
+	Support_Powers_AI(this);		// RA_ENHANCE: the new support powers.
+#endif
 }
 
 
@@ -2805,6 +2812,21 @@ bool HouseClass::Place_Special_Blast(SpecialWeaponType id, CELL cell)
 				}
 			}
 			break;
+
+#ifdef RA_ENHANCE
+		case SPC_ARTILLERY:
+		case SPC_BOMBARDMENT:
+		case SPC_AIRDROP:
+			if (SuperWeapon[id].Is_Ready()) {
+				Support_Power_Fire(this, id, cell);		// RA_ENHANCE: the new support powers.
+				if (this == PlayerPtr) {
+					Map.IsTargettingMode = SPC_NONE;
+				}
+				SuperWeapon[id].Discharged(this == PlayerPtr);
+				IsRecalcNeeded = true;
+			}
+			break;
+#endif
 
 		case SPC_CHRONO2:
 			{

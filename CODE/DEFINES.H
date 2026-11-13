@@ -792,6 +792,11 @@ typedef enum SpecialWeaponType {
 	SPC_SPY_MISSION,			// Spy plane to take photo recon mission.
 	SPC_IRON_CURTAIN,			// Bestow invulnerability on a unit/building
 	SPC_GPS,						// give allies free unjammable radar.
+#ifdef RA_ENHANCE
+	SPC_ARTILLERY,				// RA_ENHANCE: an artillery barrage.
+	SPC_BOMBARDMENT,			// RA_ENHANCE: a naval bombardment, from off the map.
+	SPC_AIRDROP,				// RA_ENHANCE: a Chinook drops off infantry.
+#endif
 
 	SPC_COUNT,
 	SPC_FIRST=0,
