@@ -90,7 +90,8 @@ static short const ExitSub[] = {
 	XYCELL( 2, 2),
 	XYCELL(-1, 2),
 	XYCELL( 1, 2),
-	XYCELL( 3, 2)
+	XYCELL( 3, 2),
+	REFRESH_EOL			// RA_PORT: the end marker was missing (BuildingClass::Find_Exit_Cell read on past the list).
 };
 
 static short const ExitWeap[] = {

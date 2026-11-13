@@ -1958,9 +1958,20 @@ CellClass const & CellClass::Adjacent_Cell(FacingType face) const
 		return(*this);
 	}
 
+#ifdef RA_PORT
+	/*
+	**	RA_PORT: the original looked at the neighbor's cell number to see whether it was on the
+	**	map, which read memory before or after the map's cells for the cells on its edge (an
+	**	explosion there could crash). Work it out from this cell's number instead.
+	*/
+	int cell = (int)Cell_Number() + AdjacentCell[face];
+	if ((unsigned)cell >= MAP_CELL_TOTAL) return(*this);
+	return(*(this + AdjacentCell[face]));
+#else
 	CellClass const * ptr = this + AdjacentCell[face];
 	if ((unsigned)ptr->Cell_Number() > MAP_CELL_TOTAL) return(*this);
 	return(*ptr);
+#endif
 }
 
 
