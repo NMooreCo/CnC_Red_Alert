@@ -2951,6 +2951,29 @@ int DisplayClass::TacticalClass::Action(unsigned flags, KeyNumType & key)
 			Map.Set_Cursor_Pos(cell);
 		}
 
+#ifdef RA_ENHANCE
+		/*
+		**	RA_ENHANCE: modern mouse controls. The right button gives the selected units the order
+		**	that the pointer shows; the left button only selects (or, over the ground, unselects).
+		**	Placing a building and the repair, sell and special weapon modes work as before.
+		*/
+		if (Enhance.ModernMouse && !Map.PendingObject && !Map.IsRepairMode && !Map.IsSellMode && Map.IsTargettingMode == SPC_NONE &&
+				Modern_Mouse_Order(action)) {
+			if ((flags & RIGHTPRESS) && CurrentObject.Count() > 0) {
+				Map.Mouse_Left_Release(cell, x, y, object, action);
+				flags &= ~RIGHTPRESS;
+			}
+			if ((flags & LEFTRELEASE) && !Map.IsRubberBand) {
+				if (object != NULL && object->Class_Of().IsSelectable) {
+					action = ACTION_SELECT;
+				} else {
+					Unselect_All();
+					flags &= ~LEFTRELEASE;
+				}
+			}
+		}
+#endif
+
 		/*
 		**	A right mouse button press cancels the current action or selection.
 		*/

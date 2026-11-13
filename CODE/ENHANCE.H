@@ -49,6 +49,7 @@ class EnhancementsClass
 		bool SharedTech;			// Skirmish: both sides can build everything.
 		bool SupportPowers;		// Artillery barrage, naval bombardment, Chinook reinforcements.
 		bool AttackMove;			// <CTRL><SHIFT> (or <CTRL><ALT>) click on the ground.
+		bool ModernMouse;			// The left button selects, the right one gives orders.
 		bool MissionSelect;		// Start a new campaign at any mission reached so far,
 		bool AllMissions;			// or at any mission at all (REDALERT.INI only).
 
@@ -133,6 +134,11 @@ void	Support_Powers_Init(HouseClass * house);
 void	Support_Powers_AI(HouseClass * house);
 void	Support_Power_Fire(HouseClass * house, SpecialWeaponType power, CELL cell);
 void	Support_Powers_Impacts(void);
+
+/*
+**	Modern mouse controls (DisplayClass::TacticalClass::Action).
+*/
+bool	Modern_Mouse_Order(ActionType action);
 
 /*
 **	Attack-move.

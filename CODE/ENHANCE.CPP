@@ -39,6 +39,8 @@
  *   Attack-move: <CTRL><SHIFT> or <CTRL><ALT> click on the ground; units move there, taking   *
  *   on the enemies they meet on the way, and guard the place.                                 *
  *                                                                                             *
+ *   Modern mouse controls: the left button selects, the right one gives orders.               *
+ *                                                                                             *
  *   Support powers: an artillery barrage (with a radar dome and a war factory), a naval       *
  *   bombardment (radar dome, and naval yard or sub pen) and Chinook reinforcements (helipad   *
  *   and barracks), in the sidebar like the original special weapons.                          *
@@ -68,6 +70,7 @@ EnhancementsClass::EnhancementsClass(void) :
 	SharedTech(false),
 	SupportPowers(false),
 	AttackMove(false),
+	ModernMouse(false),
 	MissionSelect(false),
 	AllMissions(false),
 	AlliedMission(0),
@@ -87,6 +90,7 @@ void EnhancementsClass::Load_Settings(INIClass const & ini)
 	SharedTech = ini.Get_Bool(ENHANCEMENTS, "SharedTech", SharedTech);
 	SupportPowers = ini.Get_Bool(ENHANCEMENTS, "SupportPowers", SupportPowers);
 	AttackMove = ini.Get_Bool(ENHANCEMENTS, "AttackMove", AttackMove);
+	ModernMouse = ini.Get_Bool(ENHANCEMENTS, "ModernMouse", ModernMouse);
 	MissionSelect = ini.Get_Bool(ENHANCEMENTS, "MissionSelect", MissionSelect);
 	AllMissions = ini.Get_Bool(ENHANCEMENTS, "AllMissions", AllMissions);
 	AlliedMission = ini.Get_Int(ENHANCEMENTS, "AlliedMission", AlliedMission);
@@ -101,6 +105,7 @@ void EnhancementsClass::Save_Settings(INIClass & ini) const
 	ini.Put_Bool(ENHANCEMENTS, "SharedTech", SharedTech);
 	ini.Put_Bool(ENHANCEMENTS, "SupportPowers", SupportPowers);
 	ini.Put_Bool(ENHANCEMENTS, "AttackMove", AttackMove);
+	ini.Put_Bool(ENHANCEMENTS, "ModernMouse", ModernMouse);
 	ini.Put_Bool(ENHANCEMENTS, "MissionSelect", MissionSelect);
 	if (AllMissions) ini.Put_Bool(ENHANCEMENTS, "AllMissions", AllMissions);
 	ini.Put_Int(ENHANCEMENTS, "AlliedMission", AlliedMission);
@@ -265,6 +270,11 @@ void Enhancements_Dialog(void)
 			"Select units and hold <Ctrl><Shift> (or <Ctrl><Alt>) while you click on the ground: they move "
 			"there, taking on the enemies they meet on the way, and then guard the place.",
 			&Enhance.AttackMove},
+		{"Modern mouse: left-click selects, right-click orders",
+			"The right mouse button gives the selected units the order the pointer shows (move, attack, "
+			"enter...), and the left button only selects: on the ground it unselects. Placing buildings, "
+			"repairing, selling and the special weapons work as before. Works in network games too.",
+			&Enhance.ModernMouse},
 		{"Mission select: start at a mission you have reached",
 			"When you start a new game and choose a side, you can start at any mission of that campaign "
 			"you have reached so far. (Each mission you play is remembered from now on.)",
@@ -284,7 +294,7 @@ void Enhancements_Dialog(void)
 	int	d_list_x = d_dialog_x + d_margin;
 	int	d_list_y = d_dialog_y + 25 * RESFACTOR;
 	int	d_list_w = d_dialog_w - 2 * d_margin;
-	int	d_list_h = 36 * RESFACTOR;
+	int	d_list_h = 56 * RESFACTOR;
 
 	int	d_text_x = d_list_x;
 	int	d_text_y = d_list_y + d_list_h + 6 * RESFACTOR;
@@ -350,8 +360,8 @@ void Enhancements_Dialog(void)
 			char text[512];
 			snprintf(text, sizeof(text), "%s\r\r%s", _list[(current >= 0 && current < count) ? current : 0].About,
 				Session.Type == GAME_NORMAL || Session.Type == GAME_SKIRMISH ?
-					"Checked ones apply to campaign and skirmish games." :
-					"Network games use the original rules: these apply to campaign and skirmish games.");
+					"Those that change the game rules apply to campaign and skirmish games." :
+					"Network games keep the original rules: those that change them apply to campaign and skirmish games.");
 			int width, height;
 			Format_Window_String(text, d_text_w, width, height);
 			Fancy_Text_Print(text, d_text_x, d_text_y, scheme, TBLACK, TPF_TEXT);
@@ -407,6 +417,38 @@ void Enhancements_Start_Scenario(void)
 	Build_Queue_Clear();
 	Support_Powers_Clear();
 	Attack_Move_Clear();
+}
+
+
+/***********************************************************************************************
+ * Modern_Mouse_Order -- Is the action an order to the selected units?                         *
+ *                                                                                             *
+ *    With the modern mouse controls, these are given with the right button; the left one     *
+ *    selects instead.                                                                        *
+ *=============================================================================================*/
+bool Modern_Mouse_Order(ActionType action)
+{
+	switch (action) {
+		case ACTION_MOVE:
+		case ACTION_NOMOVE:
+		case ACTION_ENTER:
+		case ACTION_SELF:
+		case ACTION_ATTACK:
+		case ACTION_HARVEST:
+		case ACTION_CAPTURE:
+		case ACTION_SABOTAGE:
+		case ACTION_GUARD_AREA:
+		case ACTION_HEAL:
+		case ACTION_DAMAGE:
+		case ACTION_GREPAIR:
+		case ACTION_NO_DEPLOY:
+		case ACTION_NO_ENTER:
+		case ACTION_NO_GREPAIR:
+			return(true);
+
+		default:
+			return(false);
+	}
 }
 
 
