@@ -80,6 +80,29 @@ __attribute__((constructor(101))) static void Writable_String_Literals(void)
 	dl_iterate_phdr(Make_Program_Data_Writable, &done);
 }
 
+#elif defined(__APPLE__)
+/*
+**	macOS: the string literals are linked into the writable __DATA segment (CMakeLists.txt,
+**	-rename_section). The constant data that the loader fixes up (__DATA_CONST) it then makes
+**	read only: make that writable again, as the other systems' read only data is.
+*/
+#include <mach-o/dyld.h>
+#include <mach-o/getsect.h>
+#include <sys/mman.h>
+#include <unistd.h>
+
+__attribute__((constructor(101))) static void Writable_String_Literals(void)
+{
+	unsigned long size = 0;
+	uint8_t * data = getsegmentdata((const struct mach_header_64 *)_dyld_get_image_header(0), "__DATA_CONST", &size);
+	if (data != NULL && size > 0) {
+		uintptr_t page = (uintptr_t)sysconf(_SC_PAGESIZE);
+		uintptr_t start = (uintptr_t)data & ~(page - 1);
+		uintptr_t end = ((uintptr_t)data + size + page - 1) & ~(page - 1);
+		mprotect((void *)start, end - start, PROT_READ | PROT_WRITE);
+	}
+}
+
 #elif defined(_WIN32)
 /*
 **	Windows: the read only sections (.rdata...) of the program's PE image. The headers are

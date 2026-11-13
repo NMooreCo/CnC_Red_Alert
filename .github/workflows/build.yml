@@ -43,6 +43,46 @@ jobs:
           name: redalert-linux-x86_64
           path: build/redalert
 
+  macos:
+    name: macOS (Apple silicon)
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: brew install sdl2 ninja
+
+      - name: Configure
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Check that the linker makes string literals writable
+        run: |
+          # The game writes into some of its string literals; CMakeLists.txt has the linker put
+          # them in a writable segment.
+          printf '#include <stdio.h>\nint main(void) { char * p = (char *)"literal"; p[0] = 76; puts(p); return 0; }\n' > literal.c
+          clang -O0 literal.c -o literal -Wl,-rename_section,__TEXT,__cstring,__DATA,__cstring
+          ./literal | grep -qx Literal
+
+      - name: Start without the game data
+        run: |
+          # It starts up, finds no data, says so and exits.
+          set +e
+          RA_NO_MESSAGEBOX=1 SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy RA_DATA_DIR="$RUNNER_TEMP/no-data" ./build/redalert > start.txt 2>&1
+          status=$?
+          set -e
+          cat start.txt
+          test $status -ne 0
+          grep -q "game data files were not found" start.txt
+
+      - name: Upload executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: redalert-macos-arm64
+          path: build/redalert
+
   windows:
     name: Windows (MinGW-w64 cross-compile)
     runs-on: ubuntu-24.04

@@ -39,6 +39,9 @@
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 #include	"FUNCTION.H"
+#ifdef RA_PORT
+#include	"PLATFORM.H"
+#endif
 
 #ifdef WIN32
 #define	SCROLL_DELAY	1
@@ -135,6 +138,27 @@ void ScrollClass::AI(KeyNumType &input, int x, int y)
 
 		if (!noscroll) {
 			bool at_screen_edge = (y == 0 || x == 0 || x >= SeenBuff.Get_Width()-1 || y >= SeenBuff.Get_Height()-1);
+
+#ifdef RA_PORT
+			/*
+			**	RA_PORT: a game controller's right stick scrolls the map, the faster the further
+			**	it is pushed (SDLPAD.CPP), at the scroll rate of the options.
+			*/
+			int padx, pady;
+			if (!at_screen_edge && Video_Get_Pad_Scroll(padx, pady)) {
+				int steps = Scroll_Steps();
+				if (steps) {
+					static int const _padrate[7] = {0x00A0, 0x0080, 0x0060, 0x0040, 0x0030, 0x0020, 0x0010};
+					int push = max(abs(padx), abs(pady));
+					int scrollrate = Options.ScrollRate;
+					scrollrate = (scrollrate < 0) ? 0 : ((scrollrate > 6) ? 6 : scrollrate);
+					int distance = (_padrate[scrollrate] * RESFACTOR * push * push) / (256 * 256);
+					DirType dir = (DirType)Desired_Facing256(0, 0, padx, pady);
+					int amount = distance * steps;
+					if (amount > 0) Scroll_Map(dir, amount, true);
+				}
+			}
+#endif
 
 			/*
 			**	Verify that the mouse is over a scroll region.

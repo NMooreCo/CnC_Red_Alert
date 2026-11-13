@@ -218,10 +218,33 @@ it; the game's messages then appear in that window):
 | `RA_NO_MOUSE_GRAB=1` | Don't keep the mouse in the game's window while the game is active (it does by default, as the original did, so that the map scrolls when the mouse reaches the window's edges). |
 | `RA_LAN_BROADCAST=a.b.c.d` | Broadcast address(es) for LAN games, comma separated (default 255.255.255.255). An address can also be a name, and have a port (`host:port`). |
 | `RA_LAN_PORT=n` | The UDP port for network games (default 1234, or `Port=` in `REDALERT.INI`'s `[Network]` section). |
+| `RA_GAMEPAD=0` | Don't use game controllers. |
 | `RA_DEBUG=1` | Print the game's debug messages to the console. |
 | `RA_NO_MESSAGEBOX=1` | Don't show system message boxes (start-up errors and warnings); take their default answer. For automated runs. |
 | `RA_SCREENSHOT=file.bmp` | Save one screenshot, `RA_SCREENSHOT_DELAY` milliseconds after start. |
 | `RA_EXTRACT=NAME,...` | Copy the named files out of the MIX archives into the data directory (or `RA_EXTRACT_DIR`), then exit. See Modding. |
+
+## Game controllers
+
+A gamepad (any that SDL knows: Xbox, PlayStation, Switch Pro and many more) works the
+mouse and a few keys, so everything can be played with it:
+
+| Control | Does |
+| --- | --- |
+| Left stick | Moves the pointer (the further, the faster). |
+| Right stick | Scrolls the map. |
+| A | The left mouse button: select, give orders, click buttons. Hold it and move the pointer to drag a box around units. |
+| B | The right mouse button. |
+| X / Y | Stop / Guard. |
+| LB / RB | The mouse wheel: scroll the sidebar column under the pointer, and lists. |
+| LT (held) | Ctrl: force fire. |
+| RT (held) | Shift: add to the selection. |
+| Left stick press (held) | Alt: force move. |
+| Right stick press | The next unit. |
+| D-pad | The arrow keys. |
+| Back / Start | Go to the base / Options. |
+
+`RA_GAMEPAD=0` turns controllers off.
 
 ## Bigger battle screen
 

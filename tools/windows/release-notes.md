@@ -32,6 +32,9 @@ weapons, each with a personality), support powers (artillery barrage, naval bomb
 Chinook reinforcements) and mission select (start a new campaign at any mission you have
 reached). The mouse wheel scrolls the sidebar and lists.
 
+**Gamepads**: a controller works the pointer (left stick), the mouse buttons (A, B), map
+scrolling (right stick) and more; see the README.
+
 **Random maps**: at the end of the skirmish and network game map lists, "Random Map: Small",
 "Medium" and "Large" make a new map each time you choose one, from the terrain of the
 game's own maps. Other players get it from the host.

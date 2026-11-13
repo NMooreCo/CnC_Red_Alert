@@ -35,6 +35,15 @@ bool	Video_Init(int width, int height);
 void	Video_Set_Present_Size(int width, int height);		// Show this top left part of the surface.
 bool	Video_Get_Desktop_Size(int & width, int & height);
 void	Video_Start_Fullscreen(bool on);
+
+/*
+**	Game controllers (SDLPAD.CPP): they work the pointer and buttons as the mouse would
+**	(Video_Pad_...), and the right stick scrolls the map (the game asks Video_Get_Pad_Scroll).
+*/
+void	Video_Pad_Move_Mouse(int dx, int dy);
+void	Video_Pad_Button(int button, bool down);
+void	Video_Pad_Wheel(int steps);
+bool	Video_Get_Pad_Scroll(int & dx, int & dy);
 void	Video_Shutdown(void);
 void	Video_Register_Visible_Surface(void const * pixels, int width, int height, int pitch);
 void	Video_Mark_Dirty(void);

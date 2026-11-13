@@ -80,6 +80,13 @@ static bool					QuitRequested = false;
 
 static char					WindowTitle[128] = "Red Alert";
 
+/*
+**	Game controllers (SDLPAD.CPP).
+*/
+void	Gamepad_Init(void);
+bool	Gamepad_Event(SDL_Event const & event);
+void	Gamepad_Update(void);
+
 
 /***************************************************************************************
 **	Setup.
@@ -172,6 +179,8 @@ bool Video_Init(int width, int height)
 		HasFocus = true;
 		Win32_Post_Input(WM_ACTIVATEAPP, TRUE, 0);
 		Apply_Mouse_Confinement();
+
+		Gamepad_Init();
 	}
 
 	if (Texture) {
@@ -704,11 +713,42 @@ void Platform_Pump_Events(void)
 			}
 
 			default:
+				Gamepad_Event(event);
 				break;
 		}
 	}
+	Gamepad_Update();
 
 	Video_Present();
+}
+
+
+/*
+**	The pointer and buttons, worked by a game controller (SDLPAD.CPP): as the mouse would.
+*/
+void Video_Pad_Move_Mouse(int dx, int dy)
+{
+	int x = MouseX + dx;
+	int y = MouseY + dy;
+	if (x < 0) x = 0;
+	if (y < 0) y = 0;
+	if (x >= LogicalWidth) x = LogicalWidth - 1;
+	if (y >= LogicalHeight) y = LogicalHeight - 1;
+	if (x == MouseX && y == MouseY) return;
+	MouseX = x;
+	MouseY = y;
+	Win32_Post_Input(WM_MOUSEMOVE, 0, Mouse_LParam());
+}
+
+void Video_Pad_Button(int button, bool down)
+{
+	UINT message = (button == 0) ? (down ? WM_LBUTTONDOWN : WM_LBUTTONUP) : (down ? WM_RBUTTONDOWN : WM_RBUTTONUP);
+	Win32_Post_Input(message, 0, Mouse_LParam());
+}
+
+void Video_Pad_Wheel(int steps)
+{
+	MouseWheel += steps;
 }
 
 int Video_Take_Mouse_Wheel(void)

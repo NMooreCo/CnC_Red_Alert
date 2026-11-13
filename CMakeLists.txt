@@ -148,6 +148,7 @@ add_library(ra_platform STATIC
 	compat/win32.cpp
 	compat/winsock.cpp
 	WIN32LIB/SDL/SDLVIDEO.CPP
+	WIN32LIB/SDL/SDLPAD.CPP
 	WIN32LIB/SDL/SDLSOUND.CPP
 )
 target_include_directories(ra_platform PRIVATE ${CMAKE_SOURCE_DIR}/WIN32LIB/INCLUDE ${CMAKE_SOURCE_DIR}/compat)
@@ -314,4 +315,9 @@ if(WIN32)
 	endif()
 else()
 	target_link_libraries(redalert PRIVATE win32lib winvq ra_platform ra_game_defs SDL2::SDL2main)
+	if(APPLE)
+		# The game writes into some of its string literals (compat/compat.cpp). The Mach-O
+		# linker can put them in the writable __DATA segment instead of __TEXT.
+		target_link_options(redalert PRIVATE "-Wl,-rename_section,__TEXT,__cstring,__DATA,__cstring")
+	endif()
 endif()
