@@ -291,6 +291,9 @@ int main(int argc, char * argv[])
 	getcwd(oldpath, sizeof(oldpath));
 	Port_Allow_Debugger();
 	Port_Select_Data_Directory(argc, argv);
+#ifdef RA_ENHANCE
+	Mod_Select(argc, argv);		// RA_ENHANCE: mods/NAME/
+#endif
 #endif
 
 #ifdef WOLAPI_INTEGRATION

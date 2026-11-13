@@ -2983,6 +2983,10 @@ static void Init_Bootstrap_Mixfiles(void)
 	int temp = RequiredCD;
 	RequiredCD = -2;
 
+#ifdef RA_ENHANCE
+	Mod_Register_Mixfiles();		// RA_ENHANCE: first, so that they come before the game's own.
+#endif
+
 #ifdef WOLAPI_INTEGRATION
 	CCFileClass fileWolapiMix( "WOLAPI.MIX" );
 	if( fileWolapiMix.Is_Available() )

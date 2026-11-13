@@ -593,8 +593,25 @@ void CDFileClass::Clear_Search_Drives(void)
  * HISTORY:                                                                                    *
  *   10/18/1994 JLB : Created.                                                                 *
  *=============================================================================================*/
+#ifdef RA_ENHANCE
+bool Mod_File_Name(char const * filename, char * path, int size);		// RA_ENHANCE: ENHANCE.CPP
+#endif
+
 char const * CDFileClass::Set_Name(char const *filename)
 {
+#ifdef RA_ENHANCE
+	/*
+	**	RA_ENHANCE: the files of a mod come before the game's own (Mod_File_Name).
+	*/
+	{
+		char modpath[_MAX_PATH];
+		if (Mod_File_Name(filename, modpath, sizeof(modpath))) {
+			BufferIOFileClass::Set_Name(modpath);
+			if (BufferIOFileClass::Is_Available()) return(File_Name());
+		}
+	}
+#endif
+
 	/*
 	**	Try to find the file in the current directory first. If it can be found, then
 	**	just return with the normal file name setting process. Do the same if there is

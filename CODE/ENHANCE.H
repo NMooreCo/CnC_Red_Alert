@@ -122,6 +122,14 @@ int	Mouse_Wheel_Take(void);
 extern int	Mouse_Wheel_Left;
 
 /*
+**	Mod folders: mods/NAME/ in the data directory.
+*/
+extern char const * Mod_Path;		// "mods/NAME/", or NULL.
+void	Mod_Select(int argc, char * argv[]);
+void	Mod_Register_Mixfiles(void);
+bool	Mod_File_Name(char const * filename, char * path, int size);
+
+/*
 **	Mission select.
 */
 void	Mission_Reached(void);

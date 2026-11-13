@@ -28,6 +28,10 @@
  *   and fires faster; an elite unit more so, and repairs itself. Selected units show their   *
  *   rank as chevrons. Tuning: RULES.INI [Veterancy] (see Reset_Rules for the keys).           *
  *                                                                                             *
+ *   Mod folders: mods/NAME/ in the data directory holds a mod's files (RULES.INI, scenarios,  *
+ *   graphics, its own .MIX archives...), used instead of the game's own; chosen with -mod NAME *
+ *   on the command line, RA_MOD=NAME, or Mod=NAME in REDALERT.INI's [Enhancements].            *
+ *                                                                                             *
  *   Mission select: after choosing a side for a new game, start at any mission of that        *
  *   campaign reached so far (the furthest one is kept in REDALERT.INI).                       *
  *                                                                                             *
@@ -833,6 +837,111 @@ void Build_Queue_AI(void)
 		queue->IsStarting = true;
 		queue->StartFrame = Frame;
 	}
+}
+
+
+/***********************************************************************************************
+ * Mod folders                                                                                 *
+ *                                                                                             *
+ *    A mod is a folder in mods/ (in the data directory). Every file the game opens is looked  *
+ *    for there first (CDFileClass::Set_Name), so loose files there replace the game's: a      *
+ *    RULES.INI, scenarios, shapes... (An .INI there is used whole, as with loose files in the *
+ *    data directory.) The .MIX archives there are added before the game's own, so files in   *
+ *    them come first too (they are kept in memory); one named like a game archive replaces   *
+ *    it. The settings and saved                                                               *
+ *    games stay in the data directory. Every player of a network game needs the same mod.     *
+ *=============================================================================================*/
+char const * Mod_Path = NULL;
+
+
+void Mod_Select(int argc, char * argv[])
+{
+	char const * name = NULL;
+	for (int index = 1; index + 1 < argc; index++) {
+		if (stricmp(argv[index], "-mod") == 0 || stricmp(argv[index], "--mod") == 0) {
+			name = argv[index + 1];
+		}
+	}
+	if (name == NULL) {
+		name = getenv("RA_MOD");
+	}
+
+	static char _ininame[64];
+	if (name == NULL) {
+		RawFileClass file("REDALERT.INI");
+		INIClass ini;
+		if (file.Is_Available() && ini.Load(file)) {
+			ini.Get_String(ENHANCEMENTS, "Mod", "", _ininame, sizeof(_ininame));
+			if (_ininame[0] != '\0') name = _ininame;
+		}
+	}
+	if (name == NULL || *name == '\0') return;
+
+	static char _path[_MAX_PATH];
+	snprintf(_path, sizeof(_path), "mods/%s", name);
+	DWORD attributes = GetFileAttributes(_path);
+	if (attributes == INVALID_FILE_ATTRIBUTES || !(attributes & FILE_ATTRIBUTE_DIRECTORY)) {
+		fprintf(stderr, "Red Alert: the mod folder %s was not found; playing without a mod.\n", _path);
+		return;
+	}
+	strcat(_path, "/");
+	Mod_Path = _path;
+	fprintf(stderr, "Red Alert: using the mod in %s\n", _path);
+}
+
+
+/*
+**	The file in the mod folder that is to be used instead of the game's, if a mod is in use. The
+**	game's own settings and saved games aren't looked for there.
+*/
+bool Mod_File_Name(char const * filename, char * path, int size)
+{
+	if (Mod_Path == NULL || filename == NULL || *filename == '\0') return(false);
+	if (strchr(filename, '/') != NULL || strchr(filename, '\\') != NULL || strchr(filename, ':') != NULL) return(false);
+	if (stricmp(filename, "REDALERT.INI") == 0 || strnicmp(filename, "SAVEGAME.", 9) == 0 || stricmp(filename, "HALLFAME.DAT") == 0) return(false);
+
+	snprintf(path, size, "%s%s", Mod_Path, filename);
+	return(true);
+}
+
+
+/*
+**	The mod's own archives (those not named like one of the game's, which the game opens itself:
+**	from the mod folder, then).
+*/
+void Mod_Register_Mixfiles(void)
+{
+	if (Mod_Path == NULL) return;
+
+	static char const * const _game[] = {
+		"REDALERT.MIX", "LOCAL.MIX", "HIRES.MIX", "NCHIRES.MIX", "LORES.MIX", "HIRES1.MIX", "LORES1.MIX",
+		"MAIN.MIX", "CONQUER.MIX", "GENERAL.MIX", "SOUNDS.MIX", "RUSSIAN.MIX", "ALLIES.MIX", "SCORES.MIX",
+		"SNOW.MIX", "TEMPERAT.MIX", "INTERIOR.MIX", "SPEECH.MIX", "MOVIES1.MIX", "MOVIES2.MIX",
+		"EXPAND.MIX", "EXPAND2.MIX", "WOLAPI.MIX", "TRANSIT.MIX"
+	};
+
+	char pattern[_MAX_PATH];
+	snprintf(pattern, sizeof(pattern), "%s*.MIX", Mod_Path);
+	WIN32_FIND_DATA data;
+	HANDLE handle = FindFirstFile(pattern, &data);
+	if (handle == INVALID_HANDLE_VALUE) return;
+	do {
+		bool known = false;
+		for (int index = 0; index < ARRAY_SIZE(_game); index++) {
+			if (stricmp(data.cFileName, _game[index]) == 0) known = true;
+		}
+		if (!known) {
+			/*
+			**	Kept in memory, as the game's small archives are: the game takes some files
+			**	(palettes, shapes, texts) straight from memory, which needs the archive to be.
+			*/
+			char const * name = strdup(data.cFileName);
+			fprintf(stderr, "Red Alert: the mod's archive %s\n", name);
+			new MFCD(name, &FastKey);
+			MFCD::Cache(name);
+		}
+	} while (FindNextFile(handle, &data));
+	FindClose(handle);
 }
 
 

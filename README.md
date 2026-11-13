@@ -302,6 +302,19 @@ Soviet one), shapes and other files. Delete the loose copy to go back to the ori
 Scenario files carry a message digest. If you edit one of the original scenarios, delete
 its `[Digest]` section, or the game rejects it as corrupt (as the original did).
 
+### Mod folders
+
+To keep a mod apart from the game (and from other mods), put its files in a folder in
+`mods` in the data directory, for example `mods/mymod/`, and start the game with
+`-mod mymod` (on Windows, add it to the shortcut's target: `redalert.exe -mod mymod`), or
+set `RA_MOD=mymod`, or put `Mod=mymod` in the `[Enhancements]` section of `REDALERT.INI`.
+The game then looks in the mod's folder first for every file it opens: a `RULES.INI`
+there, scenarios, shapes and so on replace the game's. `.MIX` archives in the folder are
+added before the game's own (and kept in memory), so the files in them come first too; an
+archive named like one of the game's (`CONQUER.MIX`, say) replaces it. The settings and
+saved games stay in the data directory. In a network game, every player needs the same
+mod.
+
 For anything beyond that, the code is yours to change. Where things are:
 
 | Directory | Contents |
