@@ -108,7 +108,13 @@ const char* Game_Registry_Key();
  * HISTORY:                                                                                    *
  *   03/20/1995 JLB : Created.                                                                 *
  *=============================================================================================*/
-#ifdef RA_PORT
+#if defined(RA_PORT) && defined(__ANDROID__)
+/*
+**	Android: the app's activity (SDL's Java side, android/) runs the game in its library: it
+**	calls SDL_main.
+*/
+extern "C" int SDL_main(int argc, char * argv[])
+#elif defined(RA_PORT)
 /*
 **	Modern port: a normal main() (SDL2 provides the window); argc/argv are used directly.
 */

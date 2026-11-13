@@ -48,7 +48,7 @@
 **	modify some of them in place (file names patched with a digit, upper cased names...).
 **	Modern compilers put literals in read only memory, so such code would crash. Make the
 **	program's own read only data writable at start up, before any of the game runs.
-**	Shared libraries and code are not affected.
+**	Other shared libraries and code are not affected.
 */
 #if defined(__linux__) || defined(__FreeBSD__)
 #include <link.h>
@@ -56,9 +56,18 @@
 
 static int Make_Program_Data_Writable(struct dl_phdr_info * info, size_t, void * data)
 {
-	int * done = (int *)data;
-	if (*done) return(1);		// The first object reported is the program itself.
-	*done = 1;
+	/*
+	**	Only the object this code is in: the program, or on Android (where the game is a
+	**	library the app loads) the game's library.
+	*/
+	uintptr_t self = (uintptr_t)data;
+	bool ours = false;
+	for (int index = 0; index < info->dlpi_phnum; index++) {
+		ElfW(Phdr) const & header = info->dlpi_phdr[index];
+		uintptr_t start = (uintptr_t)info->dlpi_addr + header.p_vaddr;
+		if (header.p_type == PT_LOAD && self >= start && self < start + header.p_memsz) ours = true;
+	}
+	if (!ours) return(0);
 
 	uintptr_t page = (uintptr_t)sysconf(_SC_PAGESIZE);
 	for (int index = 0; index < info->dlpi_phnum; index++) {
@@ -76,8 +85,7 @@ static int Make_Program_Data_Writable(struct dl_phdr_info * info, size_t, void *
 
 __attribute__((constructor(101))) static void Writable_String_Literals(void)
 {
-	int done = 0;
-	dl_iterate_phdr(Make_Program_Data_Writable, &done);
+	dl_iterate_phdr(Make_Program_Data_Writable, (void *)&Make_Program_Data_Writable);
 }
 
 #elif defined(__APPLE__)

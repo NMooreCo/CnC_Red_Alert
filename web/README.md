@@ -18,7 +18,8 @@ random maps into IndexedDB, saved again every 20 seconds and when the tab is hid
 "Forget the data" removes it all. Cache storage exists only on pages served over https or
 from localhost; elsewhere the data has to be chosen each time.
 
-Everything plays as on the desktop, with the mouse, the keyboard and the sound, except
+Everything plays as on the desktop, with the mouse, the keyboard and the sound (and on a
+phone or tablet with the touch controls of the main README's "Touch screens"), except
 network games: a web page can't send UDP packets, so the multiplayer menu has no "Network"
 (Skirmish is there). The game fills the browser's window; for full screen, use the
 browser's own (F11), or Alt+Enter, which asks the browser for it.

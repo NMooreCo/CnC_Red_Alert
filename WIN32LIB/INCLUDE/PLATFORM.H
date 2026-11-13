@@ -44,6 +44,14 @@ void	Video_Pad_Move_Mouse(int dx, int dy);
 void	Video_Pad_Button(int button, bool down);
 void	Video_Pad_Wheel(int steps);
 bool	Video_Get_Pad_Scroll(int & dx, int & dy);
+
+/*
+**	Touch screens (SDLVIDEO.CPP): the fingers work the pointer and buttons, and two of them
+**	dragged scroll the map (the game asks Video_Take_Touch_Scroll).
+*/
+bool	Video_Take_Touch_Scroll(int & dx, int & dy);
+bool	Video_Pointer_Is_Touch(void);
+
 void	Video_Shutdown(void);
 void	Video_Register_Visible_Surface(void const * pixels, int width, int height, int pitch);
 void	Video_Mark_Dirty(void);

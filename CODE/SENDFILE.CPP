@@ -642,7 +642,9 @@ bool Send_Remote_File ( char *file_name, int gametype )
 #ifdef FIXIT_VERSION_3
 		//	If we're sending an official map, always send it to 'download.tmp'.
 		if( Is_Mission_Counterstrike( file_name ) || Is_Mission_Aftermath( file_name ) ) {
-			strcpy (&file_info.ScenarioInfo.ShortFileName[0], "DOWNLOAD.TMP");
+			// RA_PORT: 13 bytes into the 12 of the name, the last into FileDigest, as the original's
+			// strcpy did (a copy of the whole packet's size, which Android's checked strcpy refuses).
+			memcpy (&file_info.ScenarioInfo.ShortFileName[0], "DOWNLOAD.TMP", sizeof("DOWNLOAD.TMP"));
 		}
 #else
 #ifdef FIXIT_CSII	//	checked - ajw 9/28/98
@@ -664,7 +666,8 @@ bool Send_Remote_File ( char *file_name, int gametype )
 #ifdef FIXIT_VERSION_3
 		//	If we're sending an official map, always send it to 'download.tmp'.
 		if( Is_Mission_Counterstrike( file_name ) || Is_Mission_Aftermath( file_name ) ) {
-			strcpy (&net_file_info.ScenarioInfo.ShortFileName[0], "DOWNLOAD.TMP");
+			// RA_PORT: as above.
+			memcpy (&net_file_info.ScenarioInfo.ShortFileName[0], "DOWNLOAD.TMP", sizeof("DOWNLOAD.TMP"));
 		}
 #else
 #ifdef FIXIT_CSII	//	checked - ajw 9/28/98

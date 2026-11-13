@@ -2,8 +2,9 @@
 
 This is the Command & Conquer Red Alert source code released by Electronic Arts,
 ported so that it builds with a modern compiler (GCC or Clang, 64-bit) and runs on
-current systems, Linux, Windows and macOS, through [SDL2](https://www.libsdl.org/), and in
-web browsers. It is meant to be a base for modding and extending the game.
+current systems, Linux, Windows and macOS, through [SDL2](https://www.libsdl.org/), in web
+browsers, and on Android phones and tablets. It is meant to be a base for modding and
+extending the game.
 
 The game logic is the original code, with the Windows 95 version's code path
 (640x400 hi-res graphics). What changed is what sits around it:
@@ -48,7 +49,9 @@ saving and loading, a LAN game against the Linux version, the installer and unin
 It has also been installed and played on a Windows PC. CI also builds a macOS version
 (Apple silicon) and checks that it starts up; it hasn't been played on a Mac yet. The web
 browser version was tested in Chromium (headless): choosing the data, movies, menus, a
-mission and a skirmish at full speed, the settings kept from one visit to the next.
+mission and a skirmish at full speed, the settings kept from one visit to the next, and the
+touch controls on an emulated phone. CI also builds the Android app; it hasn't been run on a
+phone yet.
 
 ## Building
 
@@ -168,6 +171,20 @@ served by a web server; the player chooses the game data's folder in the page, o
 network games there. See [web/README.md](web/README.md), which also covers Ubuntu's
 Emscripten package. CI builds it on every push (the `redalert-web` artifact).
 
+### Android
+
+With the Android SDK (platform 35, NDK 27.2.12479018, CMake 3.22.1) and Java 17 or later:
+
+```sh
+cd android
+ANDROID_HOME=/path/to/android-sdk ./gradlew assembleRelease
+```
+
+This produces the app, `android/app/build/outputs/apk/release/app-release.apk`, for 64-bit
+ARM phones and tablets with Android 11 or later. The player chooses the game data's folder
+in the app, once. See [android/README.md](android/README.md). CI builds it on every push
+and publishes the latest build of `main` as a pre-release (`android-main`).
+
 ## Game data
 
 The game data is not part of this repository, nor of its releases: EA released Red Alert
@@ -274,6 +291,22 @@ mouse and a few keys, so everything can be played with it:
 | Back / Start | Go to the base / Options. |
 
 `RA_GAMEPAD=0` turns controllers off.
+
+## Touch screens
+
+On a touch screen (the Android app, the web version on a phone or tablet, a computer's touch
+screen) the fingers work the mouse:
+
+| Touch | Does |
+| --- | --- |
+| tap | a click (select, give an order, press a button) |
+| one finger dragged | draws a box around units (the left button held) |
+| two fingers dragged | scroll the map |
+| two fingers tapped | a right click |
+| three fingers tapped | the on-screen keyboard, on and off |
+
+The pointer rests where the finger was lifted; it doesn't scroll the map at the screen's
+edge.
 
 ## Bigger battle screen
 

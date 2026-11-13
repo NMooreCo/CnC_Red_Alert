@@ -40,6 +40,7 @@
 #include "../../compat/win32_internal.h"
 
 #include <SDL.h>
+#include <math.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -112,6 +113,14 @@ bool Video_Init(int width, int height)
 {
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
 	SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
+
+	/*
+	**	Fingers work the mouse their own way (Touch_Event), and a mouse is a mouse: SDL makes
+	**	neither out of the other. Android's Back button is a key (Escape) rather than leaving.
+	*/
+	SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
+	SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
+	SDL_SetHint(SDL_HINT_ANDROID_TRAP_BACK_BUTTON, "1");
 	if (!SDL_WasInit(SDL_INIT_VIDEO)) {
 		if (SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0) {
 			fprintf(stderr, "Unable to initialise SDL video: %s\n", SDL_GetError());
@@ -152,6 +161,9 @@ bool Video_Init(int width, int height)
 		}
 		bool full = StartFullscreen;
 		if (getenv("RA_FULLSCREEN")) full = (atoi(getenv("RA_FULLSCREEN")) != 0);
+#ifdef __ANDROID__
+		full = true;			// The whole screen, without the system bars.
+#endif
 		if (full) {
 			flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 		}
@@ -583,6 +595,7 @@ static int SDL_To_VK(SDL_Keysym const & key)
 		case SDLK_BACKSLASH:		return(VK_OEM_5);
 		case SDLK_RIGHTBRACKET:	return(VK_OEM_6);
 		case SDLK_QUOTE:			return(VK_OEM_7);
+		case SDLK_AC_BACK:		return(VK_ESCAPE);		// Android's Back button.
 		default: break;
 	}
 	return(0);
@@ -607,6 +620,234 @@ static void Update_Mouse_Position(int x, int y)
 	if (y >= LogicalHeight) y = LogicalHeight - 1;
 	MouseX = x;
 	MouseY = y;
+}
+
+/***************************************************************************************
+**	Touch screens (phones, tablets, and touch screens elsewhere): the fingers work the mouse.
+**
+**		tap                      a click: select, give an order, press a button
+**		one finger dragged       the left button held: a box around units, a slider
+**		two fingers dragged      the map follows them (Video_Take_Touch_Scroll)
+**		two fingers tapped       a right click
+**		three fingers tapped     the on-screen keyboard, on or off
+**
+**	The pointer goes where the first finger is. A tap clicks when the finger is lifted (and a
+**	drag presses the button once the finger has moved), so that a second finger coming down
+**	makes a gesture rather than a click.
+**
+**	With a logical size, SDL's renderer gives the fingers' places as parts of the picture
+**	(0 to 1 across what is shown, letterbox left out): the fingers are kept in the game's
+**	pixels.
+*/
+enum {
+	TOUCH_NONE,				// No fingers.
+	TOUCH_PENDING,			// One finger down, not moved yet: a tap or a drag, or the start of a gesture.
+	TOUCH_DRAG,				// One finger dragging, the left button down.
+	TOUCH_MULTI,			// Two or more fingers: scrolling, or a tap.
+	TOUCH_DONE				// Ignore the fingers until they are all lifted.
+};
+static int					TouchMode = TOUCH_NONE;
+static SDL_FingerID		TouchFinger = 0;			// The finger that works the pointer.
+static float				TouchStartX = 0;			// Where it came down (game pixels).
+static float				TouchStartY = 0;
+static Uint32				TouchStart = 0;			// When.
+static int					TouchMostFingers = 0;	// The most fingers down at once.
+static bool					TouchMoved = false;		// The fingers moved: not a tap.
+static float				TouchTravel = 0;			// How far the fingers' midpoint went (game pixels).
+static float				TouchMidX = 0;				// The fingers' midpoint (game pixels).
+static float				TouchMidY = 0;
+static float				TouchScrollX = 0;			// Map scrolling not taken yet (game pixels).
+static float				TouchScrollY = 0;
+static bool					TouchPointer = false;	// The pointer was last moved by a finger.
+static UINT					TouchRelease = 0;			// A button to let go of (a tap's click)...
+static Uint32				TouchReleaseAt = 0;		// ...at this time.
+
+static struct {
+	SDL_FingerID	ID;
+	float				X, Y;							// Game pixels.
+} TouchFingers[10];
+static int					TouchCount = 0;
+
+static int Touch_Find(SDL_FingerID id)
+{
+	for (int index = 0; index < TouchCount; index++) {
+		if (TouchFingers[index].ID == id) return(index);
+	}
+	return(-1);
+}
+
+static void Touch_Midpoint(float & x, float & y)
+{
+	x = y = 0;
+	if (TouchCount == 0) return;
+	for (int index = 0; index < TouchCount; index++) {
+		x += TouchFingers[index].X;
+		y += TouchFingers[index].Y;
+	}
+	x /= TouchCount;
+	y /= TouchCount;
+}
+
+/*
+**	The pointer to a finger's place.
+*/
+static void Touch_Pointer(float x, float y)
+{
+	Update_Mouse_Position((int)x, (int)y);
+	TouchPointer = true;
+	Win32_Post_Input(WM_MOUSEMOVE, 0, Mouse_LParam());
+}
+
+static void Touch_Release_Now(void)
+{
+	if (TouchRelease) {
+		Win32_Post_Input(TouchRelease, 0, Mouse_LParam());
+		TouchRelease = 0;
+	}
+}
+
+/*
+**	A click: the button goes down now and up a moment later, as a mouse's would.
+*/
+static void Touch_Click(UINT down, UINT up)
+{
+	Touch_Release_Now();
+	Win32_Post_Input(down, 0, Mouse_LParam());
+	TouchRelease = up;
+	TouchReleaseAt = SDL_GetTicks() + 60;
+}
+
+static void Touch_Event(SDL_Event const & event)
+{
+	if (Window == NULL || Renderer == NULL) return;
+	SDL_TouchFingerEvent const & finger = event.tfinger;
+	float x = finger.x * LogicalWidth;
+	float y = finger.y * Shown_Height();
+	float slop = SDL_max(LogicalWidth, Shown_Height()) * 0.015f;		// A finger that moves further isn't tapping.
+	int index = Touch_Find(finger.fingerId);
+
+	switch (event.type) {
+		case SDL_FINGERDOWN:
+			if (index < 0 && TouchCount < (int)SDL_arraysize(TouchFingers)) {
+				index = TouchCount++;
+				TouchFingers[index].ID = finger.fingerId;
+			}
+			if (index >= 0) {
+				TouchFingers[index].X = x;
+				TouchFingers[index].Y = y;
+			}
+			TouchMostFingers = SDL_max(TouchMostFingers, TouchCount);
+
+			if (TouchMode == TOUCH_NONE) {
+				TouchMode = TOUCH_PENDING;
+				TouchFinger = finger.fingerId;
+				TouchStartX = x;
+				TouchStartY = y;
+				TouchStart = SDL_GetTicks();
+				TouchMostFingers = 1;
+				TouchMoved = false;
+				TouchTravel = 0;
+				TouchScrollX = TouchScrollY = 0;		// (What a gesture in a menu left.)
+				Touch_Pointer(x, y);
+			} else if (TouchMode == TOUCH_PENDING) {
+				TouchMode = TOUCH_MULTI;				// A second finger: a gesture.
+				Touch_Midpoint(TouchMidX, TouchMidY);
+			} else if (TouchMode == TOUCH_MULTI) {
+				Touch_Midpoint(TouchMidX, TouchMidY);
+			}
+			break;
+
+		case SDL_FINGERMOTION: {
+			if (index < 0) break;
+			TouchFingers[index].X = x;
+			TouchFingers[index].Y = y;
+
+			if (TouchMode == TOUCH_PENDING && finger.fingerId == TouchFinger) {
+				if (fabsf(x - TouchStartX) > slop || fabsf(y - TouchStartY) > slop) {
+					/*
+					**	A drag: the button goes down where the finger came down.
+					*/
+					Touch_Pointer(TouchStartX, TouchStartY);
+					Touch_Release_Now();
+					Win32_Post_Input(WM_LBUTTONDOWN, 0, Mouse_LParam());
+					TouchMode = TOUCH_DRAG;
+					Touch_Pointer(x, y);
+				}
+			} else if (TouchMode == TOUCH_DRAG && finger.fingerId == TouchFinger) {
+				Touch_Pointer(x, y);
+			} else if (TouchMode == TOUCH_MULTI) {
+				float mx, my;
+				Touch_Midpoint(mx, my);
+				TouchTravel += fabsf(mx - TouchMidX) + fabsf(my - TouchMidY);
+				if (TouchTravel > slop) TouchMoved = true;
+
+				/*
+				**	Once they really move, the map follows the fingers: as far as they went.
+				*/
+				if (TouchMoved) {
+					TouchScrollX += mx - TouchMidX;
+					TouchScrollY += (my - TouchMidY) * LogicalHeight / Shown_Height();
+				}
+				TouchMidX = mx;
+				TouchMidY = my;
+			}
+			break;
+		}
+
+		case SDL_FINGERUP:
+			if (index >= 0) {
+				TouchFingers[index] = TouchFingers[--TouchCount];
+			}
+			if (TouchMode == TOUCH_PENDING && finger.fingerId == TouchFinger) {
+				Touch_Click(WM_LBUTTONDOWN, WM_LBUTTONUP);		// A tap.
+				TouchMode = TOUCH_NONE;
+			} else if (TouchMode == TOUCH_DRAG && finger.fingerId == TouchFinger) {
+				Touch_Pointer(x, y);
+				Win32_Post_Input(WM_LBUTTONUP, 0, Mouse_LParam());
+				TouchMode = TOUCH_DONE;
+			} else if (TouchMode == TOUCH_MULTI && TouchCount == 0) {
+				if (!TouchMoved && SDL_GetTicks() - TouchStart < 600) {
+					if (TouchMostFingers == 2) {
+						Touch_Click(WM_RBUTTONDOWN, WM_RBUTTONUP);		// At the first finger.
+					} else if (TouchMostFingers >= 3) {
+						if (SDL_IsTextInputActive()) {
+							SDL_StopTextInput();
+						} else {
+							SDL_StartTextInput();
+						}
+					}
+				}
+			} else if (TouchMode == TOUCH_MULTI) {
+				Touch_Midpoint(TouchMidX, TouchMidY);
+			}
+			if (TouchCount == 0) TouchMode = TOUCH_NONE;
+			break;
+
+		default:
+			break;
+	}
+}
+
+/*
+**	How far the map is to scroll for the fingers since the last call: game pixels (the map
+**	moves with the fingers). The game scrolls the map by it (ScrollClass::AI).
+*/
+bool Video_Take_Touch_Scroll(int & dx, int & dy)
+{
+	dx = (int)TouchScrollX;
+	dy = (int)TouchScrollY;
+	TouchScrollX -= dx;
+	TouchScrollY -= dy;
+	return(dx != 0 || dy != 0);
+}
+
+/*
+**	Was the pointer last moved by a finger? (Then it rests where the finger was lifted, and
+**	the map isn't scrolled for being at the screen's edge.)
+*/
+bool Video_Pointer_Is_Touch(void)
+{
+	return(TouchPointer);
 }
 
 void Platform_Pump_Events(void)
@@ -689,16 +930,21 @@ void Platform_Pump_Events(void)
 			}
 
 			case SDL_MOUSEMOTION:
+				if (event.motion.which == SDL_TOUCH_MOUSEID) break;		// (Fingers: Touch_Event.)
+				TouchPointer = false;
 				Update_Mouse_Position(event.motion.x, event.motion.y);
 				Win32_Post_Input(WM_MOUSEMOVE, 0, Mouse_LParam());
 				break;
 
 			case SDL_MOUSEWHEEL:
+				if (event.wheel.which == SDL_TOUCH_MOUSEID) break;
 				MouseWheel += event.wheel.y;		// The original had no wheel: Video_Take_Mouse_Wheel.
 				break;
 
 			case SDL_MOUSEBUTTONDOWN:
 			case SDL_MOUSEBUTTONUP: {
+				if (event.button.which == SDL_TOUCH_MOUSEID) break;
+				TouchPointer = false;
 				Update_Mouse_Position(event.button.x, event.button.y);
 				bool down = (event.type == SDL_MOUSEBUTTONDOWN);
 				UINT message = 0;
@@ -712,10 +958,33 @@ void Platform_Pump_Events(void)
 				break;
 			}
 
+			case SDL_FINGERDOWN:
+			case SDL_FINGERMOTION:
+			case SDL_FINGERUP:
+				Touch_Event(event);
+				break;
+
+			case SDL_RENDER_DEVICE_RESET:
+				/*
+				**	The graphics were lost (an Android app sent to the background, for one): the
+				**	picture's texture is made again, and filled at the next present.
+				*/
+				if (Texture) SDL_DestroyTexture(Texture);
+				Texture = SDL_CreateTexture(Renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, LogicalWidth, LogicalHeight);
+				Dirty = true;
+				break;
+
+			case SDL_RENDER_TARGETS_RESET:
+				Dirty = true;
+				break;
+
 			default:
 				Gamepad_Event(event);
 				break;
 		}
+	}
+	if (TouchRelease && SDL_TICKS_PASSED(SDL_GetTicks(), TouchReleaseAt)) {
+		Touch_Release_Now();				// The end of a tap's click.
 	}
 	Gamepad_Update();
 
@@ -779,6 +1048,18 @@ void Platform_Yield(void)
 char const * Platform_Get_Base_Path(void)
 {
 	static char * base = NULL;
+#ifdef __ANDROID__
+	/*
+	**	On Android: the app's own folder (Android/data/<app>/files), where its setup screen
+	**	puts the game data (android/README.md).
+	*/
+	if (base == NULL && SDL_AndroidGetExternalStoragePath() != NULL) {
+		size_t length = strlen(SDL_AndroidGetExternalStoragePath());
+		base = (char *)SDL_malloc(length + 2);
+		strcpy(base, SDL_AndroidGetExternalStoragePath());
+		strcat(base, "/");
+	}
+#endif
 	if (base == NULL) base = SDL_GetBasePath();
 	return(base ? base : "");
 }

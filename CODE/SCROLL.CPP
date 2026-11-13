@@ -141,6 +141,25 @@ void ScrollClass::AI(KeyNumType &input, int x, int y)
 
 #ifdef RA_PORT
 			/*
+			**	RA_PORT: on a touch screen, the pointer rests where the finger was lifted: that
+			**	doesn't scroll the map, even at the edge. Two fingers dragged do: the map
+			**	follows them (SDLVIDEO.CPP).
+			*/
+			if (Video_Pointer_Is_Touch()) at_screen_edge = false;
+			int touchx, touchy;
+			if (Video_Take_Touch_Scroll(touchx, touchy)) {
+				int distance;
+				if (touchx != 0) {
+					distance = Pixel_To_Lepton(abs(touchx));
+					Scroll_Map((touchx < 0) ? DIR_E : DIR_W, distance, true);
+				}
+				if (touchy != 0) {
+					distance = Pixel_To_Lepton(abs(touchy));
+					Scroll_Map((touchy < 0) ? DIR_S : DIR_N, distance, true);
+				}
+			}
+
+			/*
 			**	RA_PORT: a game controller's right stick scrolls the map, the faster the further
 			**	it is pushed (SDLPAD.CPP), at the scroll rate of the options.
 			*/

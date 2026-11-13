@@ -116,6 +116,63 @@ jobs:
             build-web/redalert.js
             build-web/redalert.wasm
 
+  android:
+    name: Android (arm64)
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write         # To publish the pre-release (last step).
+    concurrency:
+      group: android-${{ github.ref }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Install the Android SDK packages
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-35" "ndk;27.2.12479018" "cmake;3.22.1" > /dev/null
+
+      # The app (android/README.md): the Gradle build downloads SDL2's source and builds the
+      # game with CMakeLists.txt as its library. Each build is a newer version (the run
+      # number), signed with the same key, so that it installs over the one before.
+      - name: Build
+        working-directory: android
+        run: |
+          ./gradlew assembleRelease --no-daemon \
+            -PraVersionCode=${{ github.run_number }} \
+            -PraVersionName="$(date -u +%Y.%m.%d)-${GITHUB_SHA::7}"
+          cp app/build/outputs/apk/release/app-release.apk ../redalert-android.apk
+
+      - name: Upload the app
+        uses: actions/upload-artifact@v4
+        with:
+          name: redalert-android
+          path: redalert-android.apk
+
+      # The latest build of these branches, as a pre-release on the Releases page (tag
+      # android-BRANCH, replaced each time). Never the game data.
+      - name: Publish the pre-release
+        if: >
+          (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+          (github.ref_name == 'main' || github.ref_name == 'ccr-bd99920f-e9tsoh')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: android-${{ github.ref_name }}
+        run: |
+          sed -e "s|@BRANCH@|${GITHUB_REF_NAME}|g" -e "s|@COMMIT@|${GITHUB_SHA::7}|g" \
+            -e "s|@REPO@|${GITHUB_REPOSITORY}|g" tools/android/release-notes.md > release-notes.md
+          gh release delete "$TAG" --yes --cleanup-tag || true
+          gh release create "$TAG" --prerelease --target "$GITHUB_SHA" \
+            --title "Red Alert for Android (latest build of ${GITHUB_REF_NAME})" \
+            --notes-file release-notes.md \
+            redalert-android.apk
+
   windows:
     name: Windows (MinGW-w64 cross-compile)
     runs-on: ubuntu-24.04

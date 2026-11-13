@@ -18,7 +18,8 @@
 
 #
 #	Modern build of Red Alert (Win95 code path) for 64-bit Linux/macOS/Windows with SDL2,
-#	and for web browsers with Emscripten (emcmake cmake ...; see web/README.md).
+#	for web browsers with Emscripten (emcmake cmake ...; see web/README.md), and for Android
+#	(the Gradle project in android/ builds it; see android/README.md).
 #
 #	The original game was built with Watcom C/C++ 10.6 and Borland TASM (see CODE/MAKEFILE).
 #	This build replaces the assembly language with C++ and DirectX/Win32 with SDL2.
@@ -44,7 +45,19 @@ option(RA_SANITIZE "Build with AddressSanitizer/UBSan (debugging)" OFF)
 option(RA_ENHANCEMENTS "Build in the optional gameplay enhancements (veterancy...); each is off until the player turns it on" ON)
 option(RA_DEVELOPER "Build in Westwood's scenario editor and developer keys (-editor, -cheats on the command line)" ON)
 
-if(EMSCRIPTEN)
+if(ANDROID)
+	# The Android app (android/README.md): SDL2 built from its source, which the Gradle build
+	# names (SDL2_SOURCE_DIR), as a library of its own (libSDL2.so) for SDL's Java side to load
+	# with the game's (libredalert.so).
+	if(NOT SDL2_SOURCE_DIR)
+		message(FATAL_ERROR "Set SDL2_SOURCE_DIR to SDL2's source (android/README.md).")
+	endif()
+	set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+	set(SDL_SHARED ON CACHE BOOL "" FORCE)
+	set(SDL_STATIC OFF CACHE BOOL "" FORCE)
+	set(SDL_TEST OFF CACHE BOOL "" FORCE)
+	add_subdirectory(${SDL2_SOURCE_DIR} SDL2)
+elseif(EMSCRIPTEN)
 	# The browser build (web/README.md): Emscripten's own SDL2 (its "port", -sUSE_SDL=2).
 	add_library(SDL2::SDL2 INTERFACE IMPORTED)
 	set_target_properties(SDL2::SDL2 PROPERTIES
@@ -65,6 +78,9 @@ target_include_directories(ra_common INTERFACE
 )
 if(NOT WIN32)
 	target_include_directories(ra_common INTERFACE ${CMAKE_SOURCE_DIR}/compat/posix)
+endif()
+if(ANDROID)
+	target_include_directories(ra_common INTERFACE ${CMAKE_SOURCE_DIR}/compat/android)		# What Android's C library lacks.
 endif()
 
 if(MSVC)
@@ -307,7 +323,11 @@ set(GAME_SOURCES
 #   IPX95.CPP                - IPX thunk DLL for Win95 (WINSOCK_IPX is used instead)
 #   MCI*.CPP MPGSET.CPP      - DVD version MPEG movie support (DirectX Media)
 #   CCDDE.CPP DDE.CPP        - DDE link to WChat
-add_executable(redalert ${GAME_SOURCES})
+if(ANDROID)
+	add_library(redalert SHARED ${GAME_SOURCES})		# libredalert.so: SDL's activity calls its SDL_main.
+else()
+	add_executable(redalert ${GAME_SOURCES})
+endif()
 # Order matters: several CODE headers share names with library headers.
 target_include_directories(redalert PRIVATE
 	${CMAKE_SOURCE_DIR}/WIN32LIB/INCLUDE
@@ -324,6 +344,8 @@ if(WIN32)
 		# Link the C and C++ runtime in, so that the program only needs SDL2.dll next to it.
 		target_link_options(redalert PRIVATE -static)
 	endif()
+elseif(ANDROID)
+	target_link_libraries(redalert PRIVATE win32lib winvq ra_platform ra_game_defs)
 elseif(EMSCRIPTEN)
 	# The browser build: redalert.js and redalert.wasm, started by web/index.html once the
 	# game data is in the browser's file system (/data).

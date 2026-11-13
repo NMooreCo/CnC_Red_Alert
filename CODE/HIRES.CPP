@@ -60,7 +60,11 @@ void Hires_Choose(INIClass const & ini)
 		strncpy(text, env, sizeof(text)-1);
 		text[sizeof(text)-1] = '\0';
 	} else {
+#ifdef __ANDROID__
+		ini.Get_String("Video", "Resolution", "auto", text, sizeof(text));		// A phone's whole (wide) screen.
+#else
 		ini.Get_String("Video", "Resolution", "640x400", text, sizeof(text));
+#endif
 	}
 
 	int width = 640;
