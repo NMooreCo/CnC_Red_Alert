@@ -25,7 +25,7 @@ fail on them), then open the `.ISO` files inside.
 
 **Optional enhancements** (all off until you turn them on): in a mission, open **Options**,
 **Game Controls**, **Enhancements**. So far: veterancy (units earn ranks from their kills), a build queue (line up units at
-each factory), shared tech (both sides build everything, in skirmish), support
+each factory), attack-move (Ctrl+Shift click), shared tech (both sides build everything, in skirmish), support
 powers (artillery barrage, naval bombardment, Chinook reinforcements) and mission select (start a new campaign at any mission you have
 reached). The mouse wheel scrolls the sidebar and lists.
 

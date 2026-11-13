@@ -106,6 +106,9 @@ class Game:
             raise RuntimeError('no game window')
         out = self._run('xdotool', 'getwindowgeometry', '--shell', self.window).stdout
         g = dict(line.split('=', 1) for line in out.split() if '=' in line)
+        if 'X' not in g:
+            # The window is gone: say why (a negative exit code is the signal that ended the game).
+            raise RuntimeError('the game window is gone (game exit code %s)' % self.proc.poll())
         return int(g['X']), int(g['Y']), int(g['WIDTH']), int(g['HEIGHT'])
 
     def _to_screen(self, x, y):

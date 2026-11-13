@@ -3456,9 +3456,19 @@ ActionType TechnoClass::What_Action(CELL cell) const
 	**	Special guard area mission is possible if both the control and the
 	**	alt keys are held down.
 	*/
+#ifdef RA_ENHANCE
+	/*
+	**	RA_ENHANCE: attack-move (FootClass::Active_Click_With), also with <CTRL><SHIFT> as in
+	**	later games.
+	*/
+	if (House->IsPlayerControl && ctrldown && (altdown || (shiftdown && Enhance.Is_Attack_Move())) && Can_Player_Move() && Can_Player_Fire()) {
+		return(ACTION_GUARD_AREA);
+	}
+#else
 	if (House->IsPlayerControl && ctrldown && altdown && Can_Player_Move() && Can_Player_Fire()) {
 		return(ACTION_GUARD_AREA);
 	}
+#endif
 
 	if (House->IsPlayerControl && Techno_Type_Class()->PrimaryWeapon != NULL && (ctrldown || (optr && optr->IsLegalTarget))) {
 		WarheadTypeClass const * whead = Techno_Type_Class()->PrimaryWeapon->WarheadPtr;

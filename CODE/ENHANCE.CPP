@@ -36,6 +36,9 @@
  *                                                                                             *
  *   Shared tech: in skirmish games, both sides can build the units and buildings of both.    *
  *                                                                                             *
+ *   Attack-move: <CTRL><SHIFT> or <CTRL><ALT> click on the ground; units move there, taking   *
+ *   on the enemies they meet on the way, and guard the place.                                 *
+ *                                                                                             *
  *   Support powers: an artillery barrage (with a radar dome and a war factory), a naval       *
  *   bombardment (radar dome, and naval yard or sub pen) and Chinook reinforcements (helipad   *
  *   and barracks), in the sidebar like the original special weapons.                          *
@@ -64,6 +67,7 @@ EnhancementsClass::EnhancementsClass(void) :
 	BuildQueue(false),
 	SharedTech(false),
 	SupportPowers(false),
+	AttackMove(false),
 	MissionSelect(false),
 	AllMissions(false),
 	AlliedMission(0),
@@ -82,6 +86,7 @@ void EnhancementsClass::Load_Settings(INIClass const & ini)
 	BuildQueue = ini.Get_Bool(ENHANCEMENTS, "BuildQueue", BuildQueue);
 	SharedTech = ini.Get_Bool(ENHANCEMENTS, "SharedTech", SharedTech);
 	SupportPowers = ini.Get_Bool(ENHANCEMENTS, "SupportPowers", SupportPowers);
+	AttackMove = ini.Get_Bool(ENHANCEMENTS, "AttackMove", AttackMove);
 	MissionSelect = ini.Get_Bool(ENHANCEMENTS, "MissionSelect", MissionSelect);
 	AllMissions = ini.Get_Bool(ENHANCEMENTS, "AllMissions", AllMissions);
 	AlliedMission = ini.Get_Int(ENHANCEMENTS, "AlliedMission", AlliedMission);
@@ -95,6 +100,7 @@ void EnhancementsClass::Save_Settings(INIClass & ini) const
 	ini.Put_Bool(ENHANCEMENTS, "BuildQueue", BuildQueue);
 	ini.Put_Bool(ENHANCEMENTS, "SharedTech", SharedTech);
 	ini.Put_Bool(ENHANCEMENTS, "SupportPowers", SupportPowers);
+	ini.Put_Bool(ENHANCEMENTS, "AttackMove", AttackMove);
 	ini.Put_Bool(ENHANCEMENTS, "MissionSelect", MissionSelect);
 	if (AllMissions) ini.Put_Bool(ENHANCEMENTS, "AllMissions", AllMissions);
 	ini.Put_Int(ENHANCEMENTS, "AlliedMission", AlliedMission);
@@ -255,6 +261,10 @@ void Enhancements_Dialog(void)
 			"naval bombardment from off the map, a radar dome and a naval yard or sub pen; Chinook "
 			"reinforcements (five soldiers), a helipad and barracks. The computer players use them too.",
 			&Enhance.SupportPowers},
+		{"Attack-move: <Ctrl><Shift> click on the ground",
+			"Select units and hold <Ctrl><Shift> (or <Ctrl><Alt>) while you click on the ground: they move "
+			"there, taking on the enemies they meet on the way, and then guard the place.",
+			&Enhance.AttackMove},
 		{"Mission select: start at a mission you have reached",
 			"When you start a new game and choose a side, you can start at any mission of that campaign "
 			"you have reached so far. (Each mission you play is remembered from now on.)",
@@ -389,12 +399,73 @@ void Enhancements_Dialog(void)
  * Enhancements_Start_Scenario -- A scenario has started, or a saved game was loaded.          *
  *=============================================================================================*/
 static void Support_Powers_Clear(void);
+static void Attack_Move_Clear(void);
 
 void Enhancements_Start_Scenario(void)
 {
 	Mission_Reached();
 	Build_Queue_Clear();
 	Support_Powers_Clear();
+	Attack_Move_Clear();
+}
+
+
+/***********************************************************************************************
+ * Attack-move -- the units moving to guard an area, taking on what they meet on the way.      *
+ *                                                                                             *
+ *    The order is the original guard area mission (EventClass MEGAMISSION) with the place as  *
+ *    both the target and the destination. The units it was given to are listed here, with the *
+ *    place: an entry counts while the unit is still guarding that place. The list is changed  *
+ *    only as orders are carried out, the same way on every computer in a game; it isn't kept  *
+ *    in saved games.                                                                          *
+ *=============================================================================================*/
+struct AttackMoverType {
+	TARGET Unit;
+	TARGET Place;
+};
+
+enum {MAX_ATTACK_MOVERS = 256};
+static AttackMoverType AttackMovers[MAX_ATTACK_MOVERS];
+static int AttackMoverCount = 0;
+
+
+static void Attack_Move_Clear(void)
+{
+	AttackMoverCount = 0;
+}
+
+
+void Attack_Move_Order(FootClass * unit, bool attack_move)
+{
+	TARGET who = unit->As_Target();
+	int index;
+	for (index = 0; index < AttackMoverCount; index++) {
+		if (AttackMovers[index].Unit == who) break;
+	}
+	if (attack_move && Enhance.Is_Attack_Move()) {
+		if (index == AttackMoverCount) {
+			if (AttackMoverCount == MAX_ATTACK_MOVERS) return;
+			AttackMoverCount++;
+		}
+		AttackMovers[index].Unit = who;
+		AttackMovers[index].Place = unit->ArchiveTarget;
+	} else if (index < AttackMoverCount) {
+		AttackMovers[index] = AttackMovers[--AttackMoverCount];
+	}
+}
+
+
+bool Is_Attack_Moving(FootClass const * unit)
+{
+	if (AttackMoverCount == 0 || !Enhance.Is_Attack_Move() || unit->Get_Mission() != MISSION_GUARD_AREA) return(false);
+
+	TARGET who = unit->As_Target();
+	for (int index = 0; index < AttackMoverCount; index++) {
+		if (AttackMovers[index].Unit == who) {
+			return(AttackMovers[index].Place == unit->ArchiveTarget);
+		}
+	}
+	return(false);
 }
 
 

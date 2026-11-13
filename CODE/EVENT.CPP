@@ -753,6 +753,9 @@ void EventClass::Execute(void)
 					techno->Assign_Target(TARGET_NONE);
 					techno->Assign_Destination(Data.MegaMission.Target.As_TARGET());
 					techno->ArchiveTarget = Data.MegaMission.Target.As_TARGET();
+#ifdef RA_ENHANCE
+					Attack_Move_Order((FootClass *)techno, Data.MegaMission.Destination.As_TARGET() == Data.MegaMission.Target.As_TARGET());
+#endif
 				} else {
 					if (q && techno->Is_Foot()) {
 						((FootClass *)techno)->Queue_Navigation_List(Data.MegaMission.Destination.As_TARGET());

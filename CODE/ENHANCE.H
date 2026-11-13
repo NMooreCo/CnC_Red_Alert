@@ -48,6 +48,7 @@ class EnhancementsClass
 		bool BuildQueue;			// Queue up units at each factory from the sidebar.
 		bool SharedTech;			// Skirmish: both sides can build everything.
 		bool SupportPowers;		// Artillery barrage, naval bombardment, Chinook reinforcements.
+		bool AttackMove;			// <CTRL><SHIFT> (or <CTRL><ALT>) click on the ground.
 		bool MissionSelect;		// Start a new campaign at any mission reached so far,
 		bool AllMissions;			// or at any mission at all (REDALERT.INI only).
 
@@ -101,6 +102,7 @@ class EnhancementsClass
 		bool	Is_Veterancy(void) const {return(Veterancy && Rules_Apply());}
 		bool	Is_Shared_Tech(void) const {return(SharedTech && Session.Type == GAME_SKIRMISH);}
 		bool	Is_Support_Powers(void) const {return(SupportPowers && Rules_Apply());}
+		bool	Is_Attack_Move(void) const {return(AttackMove && Rules_Apply());}
 
 	private:
 		bool	Rules_Apply(void) const;
@@ -131,6 +133,12 @@ void	Support_Powers_Init(HouseClass * house);
 void	Support_Powers_AI(HouseClass * house);
 void	Support_Power_Fire(HouseClass * house, SpecialWeaponType power, CELL cell);
 void	Support_Powers_Impacts(void);
+
+/*
+**	Attack-move.
+*/
+void	Attack_Move_Order(FootClass * unit, bool attack_move);
+bool	Is_Attack_Moving(FootClass const * unit);
 
 /*
 **	Build queue (the sidebar).

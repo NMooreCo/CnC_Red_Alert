@@ -1001,6 +1001,18 @@ int FootClass::Mission_Guard_Area(void)
 	}
 
 	if (!Target_Legal(TarCom)) {
+#ifdef RA_ENHANCE
+		/*
+		**	RA_ENHANCE: attack-move. On the way to the area, take on the enemies that come
+		**	within range.
+		*/
+		if (Is_Attack_Moving(this)) {
+			Target_Something_Nearby(THREAT_RANGE);
+			if (Target_Legal(TarCom)) {
+				return(1);
+			}
+		}
+#endif
 		COORDINATE old = Coord;
 		Coord = As_Coord(ArchiveTarget);
 		Target_Something_Nearby(THREAT_AREA);
@@ -1330,6 +1342,21 @@ void FootClass::Active_Click_With(ActionType action, CELL cell)
 		case ACTION_SABOTAGE:
 			Player_Assign_Mission(MISSION_SABOTAGE, TARGET_NONE, ::As_Target(cell) );
 			break;
+
+#ifdef RA_ENHANCE
+		/*
+		**	RA_ENHANCE: attack-move. The original showed the guard area pointer over open ground
+		**	(with <CTRL><ALT>) but did nothing when clicked. Now the units move there, taking on
+		**	the enemies they meet on the way, and guard the place. The target and the destination
+		**	being the same place marks the order as an attack-move (EventClass::Execute).
+		*/
+		case ACTION_GUARD_AREA:
+			if (Enhance.Is_Attack_Move() && What_Am_I() != RTTI_AIRCRAFT && Can_Player_Fire() && Can_Player_Move()) {
+				cell = Map.Nearby_Location(cell, Techno_Type_Class()->Speed);
+				Player_Assign_Mission(MISSION_GUARD_AREA, ::As_Target(cell), ::As_Target(cell));
+			}
+			break;
+#endif
 	}
 }
 
