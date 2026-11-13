@@ -860,6 +860,15 @@ bool Select_Game(bool fade)
 								continue;
 							}
 #endif
+#ifdef RA_ENHANCE
+							/*
+							**	RA_ENHANCE: mission select, to start at a later mission.
+							*/
+							if (!Mission_Select_Dialog()) {
+								selection = SEL_NONE;
+								continue;
+							}
+#endif
 #ifdef FIXIT_ANTS
 						}
 #endif

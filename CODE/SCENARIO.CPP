@@ -313,6 +313,9 @@ Theme.Stop();
 	if (!Read_Scenario(name)) {
 		return(false);
 	}
+#ifdef RA_ENHANCE
+	Mission_Reached();		// RA_ENHANCE: for mission select
+#endif
 
 	/*
 	**	Play the winning movie and then start the next scenario.

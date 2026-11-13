@@ -33,6 +33,15 @@ class EnhancementsClass
 		**	The player's choices, kept in REDALERT.INI ([Enhancements]).
 		*/
 		bool Veterancy;			// Units earn ranks from their kills.
+		bool MissionSelect;		// Start a new campaign at any mission reached so far,
+		bool AllMissions;			// or at any mission at all (REDALERT.INI only).
+
+		/*
+		**	The furthest mission reached in each campaign (kept whether mission select is on
+		**	or not).
+		*/
+		int	AlliedMission;
+		int	SovietMission;
 
 		/*
 		**	Veterancy tuning: RULES.INI [Veterancy], which a scenario can override with its own
@@ -68,6 +77,12 @@ class EnhancementsClass
 extern EnhancementsClass Enhance;
 
 void	Enhancements_Dialog(void);		// Options, Game Controls, Enhancements.
+
+/*
+**	Mission select.
+*/
+void	Mission_Reached(void);
+bool	Mission_Select_Dialog(void);
 
 /*
 **	Veterancy. Every unit has always had a kill counter ("When it reaches a certain point, the

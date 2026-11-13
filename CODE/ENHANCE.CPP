@@ -27,6 +27,9 @@
  *   Veterancy: units earn ranks from their kills. A veteran deals more damage, takes less    *
  *   and fires faster; an elite unit more so, and repairs itself. Selected units show their   *
  *   rank as chevrons. Tuning: RULES.INI [Veterancy] (see Reset_Rules for the keys).           *
+ *                                                                                             *
+ *   Mission select: after choosing a side for a new game, start at any mission of that        *
+ *   campaign reached so far (the furthest one is kept in REDALERT.INI).                       *
  *---------------------------------------------------------------------------------------------*/
 
 #include	"FUNCTION.H"
@@ -40,7 +43,11 @@ static char const VETERANCY[] = "Veterancy";
 
 
 EnhancementsClass::EnhancementsClass(void) :
-	Veterancy(false)
+	Veterancy(false),
+	MissionSelect(false),
+	AllMissions(false),
+	AlliedMission(0),
+	SovietMission(0)
 {
 	Reset_Rules();
 }
@@ -52,12 +59,20 @@ EnhancementsClass::EnhancementsClass(void) :
 void EnhancementsClass::Load_Settings(INIClass const & ini)
 {
 	Veterancy = ini.Get_Bool(ENHANCEMENTS, "Veterancy", Veterancy);
+	MissionSelect = ini.Get_Bool(ENHANCEMENTS, "MissionSelect", MissionSelect);
+	AllMissions = ini.Get_Bool(ENHANCEMENTS, "AllMissions", AllMissions);
+	AlliedMission = ini.Get_Int(ENHANCEMENTS, "AlliedMission", AlliedMission);
+	SovietMission = ini.Get_Int(ENHANCEMENTS, "SovietMission", SovietMission);
 }
 
 
 void EnhancementsClass::Save_Settings(INIClass & ini) const
 {
 	ini.Put_Bool(ENHANCEMENTS, "Veterancy", Veterancy);
+	ini.Put_Bool(ENHANCEMENTS, "MissionSelect", MissionSelect);
+	if (AllMissions) ini.Put_Bool(ENHANCEMENTS, "AllMissions", AllMissions);
+	ini.Put_Int(ENHANCEMENTS, "AlliedMission", AlliedMission);
+	ini.Put_Int(ENHANCEMENTS, "SovietMission", SovietMission);
 }
 
 
@@ -128,6 +143,10 @@ void Enhancements_Dialog(void)
 			"Units become veterans after 3 kills and elite after 7. They deal more damage, take less and fire "
 			"faster, and elite units repair themselves. Selected units show their rank as chevrons.",
 			&Enhance.Veterancy},
+		{"Mission select: start at a mission you have reached",
+			"When you start a new game and choose a side, you can start at any mission of that campaign "
+			"you have reached so far. (Each mission you play is remembered from now on.)",
+			&Enhance.MissionSelect},
 	};
 	int const count = ARRAY_SIZE(_list);
 
@@ -251,6 +270,181 @@ void Enhancements_Dialog(void)
 	if (changed) {
 		Options.Save_Settings();
 	}
+}
+
+
+/***********************************************************************************************
+ * Mission_Reached -- Remember the furthest campaign mission reached.                          *
+ *                                                                                             *
+ *    Called when a scenario starts, or a saved game is loaded.                                *
+ *=============================================================================================*/
+void Mission_Reached(void)
+{
+	if (Session.Type != GAME_NORMAL) return;
+	if (toupper(Scen.ScenarioName[0]) != 'S' || toupper(Scen.ScenarioName[1]) != 'C') return;
+
+	int * reached = NULL;
+	switch (toupper(Scen.ScenarioName[2])) {
+		case 'G':	reached = &Enhance.AlliedMission;	break;
+		case 'U':	reached = &Enhance.SovietMission;	break;
+		default:		break;
+	}
+	if (reached != NULL && Scen.Scenario > *reached) {
+		*reached = Scen.Scenario;
+		Options.Save_Settings();
+	}
+}
+
+
+/***********************************************************************************************
+ * Mission_Select_Dialog -- Choose the mission to start a new campaign at.                     *
+ *                                                                                             *
+ *    Called once the player has chosen a side (Scen.ScenarioName is that campaign's first    *
+ *    mission). Lists every version of each mission reached so far, by name.                   *
+ *                                                                                             *
+ * OUTPUT:  false if the player cancelled.                                                     *
+ *=============================================================================================*/
+bool Mission_Select_Dialog(void)
+{
+	if (!Enhance.MissionSelect) return(true);
+
+	char side = (char)toupper(Scen.ScenarioName[2]);
+	if (side != 'G' && side != 'U') return(true);
+	int reached = Enhance.AllMissions ? 99 : (side == 'G') ? Enhance.AlliedMission : Enhance.SovietMission;
+	if (reached < 2) return(true);
+
+	/*
+	**	The missions. A mission may come in more than one version (the map selection screen
+	**	offers a choice), or in parts (Allied mission 10).
+	*/
+	enum {MAX_ENTRIES = 64};
+	static char _files[MAX_ENTRIES][16];
+	static char _texts[MAX_ENTRIES][80];
+	int count = 0;
+	int furthest = 0;		// The main version of the furthest mission.
+	for (int number = 1; number <= reached && number <= 99 && count < MAX_ENTRIES; number++) {
+		bool found = false;
+		char main_name[48] = "";
+		for (char const * version = "EAEBECEDWAWBWCWD"; *version != '\0' && count < MAX_ENTRIES; version += 2) {
+			char file[16];
+			snprintf(file, sizeof(file), "SC%c%02d%c%c.INI", side, number, version[0], version[1]);
+			CCFileClass scenario(file);
+			if (!scenario.Is_Available()) continue;
+
+			/*
+			**	Other versions are often unnamed: they take the main version's name.
+			*/
+			char name[48] = "";
+			CCINIClass ini;
+			if (ini.Load(scenario, false)) {
+				ini.Get_String("Basic", "Name", "", name, sizeof(name));
+			}
+			if (name[0] == '\0' || stricmp(name, "<none>") == 0) {
+				strcpy(name, main_name);
+			}
+
+			strcpy(_files[count], file);
+			if (!found) {
+				strcpy(main_name, name);
+				furthest = count;
+				snprintf(_texts[count], sizeof(_texts[count]), "Mission %d: %s", number, name);
+			} else {
+				snprintf(_texts[count], sizeof(_texts[count]), "Mission %d: %s (version %s%c)", number, name, (version[0] == 'W') ? "W" : "", version[1]);
+			}
+			found = true;
+			count++;
+		}
+		if (!found && number > 1) break;		// The end of the campaign.
+	}
+	if (count < 2) return(true);
+
+	/*
+	**	Dialog & button dimensions.
+	*/
+	int	d_dialog_w = 220 * RESFACTOR;
+	int	d_dialog_h = 150 * RESFACTOR;
+	int	d_dialog_x = (SeenBuff.Get_Width() - d_dialog_w) / 2;
+	int	d_dialog_y = (SeenBuff.Get_Height() - d_dialog_h) / 2;
+	int	d_margin = 12 * RESFACTOR;
+
+	int	d_list_x = d_dialog_x + d_margin;
+	int	d_list_y = d_dialog_y + 25 * RESFACTOR;
+	int	d_list_w = d_dialog_w - 2 * d_margin;
+	int	d_list_h = d_dialog_h - (25 + 30) * RESFACTOR;
+
+	int	d_button_y = d_dialog_y + d_dialog_h - (9 * RESFACTOR) - (10 * RESFACTOR);
+
+	enum {
+		BUTTON_LIST = 100,
+		BUTTON_OK,
+		BUTTON_CANCEL
+	};
+
+	ListClass list(BUTTON_LIST, d_list_x, d_list_y, d_list_w, d_list_h, TPF_TEXT, MFCD::Retrieve("BTN-UP.SHP"), MFCD::Retrieve("BTN-DN.SHP"));
+	TextButtonClass okbtn(BUTTON_OK, TXT_OK, TPF_BUTTON, 0, d_button_y);
+	TextButtonClass cancelbtn(BUTTON_CANCEL, TXT_CANCEL, TPF_BUTTON, 0, d_button_y);
+	okbtn.X = d_dialog_x + d_dialog_w / 3 - okbtn.Width / 2;
+	cancelbtn.X = d_dialog_x + (2 * d_dialog_w) / 3 - cancelbtn.Width / 2;
+
+	for (int index = 0; index < count; index++) {
+		list.Add_Item(_texts[index]);
+	}
+	list.Set_Selected_Index(furthest);
+
+	GadgetClass * commands = &okbtn;
+	cancelbtn.Add_Tail(*commands);
+	list.Add_Tail(*commands);
+
+	Set_Logic_Page(SeenBuff);
+
+	bool process = true;
+	bool display = true;
+	bool start = false;
+	while (process) {
+		Call_Back();
+
+		#ifdef WIN32
+		if (AllSurfaces.SurfacesRestored) {
+			AllSurfaces.SurfacesRestored = FALSE;
+			display = true;
+		}
+		#endif
+
+		if (display) {
+			Hide_Mouse();
+			Dialog_Box(d_dialog_x, d_dialog_y, d_dialog_w, d_dialog_h);
+			Draw_Caption((side == 'G') ? "Allied campaign: choose a mission" : "Soviet campaign: choose a mission", d_dialog_x, d_dialog_y, d_dialog_w);
+			commands->Flag_List_To_Redraw();
+			commands->Draw_All();
+			Show_Mouse();
+			display = false;
+		}
+
+		KeyNumType input = commands->Input();
+		switch (input) {
+			case (BUTTON_OK | KN_BUTTON):
+			case KN_RETURN:
+				start = true;
+				process = false;
+				break;
+
+			case (BUTTON_CANCEL | KN_BUTTON):
+			case KN_ESC:
+				process = false;
+				break;
+
+			default:
+				break;
+		}
+	}
+
+	if (start) {
+		int index = list.Current_Index();
+		if (index >= 0 && index < count) {
+			Scen.Set_Scenario_Name(_files[index]);
+		}
+	}
+	return(start);
 }
 
 

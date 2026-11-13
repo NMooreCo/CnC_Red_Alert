@@ -920,6 +920,11 @@ bool Load_Game(int id)
 	Rule.IQ(ini);
 	Rule.Objects(ini);
 	Rule.Difficulty(ini);
+#ifdef RA_ENHANCE
+	Enhance.Reset_Rules();		// RA_ENHANCE: the enhancements' tuning, as when the scenario started
+	Enhance.Rules(RuleINI);
+	Enhance.Rules(ini);
+#endif
 #ifdef FIXIT_CSII	//	ajw - Added runtime check for Aftermath to skirmish mode.
 	if (load_net) {
 		bool readini = false;
@@ -980,6 +985,9 @@ if(Special.IsFromWChat || SpawnedFromWChat) {
 	} else {
 		Theme.Queue_Song(Scen.TransitTheme);
 	}
+#ifdef RA_ENHANCE
+	Mission_Reached();		// RA_ENHANCE: for mission select
+#endif
 	return(true);
 }
 
