@@ -52,6 +52,7 @@
 
 #include	"FUNCTION.H"
 #include	"PLATFORM.H"
+#include	"WSPROTO.H"
 
 #ifdef RA_ENHANCE
 
@@ -72,14 +73,18 @@ EnhancementsClass::EnhancementsClass(void) :
 	Veterancy(false),
 	BuildQueue(false),
 	SharedTech(false),
+	SmartAI(false),
 	SupportPowers(false),
 	AttackMove(false),
 	ModernMouse(false),
 	MissionSelect(false),
 	AllMissions(false),
 	AlliedMission(0),
-	SovietMission(0)
+	SovietMission(0),
+	NetFlags(0),
+	NetPort(1234)
 {
+	NetConnect[0] = '\0';
 	Reset_Rules();
 }
 
@@ -92,6 +97,7 @@ void EnhancementsClass::Load_Settings(INIClass const & ini)
 	Veterancy = ini.Get_Bool(ENHANCEMENTS, "Veterancy", Veterancy);
 	BuildQueue = ini.Get_Bool(ENHANCEMENTS, "BuildQueue", BuildQueue);
 	SharedTech = ini.Get_Bool(ENHANCEMENTS, "SharedTech", SharedTech);
+	SmartAI = ini.Get_Bool(ENHANCEMENTS, "SmartAI", SmartAI);
 	SupportPowers = ini.Get_Bool(ENHANCEMENTS, "SupportPowers", SupportPowers);
 	AttackMove = ini.Get_Bool(ENHANCEMENTS, "AttackMove", AttackMove);
 	ModernMouse = ini.Get_Bool(ENHANCEMENTS, "ModernMouse", ModernMouse);
@@ -99,6 +105,10 @@ void EnhancementsClass::Load_Settings(INIClass const & ini)
 	AllMissions = ini.Get_Bool(ENHANCEMENTS, "AllMissions", AllMissions);
 	AlliedMission = ini.Get_Int(ENHANCEMENTS, "AlliedMission", AlliedMission);
 	SovietMission = ini.Get_Int(ENHANCEMENTS, "SovietMission", SovietMission);
+
+	ini.Get_String("Network", "Connect", NetConnect, NetConnect, sizeof(NetConnect));
+	NetPort = ini.Get_Int("Network", "Port", NetPort);
+	if (NetPort <= 0 || NetPort > 65535) NetPort = 1234;
 }
 
 
@@ -107,6 +117,7 @@ void EnhancementsClass::Save_Settings(INIClass & ini) const
 	ini.Put_Bool(ENHANCEMENTS, "Veterancy", Veterancy);
 	ini.Put_Bool(ENHANCEMENTS, "BuildQueue", BuildQueue);
 	ini.Put_Bool(ENHANCEMENTS, "SharedTech", SharedTech);
+	ini.Put_Bool(ENHANCEMENTS, "SmartAI", SmartAI);
 	ini.Put_Bool(ENHANCEMENTS, "SupportPowers", SupportPowers);
 	ini.Put_Bool(ENHANCEMENTS, "AttackMove", AttackMove);
 	ini.Put_Bool(ENHANCEMENTS, "ModernMouse", ModernMouse);
@@ -114,6 +125,9 @@ void EnhancementsClass::Save_Settings(INIClass & ini) const
 	if (AllMissions) ini.Put_Bool(ENHANCEMENTS, "AllMissions", AllMissions);
 	ini.Put_Int(ENHANCEMENTS, "AlliedMission", AlliedMission);
 	ini.Put_Int(ENHANCEMENTS, "SovietMission", SovietMission);
+
+	if (NetConnect[0] != '\0') ini.Put_String("Network", "Connect", NetConnect);
+	if (NetPort != 1234) ini.Put_Int("Network", "Port", NetPort);
 }
 
 
@@ -143,6 +157,12 @@ void EnhancementsClass::Reset_Rules(void)
 	BombardmentSpread = 3;
 	AirdropTime = fixed(6);
 	AirdropInfantry = 5;
+
+	SurvivalFirst = fixed(3);
+	SurvivalInterval = fixed(2);
+	SurvivalWaves = 20;
+	SurvivalWorth = 1000;
+	SurvivalGrowth = 600;
 }
 
 
@@ -173,6 +193,13 @@ void EnhancementsClass::Rules(INIClass const & ini)
 	BombardmentSpread = ini.Get_Int(SUPPORT, "BombardmentSpread", BombardmentSpread);
 	AirdropTime = ini.Get_Fixed(SUPPORT, "AirdropTime", AirdropTime);
 	AirdropInfantry = ini.Get_Int(SUPPORT, "AirdropInfantry", AirdropInfantry);
+
+	static char const SURVIVAL[] = "Survival";
+	SurvivalFirst = ini.Get_Fixed(SURVIVAL, "FirstWave", SurvivalFirst);
+	SurvivalInterval = ini.Get_Fixed(SURVIVAL, "WaveInterval", SurvivalInterval);
+	SurvivalWaves = ini.Get_Int(SURVIVAL, "Waves", SurvivalWaves);
+	SurvivalWorth = ini.Get_Int(SURVIVAL, "WaveWorth", SurvivalWorth);
+	SurvivalGrowth = ini.Get_Int(SURVIVAL, "WaveGrowth", SurvivalGrowth);
 }
 
 
@@ -184,7 +211,16 @@ char const * Enhance_Text(int string)
 	static char const * const _texts[TXT_ENH_LAST - TXT_ENH_FIRST] = {
 		"Artillery Barrage",
 		"Naval Bombardment",
-		"Chinook Reinforcements"
+		"Chinook Reinforcements",
+		"Survival",
+		"Survival: hold out against %d waves of enemy forces. The first comes when the timer runs out.",
+		"Survival: hold out against the waves of enemy forces. The first comes when the timer runs out.",
+		"Wave %d of %d",
+		"Wave %d",
+		"Final wave!",
+		"To join a game over the internet, type /connect and the host's address (and :port if not 1234), then Enter.",
+		"Looking for games at %s...",
+		"Co-op"
 	};
 	if (string >= TXT_ENH_FIRST && string < TXT_ENH_LAST) {
 		return(_texts[string - TXT_ENH_FIRST]);
@@ -221,6 +257,53 @@ void EnhancementsClass::Adjust_Objects(void)
 		Share_Tech(VesselTypes);
 		Share_Tech(AircraftTypes);
 	}
+}
+
+
+/***********************************************************************************************
+ * EnhancementsClass::Net_Flags -- The host's choice of the enhancements, for a network game.  *
+ *=============================================================================================*/
+unsigned EnhancementsClass::Net_Flags(void) const
+{
+	unsigned flags = 0;
+	if (Veterancy) flags |= NET_ENH_VETERANCY;
+	if (SupportPowers) flags |= NET_ENH_SUPPORT_POWERS;
+	if (AttackMove) flags |= NET_ENH_ATTACK_MOVE;
+	if (SmartAI) flags |= NET_ENH_SMART_AI;
+	if (SharedTech) flags |= NET_ENH_SHARED_TECH;
+	if (Survival_Chosen) flags |= NET_ENH_SURVIVAL;
+	if (Coop_Chosen) flags |= NET_ENH_COOP;
+	return(flags);
+}
+
+
+/***********************************************************************************************
+ * Enhance_Alliances -- Co-op: the players together against the computer players.             *
+ *                                                                                             *
+ *    In survival, and in network games where the host chose co-op, every player starts allied *
+ *    with the other players, and every computer player with the other computer players.      *
+ *=============================================================================================*/
+bool Coop_Chosen = false;
+
+static void Enhance_Alliances(void)
+{
+	bool coop = Survival_Is_On() || (Enhance.Is_Network() && (Enhance.NetFlags & NET_ENH_COOP) != 0);
+	if (!coop || Session.Type == GAME_NORMAL) return;
+
+	ScenarioInit++;
+	for (HousesType one = HOUSE_MULTI1; one <= HOUSE_MULTI8; one++) {
+		HouseClass * first = HouseClass::As_Pointer(one);
+		if (first == NULL || !first->IsActive || first->IsDefeated) continue;
+
+		for (HousesType two = HOUSE_MULTI1; two <= HOUSE_MULTI8; two++) {
+			HouseClass * second = HouseClass::As_Pointer(two);
+			if (second == NULL || second == first || !second->IsActive || second->IsDefeated) continue;
+			if (first->IsHuman == second->IsHuman) {
+				first->Make_Ally(two);
+			}
+		}
+	}
+	ScenarioInit--;
 }
 
 
@@ -265,6 +348,11 @@ void Enhancements_Dialog(void)
 			"Soviets: Tesla coils next to pillboxes, Mammoth tanks next to cruisers. The computer players "
 			"can too.",
 			&Enhance.SharedTech},
+		{"Smarter computer players (skirmish)",
+			"The computer players gather their forces and attack together, in waves, raid your harvesters, "
+			"build what answers your forces, reach for better technology, a navy and the super weapons (and "
+			"use them), and repair their tanks. Each has a personality: balanced, rusher, turtle or armored.",
+			&Enhance.SmartAI},
 		{"Support powers: artillery, naval bombardment, Chinook",
 			"New special weapons in the sidebar. An artillery barrage needs a radar dome and a war factory; a "
 			"naval bombardment from off the map, a radar dome and a naval yard or sub pen; Chinook "
@@ -290,7 +378,7 @@ void Enhancements_Dialog(void)
 	**	Dialog & button dimensions.
 	*/
 	int	d_dialog_w = 260 * RESFACTOR;
-	int	d_dialog_h = 150 * RESFACTOR;
+	int	d_dialog_h = 158 * RESFACTOR;
 	int	d_dialog_x = (SeenBuff.Get_Width() - d_dialog_w) / 2;
 	int	d_dialog_y = (SeenBuff.Get_Height() - d_dialog_h) / 2;
 	int	d_margin = 12 * RESFACTOR;
@@ -298,7 +386,7 @@ void Enhancements_Dialog(void)
 	int	d_list_x = d_dialog_x + d_margin;
 	int	d_list_y = d_dialog_y + 25 * RESFACTOR;
 	int	d_list_w = d_dialog_w - 2 * d_margin;
-	int	d_list_h = 56 * RESFACTOR;
+	int	d_list_h = 64 * RESFACTOR;
 
 	int	d_text_x = d_list_x;
 	int	d_text_y = d_list_y + d_list_h + 6 * RESFACTOR;
@@ -364,8 +452,8 @@ void Enhancements_Dialog(void)
 			char text[512];
 			snprintf(text, sizeof(text), "%s\r\r%s", _list[(current >= 0 && current < count) ? current : 0].About,
 				Session.Type == GAME_NORMAL || Session.Type == GAME_SKIRMISH ?
-					"Those that change the game rules apply to campaign and skirmish games." :
-					"Network games keep the original rules: those that change them apply to campaign and skirmish games.");
+					"In network games, the host's choice of those that change the game rules applies to everyone." :
+					"In this network game, the host's choice of those that change the game rules applies to everyone; a change here counts from your next game as host.");
 			int width, height;
 			Format_Window_String(text, d_text_w, width, height);
 			Fancy_Text_Print(text, d_text_x, d_text_y, scheme, TBLACK, TPF_TEXT);
@@ -421,7 +509,12 @@ void Enhancements_Start_Scenario(void)
 	Build_Queue_Clear();
 	Support_Powers_Clear();
 	Attack_Move_Clear();
+	Smart_AI_Clear();
+	Survival_Start();
+	Enhance_Alliances();
 }
+
+
 
 
 /***********************************************************************************************
@@ -470,7 +563,7 @@ struct AttackMoverType {
 	TARGET Place;
 };
 
-enum {MAX_ATTACK_MOVERS = 256};
+enum {MAX_ATTACK_MOVERS = 1024};
 static AttackMoverType AttackMovers[MAX_ATTACK_MOVERS];
 static int AttackMoverCount = 0;
 
@@ -483,12 +576,22 @@ static void Attack_Move_Clear(void)
 
 void Attack_Move_Order(FootClass * unit, bool attack_move)
 {
+	Attack_Move_Set(unit, attack_move && Enhance.Is_Attack_Move());
+}
+
+
+/*
+**	The smarter computer player (SMARTAI.CPP) gives the same order to its units, whether the
+**	player has attack-move on or not.
+*/
+void Attack_Move_Set(FootClass * unit, bool attack_move)
+{
 	TARGET who = unit->As_Target();
 	int index;
 	for (index = 0; index < AttackMoverCount; index++) {
 		if (AttackMovers[index].Unit == who) break;
 	}
-	if (attack_move && Enhance.Is_Attack_Move()) {
+	if (attack_move) {
 		if (index == AttackMoverCount) {
 			if (AttackMoverCount == MAX_ATTACK_MOVERS) return;
 			AttackMoverCount++;
@@ -503,7 +606,7 @@ void Attack_Move_Order(FootClass * unit, bool attack_move)
 
 bool Is_Attack_Moving(FootClass const * unit)
 {
-	if (AttackMoverCount == 0 || !Enhance.Is_Attack_Move() || unit->Get_Mission() != MISSION_GUARD_AREA) return(false);
+	if (AttackMoverCount == 0 || unit->Get_Mission() != MISSION_GUARD_AREA) return(false);
 
 	TARGET who = unit->As_Target();
 	for (int index = 0; index < AttackMoverCount; index++) {
@@ -512,6 +615,24 @@ bool Is_Attack_Moving(FootClass const * unit)
 		}
 	}
 	return(false);
+}
+
+
+/***********************************************************************************************
+ * Enhance_Detach -- An object is gone (Detach_This_From_All): forget it.                      *
+ *                                                                                             *
+ *    With all false, the object is still there, only hidden from the enemy (cloaked).          *
+ *=============================================================================================*/
+void Enhance_Detach(TARGET target, bool all)
+{
+	if (!all) return;
+
+	for (int index = 0; index < AttackMoverCount; index++) {
+		if (AttackMovers[index].Unit == target) {
+			AttackMovers[index--] = AttackMovers[--AttackMoverCount];
+		}
+	}
+	Smart_AI_Detach(target);
 }
 
 
@@ -1247,3 +1368,175 @@ void Veterancy_Draw(TechnoClass const * techno, GraphicViewPortClass & window, i
 }
 
 #endif
+
+
+/***********************************************************************************************
+ * Net_Connect_Command -- The lobby's /connect command: look for games at an address too.      *
+ *                                                                                             *
+ *    "/connect HOST" or "/connect HOST:PORT", typed in the message line of the network game   *
+ *    lobby (NETDLG.CPP): the lobby asks that address which games it has, as well as the local  *
+ *    network, so that a game over the internet can be joined. The address is remembered       *
+ *    (REDALERT.INI [Network] Connect) and asked again the next time.                          *
+ *                                                                                             *
+ * OUTPUT:  Was it the command (rather than a message to send)?                                *
+ *=============================================================================================*/
+bool Net_Connect_Command(char const * text)
+{
+	if (text == NULL) return(false);
+	while (*text == ' ') text++;
+	if (strnicmp(text, "/connect", 8) != 0) return(false);
+	text += 8;
+	while (*text == ' ') text++;
+
+	char address[sizeof(Enhance.NetConnect)];
+	strncpy(address, text, sizeof(address)-1);
+	address[sizeof(address)-1] = '\0';
+	int length = (int)strlen(address);
+	while (length > 0 && address[length-1] == ' ') {
+		address[--length] = '\0';
+	}
+	if (length == 0 || PacketTransport == NULL) return(true);
+
+	PacketTransport->Set_Broadcast_Address(address);
+	strcpy(Enhance.NetConnect, address);
+	Options.Save_Settings();
+
+	char message[128];
+	snprintf(message, sizeof(message), Text_String(TXT_ENH_CONNECTING), address);
+	Session.Messages.Add_Message(NULL, 0, message, PCOLOR_GREY, TPF_TEXT, -1);
+	return(true);
+}
+
+
+/***********************************************************************************************
+ * Enhance_Save -- Saves the enhancements' state, after the rest of a saved game.               *
+ * Enhance_Load -- Reads it back.                                                              *
+ * Enhancements_Restore -- Puts what was read in place, once the loaded game is set up.         *
+ *                                                                                             *
+ *    The saved game that Put_All writes (SAVELOAD.CPP) is followed by a mark, then blocks,    *
+ *    each with a name and a size, then an end block. A game saved by an earlier version ends  *
+ *    before the mark, and loads as before (without them); a block that this version doesn't  *
+ *    know, or of another size (from another version), is left out. That way the enhancements *
+ *    can keep their state without changing the original layout of saved games.               *
+ *=============================================================================================*/
+static char const SAVE_MARK[8] = {'R', 'A', '-', 'E', 'N', 'H', '-', '1'};
+
+struct SaveBlockType {
+	char	Name[4];
+	int	Size;
+};
+
+enum {MAX_LOADED = 16};
+static struct {
+	char	Name[4];
+	int	Size;
+	char *	Data;
+} Loaded[MAX_LOADED];
+static int LoadedCount = 0;
+
+
+static void Loaded_Free(void)
+{
+	for (int index = 0; index < LoadedCount; index++) {
+		delete [] Loaded[index].Data;
+	}
+	LoadedCount = 0;
+}
+
+
+void Enhance_Save_Block(Pipe & pipe, char const * name, void const * data, int size)
+{
+	SaveBlockType block;
+	memcpy(block.Name, name, sizeof(block.Name));
+	block.Size = size;
+	pipe.Put(&block, sizeof(block));
+	if (size > 0) {
+		pipe.Put(data, size);
+	}
+}
+
+
+/*
+**	The block loaded with this name, if it has the size given; otherwise NULL.
+*/
+void const * Enhance_Loaded_Block(char const * name, int size)
+{
+	for (int index = 0; index < LoadedCount; index++) {
+		if (memcmp(Loaded[index].Name, name, sizeof(Loaded[index].Name)) == 0 && Loaded[index].Size == size) {
+			return(Loaded[index].Data);
+		}
+	}
+	return(NULL);
+}
+
+
+void Enhance_Save(Pipe & pipe)
+{
+	pipe.Put(SAVE_MARK, sizeof(SAVE_MARK));
+
+	Enhance_Save_Block(pipe, "AMV#", &AttackMoverCount, sizeof(AttackMoverCount));
+	Enhance_Save_Block(pipe, "AMVL", AttackMovers, sizeof(AttackMovers));
+	Enhance_Save_Block(pipe, "SHL#", &ImpactCount, sizeof(ImpactCount));
+	Enhance_Save_Block(pipe, "SHLS", Impacts, sizeof(Impacts));
+	Enhance_Save_Block(pipe, "BQUE", BuildQueues, sizeof(BuildQueues));
+	Smart_AI_Save(pipe);
+	Survival_Save(pipe);
+
+	Enhance_Save_Block(pipe, "END ", NULL, 0);
+}
+
+
+void Enhance_Load(Straw & straw)
+{
+	Loaded_Free();
+
+	char mark[sizeof(SAVE_MARK)];
+	if (straw.Get(mark, sizeof(mark)) != sizeof(mark) || memcmp(mark, SAVE_MARK, sizeof(mark)) != 0) {
+		return;
+	}
+
+	while (LoadedCount < MAX_LOADED) {
+		SaveBlockType block;
+		if (straw.Get(&block, sizeof(block)) != sizeof(block)) break;
+		if (memcmp(block.Name, "END ", sizeof(block.Name)) == 0 || block.Size < 0 || block.Size > 0x100000) break;
+
+		char * data = new char[block.Size + 1];
+		if (straw.Get(data, block.Size) != block.Size) {
+			delete [] data;
+			break;
+		}
+		memcpy(Loaded[LoadedCount].Name, block.Name, sizeof(block.Name));
+		Loaded[LoadedCount].Size = block.Size;
+		Loaded[LoadedCount].Data = data;
+		LoadedCount++;
+	}
+}
+
+
+void Enhancements_Restore(void)
+{
+	void const * count = Enhance_Loaded_Block("AMV#", sizeof(AttackMoverCount));
+	void const * list = Enhance_Loaded_Block("AMVL", sizeof(AttackMovers));
+	if (count != NULL && list != NULL) {
+		memcpy(&AttackMoverCount, count, sizeof(AttackMoverCount));
+		memcpy(AttackMovers, list, sizeof(AttackMovers));
+		AttackMoverCount = Bound(AttackMoverCount, 0, (int)MAX_ATTACK_MOVERS);
+	}
+
+	count = Enhance_Loaded_Block("SHL#", sizeof(ImpactCount));
+	list = Enhance_Loaded_Block("SHLS", sizeof(Impacts));
+	if (count != NULL && list != NULL) {
+		memcpy(&ImpactCount, count, sizeof(ImpactCount));
+		memcpy(Impacts, list, sizeof(Impacts));
+		ImpactCount = Bound(ImpactCount, 0, (int)MAX_IMPACTS);
+	}
+
+	list = Enhance_Loaded_Block("BQUE", sizeof(BuildQueues));
+	if (list != NULL) {
+		memcpy(BuildQueues, list, sizeof(BuildQueues));
+	}
+
+	Smart_AI_Restore();
+	Survival_Restore();
+	Loaded_Free();
+}

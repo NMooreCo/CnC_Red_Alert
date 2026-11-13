@@ -26,9 +26,19 @@ fail on them), then open the `.ISO` files inside.
 **Optional enhancements** (all off until you turn them on): in a mission, open **Options**,
 **Game Controls**, **Enhancements**. So far: veterancy (units earn ranks from their kills), a build queue (line up units at
 each factory), attack-move (Ctrl+Shift click), modern mouse controls (right-click to give
-orders), shared tech (both sides build everything, in skirmish), support
-powers (artillery barrage, naval bombardment, Chinook reinforcements) and mission select (start a new campaign at any mission you have
+orders), shared tech (both sides build everything, in skirmish), smarter computer players
+(in skirmish: they attack together in waves, raid harvesters, build navies and super
+weapons, each with a personality), support powers (artillery barrage, naval bombardment,
+Chinook reinforcements) and mission select (start a new campaign at any mission you have
 reached). The mouse wheel scrolls the sidebar and lists.
+
+**Survival**, in the skirmish and network game options: hold out against 20 waves of enemy
+forces. **Co-op**, in the network game options: the players together against the computer
+players. In network games, the host's choice of enhancements applies to everyone.
+
+**Internet games**: the host lets UDP port 1234 through their router; the others type
+`/connect` and the host's address in the lobby's message line. Everyone needs this version
+(earlier ones can't join it).
 
 Games saved by builds before the support powers can't be loaded by this one; with mission
 select you can start again at the mission you were playing.

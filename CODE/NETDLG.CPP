@@ -1454,7 +1454,11 @@ static int Net_Join_Dialog(void)
 		int d_aiplayers_y = d_credits_y + d_level_h;
 
 		int d_options_w = d_playerlist_w;
+#ifdef RA_ENHANCE
+		int d_options_h = ((7 * 6) + 4) *RESFACTOR;		// RA_ENHANCE: and survival, co-op.
+#else
 		int d_options_h = ((5 * 6) + 4) *RESFACTOR;
+#endif
 		int d_options_x = d_playerlist_x;
 		int d_options_y = d_playerlist_y + d_playerlist_h + d_margin2 - (2*RESFACTOR);
 
@@ -1643,6 +1647,10 @@ static int Net_Join_Dialog(void)
 	optionlist.Add_Item(Text_String(TXT_CRATES));
 	optionlist.Add_Item(Text_String(TXT_CAPTURE_THE_FLAG));
 	optionlist.Add_Item(Text_String(TXT_SHADOW_REGROWS));
+#ifdef RA_ENHANCE
+	optionlist.Add_Item(Text_String(TXT_ENH_SURVIVAL));		// RA_ENHANCE: survival,
+	optionlist.Add_Item(Text_String(TXT_ENH_COOP));			// and co-op.
+#endif
 
 	optionlist.Check_Item(0, Rule.IsMPBasesOn);
 	optionlist.Check_Item(1, Rule.IsMPTiberiumGrow);
@@ -1695,6 +1703,12 @@ static int Net_Join_Dialog(void)
 	Session.Messages.Add_Edit ((Session.ColorIdx == PCOLOR_DIALOG_BLUE) ? PCOLOR_REALLY_BLUE : Session.ColorIdx,
 										TPF_TEXT, NULL, '_', d_message2_w);
 	Session.WWChat = 0;
+#ifdef RA_ENHANCE
+	/*
+	**	RA_ENHANCE: how to find a game over the internet (Net_Connect_Command).
+	*/
+	Session.Messages.Add_Message(NULL, 0, Text_String(TXT_ENH_CONNECT_HINT), PCOLOR_GREY, TPF_TEXT, -1);
+#endif
 
 	lastclick_timer = 0;
 
@@ -2368,6 +2382,15 @@ static int Net_Join_Dialog(void)
 						BOXSTYLE_BOX, true);
 					Session.Messages.Draw();
 					Show_Mouse();
+#ifdef RA_ENHANCE
+				} else if (i==3 && Net_Connect_Command(Session.Messages.Get_Edit_Buf())) {
+				//...............................................................
+				//	RA_ENHANCE: "/connect HOST": look for games there too.
+				//...............................................................
+					Session.Messages.Add_Edit((Session.ColorIdx == PCOLOR_DIALOG_BLUE) ? PCOLOR_REALLY_BLUE : Session.ColorIdx,
+														TPF_TEXT, NULL, '_', d_message2_w);
+					display = REDRAW_MESSAGE;
+#endif
 				} else if (i==3 || i==4) {
 				//...............................................................
 				//	If 'Input' returned 3, it means send the current message.
@@ -2713,6 +2736,10 @@ static int Net_Join_Dialog(void)
 			optionlist.Check_Item(2,Session.Options.Goodies);
 			optionlist.Check_Item(3,Special.IsCaptureTheFlag);
 			optionlist.Check_Item(4,Special.IsShadowGrow);
+#ifdef RA_ENHANCE
+			optionlist.Check_Item(5, (Enhance.NetFlags & NET_ENH_SURVIVAL) != 0);
+			optionlist.Check_Item(6, (Enhance.NetFlags & NET_ENH_COOP) != 0);
+#endif
 			optionlist.Flag_To_Redraw();
 
 			Sound_Effect(VOC_OPTIONS_CHANGED);
@@ -3706,6 +3733,9 @@ static JoinEventType Get_Join_Responses(JoinStateType *joinstate, ListClass *gam
 			Session.Options.Tiberium = Session.GPacket.ScenarioInfo.IsTiberium;
 			Session.Options.Goodies = Session.GPacket.ScenarioInfo.IsGoodies;
 //			Session.Options.Ghosts = Session.GPacket.ScenarioInfo.IsGhosties;
+#ifdef RA_ENHANCE
+			Enhance.Net_Set(Session.GPacket.ScenarioInfo.Enhancements);		// RA_ENHANCE: the host's.
+#endif
 			Session.Options.AIPlayers = Session.GPacket.ScenarioInfo.AIPlayers;
 			BuildLevel = Session.GPacket.ScenarioInfo.BuildLevel;
 			Session.Options.UnitCount = Session.GPacket.ScenarioInfo.UnitCount;
@@ -4036,7 +4066,11 @@ static JoinEventType Get_Join_Responses(JoinStateType *joinstate, ListClass *gam
 static int Net_New_Dialog(void)
 {
 	typedef enum {
+#ifdef RA_ENHANCE
+		NUM_MESSAGES = 9		// RA_ENHANCE: room for two more options (survival, co-op).
+#else
 		NUM_MESSAGES = 10
+#endif
 	} NumMessagesType;
 
 	//------------------------------------------------------------------------
@@ -4089,7 +4123,11 @@ static int Net_New_Dialog(void)
 	int d_aiplayers_y = d_credits_y + d_credits_h;
 
 	int d_options_w = 106*RESFACTOR;
+#ifdef RA_ENHANCE
+	int d_options_h = ((7 * 6) + 4)*RESFACTOR;		// RA_ENHANCE: and survival, co-op.
+#else
 	int d_options_h = ((5 * 6) + 4)*RESFACTOR;
+#endif
 	int d_options_x = d_scenariolist_x + ((d_scenariolist_w - d_options_w) / 2);
 	int d_options_y = d_scenariolist_y + d_scenariolist_h + d_margin1;
 
@@ -4251,12 +4289,20 @@ static int Net_New_Dialog(void)
 	optionlist.Add_Item(Text_String(TXT_CRATES));
 	optionlist.Add_Item(Text_String(TXT_CAPTURE_THE_FLAG));
 	optionlist.Add_Item(Text_String(TXT_SHADOW_REGROWS));
+#ifdef RA_ENHANCE
+	optionlist.Add_Item(Text_String(TXT_ENH_SURVIVAL));		// RA_ENHANCE: survival,
+	optionlist.Add_Item(Text_String(TXT_ENH_COOP));			// and co-op.
+#endif
 
 	optionlist.Check_Item(0, Session.Options.Bases);
 	optionlist.Check_Item(1, Session.Options.Tiberium);
 	optionlist.Check_Item(2, Session.Options.Goodies);
 	optionlist.Check_Item(3, Special.IsCaptureTheFlag);
 	optionlist.Check_Item(4, Special.IsShadowGrow);
+#ifdef RA_ENHANCE
+	optionlist.Check_Item(5, Survival_Chosen);
+	optionlist.Check_Item(6, Coop_Chosen);
+#endif
 
 	countgauge.Set_Maximum(SessionClass::CountMax[Session.Options.Bases] - SessionClass::CountMin[Session.Options.Bases]);
 	countgauge.Set_Value(Session.Options.UnitCount - SessionClass::CountMin[Session.Options.Bases]);
@@ -4703,6 +4749,10 @@ static int Net_New_Dialog(void)
 				Session.Options.Goodies = optionlist.Is_Checked(2);
 				Special.IsCaptureTheFlag = optionlist.Is_Checked(3);
 				Special.IsShadowGrow = optionlist.Is_Checked(4);
+#ifdef RA_ENHANCE
+				Survival_Chosen = optionlist.Is_Checked(5);		// RA_ENHANCE: sent with the enhancements.
+				Coop_Chosen = optionlist.Is_Checked(6);
+#endif
 
 				transmit = 1;
 				display = REDRAW_PARMS;
@@ -4969,6 +5019,10 @@ static int Net_New_Dialog(void)
 				Session.GPacket.ScenarioInfo.IsBases = Session.Options.Bases;
 				Session.GPacket.ScenarioInfo.IsTiberium = Session.Options.Tiberium;
 				Session.GPacket.ScenarioInfo.IsGoodies = Session.Options.Goodies;
+#ifdef RA_ENHANCE
+				Session.GPacket.ScenarioInfo.Enhancements = Enhance.Net_Flags();		// RA_ENHANCE: the host's.
+				Enhance.Net_Set(Enhance.Net_Flags());
+#endif
 				Session.GPacket.ScenarioInfo.BuildLevel = BuildLevel;
 				Session.GPacket.ScenarioInfo.UnitCount = Session.Options.UnitCount;
 				Session.GPacket.ScenarioInfo.AIPlayers = Session.Options.AIPlayers;
@@ -6626,6 +6680,10 @@ static int Net_Fake_New_Dialog(void)
 				Session.GPacket.ScenarioInfo.IsBases = Session.Options.Bases;
 				Session.GPacket.ScenarioInfo.IsTiberium = Session.Options.Tiberium;
 				Session.GPacket.ScenarioInfo.IsGoodies = Session.Options.Goodies;
+#ifdef RA_ENHANCE
+				Session.GPacket.ScenarioInfo.Enhancements = Enhance.Net_Flags();		// RA_ENHANCE: the host's.
+				Enhance.Net_Set(Enhance.Net_Flags());
+#endif
 				//Session.GPacket.ScenarioInfo.IsGhosties = Session.Options.Ghosts;
 				Session.GPacket.ScenarioInfo.BuildLevel = BuildLevel;
 				Session.GPacket.ScenarioInfo.UnitCount = Session.Options.UnitCount;

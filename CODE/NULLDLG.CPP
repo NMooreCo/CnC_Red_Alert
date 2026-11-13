@@ -3259,6 +3259,11 @@ int Com_Scenario_Dialog(bool skirmish)
 	if (!skirmish) {
 		optionlist.Add_Item(Text_String(TXT_CAPTURE_THE_FLAG));
 	}
+#ifdef RA_ENHANCE
+	else {
+		optionlist.Add_Item(Text_String(TXT_ENH_SURVIVAL));		// RA_ENHANCE: survival.
+	}
+#endif
 
 	optionlist.Check_Item(0, Session.Options.Bases);
 	optionlist.Check_Item(1, Session.Options.Tiberium);
@@ -3267,6 +3272,11 @@ int Com_Scenario_Dialog(bool skirmish)
 	if (!skirmish) {
 		optionlist.Check_Item(4, Special.IsCaptureTheFlag);
 	}
+#ifdef RA_ENHANCE
+	else {
+		optionlist.Check_Item(4, Survival_Chosen);
+	}
+#endif
 
 	countgauge.Set_Maximum(SessionClass::CountMax[Session.Options.Bases] - SessionClass::CountMin[Session.Options.Bases]);
 	countgauge.Set_Value(Session.Options.UnitCount - SessionClass::CountMin[Session.Options.Bases]);
@@ -3872,6 +3882,11 @@ oh_dear_its_a_label:
 				if (!skirmish) {
 					Special.IsCaptureTheFlag = optionlist.Is_Checked(4);
 				}
+#ifdef RA_ENHANCE
+				else {
+					Survival_Chosen = optionlist.Is_Checked(4);
+				}
+#endif
 
 				transmit = true;
 				if (display < REDRAW_PARMS) display = REDRAW_PARMS;

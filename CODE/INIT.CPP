@@ -1289,6 +1289,17 @@ bool Select_Game(bool fade)
 								for (char * token = strtok(addresses, ", "); token != NULL; token = strtok(NULL, ", ")) {
 									((UDPInterfaceClass *)PacketTransport)->Set_Broadcast_Address(token);
 								}
+#ifdef RA_ENHANCE
+								/*
+								**	RA_ENHANCE: the address last asked for with /connect (games over the
+								**	internet), and the port to use: RA_LAN_PORT, or [Network] Port.
+								*/
+								if (Enhance.NetConnect[0] != '\0') {
+									((UDPInterfaceClass *)PacketTransport)->Set_Broadcast_Address(Enhance.NetConnect);
+								}
+								char const * port = getenv("RA_LAN_PORT");
+								PlanetWestwoodPortNumber = (port != NULL && atoi(port) > 0) ? atoi(port) : Enhance.NetPort;
+#endif
 							}
 #else
 //							if (WWMessageBox().Process("Select a protocol to use for network play.", "UDP", "IPX")) {

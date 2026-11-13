@@ -361,6 +361,7 @@ typedef struct GlobalPacketType {
 			unsigned int IsGoodies	: 1;		// 1 = goodies are allowed
 			unsigned int IsGhosties	: 1;		// 1 = ghosts are allowed
 			unsigned int OfficialScenario :1;// Is this scenario an official Westwood one?
+			unsigned int Enhancements : 8;	// RA_ENHANCE: the host's enhancements (EnhancementsClass::NetFlags).
 			unsigned char BuildLevel;			// buildable level
 			unsigned char UnitCount;			// max # units
 			unsigned char AIPlayers;			// # of AI players allowed

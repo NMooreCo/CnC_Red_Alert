@@ -208,6 +208,7 @@ void LogicClass::AI(void)
 
 #ifdef RA_ENHANCE
 	Support_Powers_Impacts();		// RA_ENHANCE: the shells of barrages and bombardments.
+	Survival_AI();						// RA_ENHANCE: survival's waves.
 #endif
 
 	/*

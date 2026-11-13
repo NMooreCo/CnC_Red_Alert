@@ -119,21 +119,43 @@ UDPInterfaceClass::~UDPInterfaceClass (void)
 void UDPInterfaceClass::Set_Broadcast_Address (void *address)
 {
 	char* ip_addr = (char*) address;
-	assert ( strlen (ip_addr) <= strlen ( "xxx.xxx.xxx.xxx" ) );
-
-	unsigned char *baddr = new unsigned char[4];
 
 #ifdef RA_PORT
 	/*
-	**	(The original scanned with %d straight into these bytes, writing past the end.)
+	**	RA_PORT: the address can be a name, and have a port (HOST:PORT): a game can then be
+	**	reached over the internet. Kept as the IPv4 address, then the port in network order (0:
+	**	the game's port). (The original scanned with %d straight into these bytes, writing past
+	**	the end.)
 	*/
+	char host[128];
+	strncpy(host, ip_addr, sizeof(host)-1);
+	host[sizeof(host)-1] = '\0';
+	unsigned short port = 0;
+	char * colon = strchr(host, ':');
+	if (colon != NULL) {
+		*colon = '\0';
+		port = htons((unsigned short)atoi(colon+1));
+	}
+
 	unsigned int b0 = 0, b1 = 0, b2 = 0, b3 = 0;
-	sscanf ( ip_addr, "%u.%u.%u.%u", &b0, &b1, &b2, &b3 );
+	if (sscanf ( host, "%u.%u.%u.%u", &b0, &b1, &b2, &b3 ) != 4) {
+		struct hostent * entry = gethostbyname(host);
+		if (entry == NULL || entry->h_addr_list == NULL || entry->h_addr_list[0] == NULL) return;
+		unsigned char const * found = (unsigned char const *)entry->h_addr_list[0];
+		b0 = found[0]; b1 = found[1]; b2 = found[2]; b3 = found[3];
+	}
+
+	unsigned char *baddr = new unsigned char[6];
 	baddr[0] = (unsigned char)b0;
 	baddr[1] = (unsigned char)b1;
 	baddr[2] = (unsigned char)b2;
 	baddr[3] = (unsigned char)b3;
+	memcpy(baddr+4, &port, 2);
 #else
+	assert ( strlen (ip_addr) <= strlen ( "xxx.xxx.xxx.xxx" ) );
+
+	unsigned char *baddr = new unsigned char[4];
+
 	sscanf ( ip_addr, "%d.%d.%d.%d", &baddr[0], &baddr[1], &baddr[2], &baddr[3] );
 #endif
 	BroadcastAddresses.Add (baddr);
@@ -307,6 +329,9 @@ void UDPInterfaceClass::Broadcast (void *buffer, int buffer_len)
 		*/
 		memset (packet->Address, 0, sizeof (packet->Address));
 		memcpy (packet->Address+4, BroadcastAddresses[i], 4);
+#ifdef RA_PORT
+		memcpy (packet->Address+8, BroadcastAddresses[i]+4, 2);		// RA_PORT: and its port.
+#endif
 
 		/*
 		** Add it to our out list.
@@ -391,9 +416,21 @@ int UDPInterfaceClass::Message_Handler(HWND, UINT message, UINT, LONG lParam)
 				/*
 				** Make sure this packet didn't come from us. If it did then throw it away.
 				*/
+#ifdef RA_PORT
+				/*
+				**	RA_PORT: (from another copy of the game on this computer, using another port, it
+				**	is kept).
+				*/
+				if (ntohs(addr.sin_port) == (unsigned short)PlanetWestwoodPortNumber) {
+					for ( int i=0 ; i<LocalAddresses.Count() ; i++ ) {
+						if ( ! memcmp (LocalAddresses[i], &addr.sin_addr.s_addr, 4) ) return (0);
+					}
+				}
+#else
 				for ( int i=0 ; i<LocalAddresses.Count() ; i++ ) {
 					if ( ! memcmp (LocalAddresses[i], &addr.sin_addr.s_addr, 4) ) return (0);
 				}
+#endif
 
 				/*
 				** Create a new buffer and store this packet in it.
@@ -403,6 +440,13 @@ int UDPInterfaceClass::Message_Handler(HWND, UINT message, UINT, LONG lParam)
 				memcpy ( packet->Buffer, ReceiveBuffer, rc );
 				memset ( packet->Address, 0, sizeof (packet->Address) );
 				memcpy ( packet->Address+4, &addr.sin_addr.s_addr, 4 );
+#ifdef RA_PORT
+				/*
+				**	RA_PORT: and the port it came from, to answer to: over the internet, a router
+				**	in between may have changed it.
+				*/
+				memcpy ( packet->Address+8, &addr.sin_port, 2 );
+#endif
 				InBuffers.Add (packet);
 			}
 			return (0);
@@ -439,6 +483,11 @@ int UDPInterfaceClass::Message_Handler(HWND, UINT message, UINT, LONG lParam)
 			addr.sin_family = AF_INET;
 			addr.sin_port = (unsigned short) htons ((unsigned short)PlanetWestwoodPortNumber);
 			memcpy (&addr.sin_addr.s_addr, packet->Address+4, 4);
+#ifdef RA_PORT
+			if (packet->Address[8] != 0 || packet->Address[9] != 0) {
+				memcpy (&addr.sin_port, packet->Address+8, 2);		// RA_PORT: the address's own port.
+			}
+#endif
 
 			/*
 			** Send it.
@@ -451,6 +500,15 @@ int UDPInterfaceClass::Message_Handler(HWND, UINT message, UINT, LONG lParam)
 			if (rc == SOCKET_ERROR){
 				if (WSAGetLastError() != WSAEWOULDBLOCK) {
 					Clear_Socket_Error (Socket);
+#ifdef RA_PORT
+					/*
+					**	RA_PORT: a packet that can't be sent (to an address that can't be reached) is
+					**	dropped: it was left at the head of the queue, and tried again and again,
+					**	which stopped every other packet.
+					*/
+					OutBuffers.Delete ( packetnum );
+					delete packet;
+#endif
 					return (0);
 				}
 			}

@@ -273,6 +273,13 @@ static void Put_All(Pipe & pipe, int save_net)
 		Save_MPlayer_Values(pipe);
 	}
 
+#ifdef RA_ENHANCE
+	/*
+	**	RA_ENHANCE: the enhancements' state, after all of the original's.
+	*/
+	Enhance_Save(pipe);
+#endif
+
 	pipe.Flush();
 }
 
@@ -768,6 +775,10 @@ bool Load_Game(int id)
 		Load_MPlayer_Values(straw);
 	}
 
+#ifdef RA_ENHANCE
+	Enhance_Load(straw);		// RA_ENHANCE: the enhancements' state, if the game has it.
+#endif
+
 	file.Close();
 	Decode_All_Pointers();
 	Map.Init_IO();
@@ -988,6 +999,7 @@ if(Special.IsFromWChat || SpawnedFromWChat) {
 	}
 #ifdef RA_ENHANCE
 	Enhancements_Start_Scenario();		// RA_ENHANCE
+	Enhancements_Restore();
 #endif
 	return(true);
 }

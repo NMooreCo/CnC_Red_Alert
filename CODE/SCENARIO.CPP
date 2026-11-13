@@ -310,6 +310,9 @@ bool Start_Scenario(char * name, bool briefing)
 //BG	Theme.Queue_Song(THEME_QUIET);
 Theme.Stop();
 	IsTanyaDead = SaveTanya;
+#ifdef RA_ENHANCE
+	Survival_Prepare();		// RA_ENHANCE: before the scenario's forces are made.
+#endif
 	if (!Read_Scenario(name)) {
 		return(false);
 	}
@@ -2995,6 +2998,13 @@ static void Create_Units(bool official)
 		**	Assign the center of this house to the waypoint location.
 		*/
 		hptr->Center = Cell_Coord(centroid);
+
+#ifdef RA_ENHANCE
+		/*
+		**	RA_ENHANCE: in survival, the computer players get no forces; they send waves.
+		*/
+		if (Survival_Is_Enemy(hptr)) continue;
+#endif
 
 		/*
 		**	If Bases are ON, human & computer houses are treated differently

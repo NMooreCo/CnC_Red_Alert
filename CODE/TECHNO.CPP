@@ -4739,6 +4739,9 @@ void TechnoClass::Base_Is_Attacked(TechnoClass const * enemy)
 			*/
 			if (!infantry->Is_Weapon_Equipped() ||
 					(!MissionControl[infantry->Mission].IsRecruitable && Session.Type == GAME_NORMAL)) continue;
+#ifdef RA_ENHANCE
+			if (Smart_AI_Is_Away(infantry)) continue;		// RA_ENHANCE: off on an attack.
+#endif
 //					(Mission != MISSION_GUARD_AREA || Session.Type == GAME_NORMAL)) continue;
 
 			/*
@@ -4824,6 +4827,9 @@ void TechnoClass::Base_Is_Attacked(TechnoClass const * enemy)
 			*/
 			if (!unit->Is_Weapon_Equipped() ||
 				(!MissionControl[unit->Mission].IsRecruitable && Session.Type == GAME_NORMAL)) continue;
+#ifdef RA_ENHANCE
+			if (Smart_AI_Is_Away(unit)) continue;		// RA_ENHANCE: off on an attack.
+#endif
 
 			/*
 			**	Don't allow a response if it doesn't have a weapon that will affect the

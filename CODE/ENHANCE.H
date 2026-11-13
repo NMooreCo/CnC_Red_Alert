@@ -33,7 +33,30 @@ enum {
 	TXT_ENH_ARTILLERY = TXT_ENH_FIRST,
 	TXT_ENH_BOMBARDMENT,
 	TXT_ENH_AIRDROP,
+	TXT_ENH_SURVIVAL,
+	TXT_ENH_SURVIVAL_START,
+	TXT_ENH_SURVIVAL_ENDLESS,
+	TXT_ENH_WAVE,
+	TXT_ENH_WAVE_ENDLESS,
+	TXT_ENH_FINAL_WAVE,
+	TXT_ENH_CONNECT_HINT,
+	TXT_ENH_CONNECTING,
+	TXT_ENH_COOP,
 	TXT_ENH_LAST
+};
+
+/*
+**	The enhancements that change the rules, as the host of a network game sends them
+**	(EnhancementsClass::NetFlags).
+*/
+enum {
+	NET_ENH_VETERANCY = 0x01,
+	NET_ENH_SUPPORT_POWERS = 0x02,
+	NET_ENH_ATTACK_MOVE = 0x04,
+	NET_ENH_SMART_AI = 0x08,
+	NET_ENH_SHARED_TECH = 0x10,
+	NET_ENH_SURVIVAL = 0x20,
+	NET_ENH_COOP = 0x40
 };
 
 class EnhancementsClass
@@ -47,6 +70,7 @@ class EnhancementsClass
 		bool Veterancy;			// Units earn ranks from their kills.
 		bool BuildQueue;			// Queue up units at each factory from the sidebar.
 		bool SharedTech;			// Skirmish: both sides can build everything.
+		bool SmartAI;				// Skirmish: the smarter computer players (SMARTAI.CPP).
 		bool SupportPowers;		// Artillery barrage, naval bombardment, Chinook reinforcements.
 		bool AttackMove;			// <CTRL><SHIFT> (or <CTRL><ALT>) click on the ground.
 		bool ModernMouse;			// The left button selects, the right one gives orders.
@@ -89,6 +113,15 @@ class EnhancementsClass
 		fixed	AirdropTime;
 		int	AirdropInfantry;		// Soldiers the Chinook brings (every third one has a rocket launcher).
 
+		/*
+		**	Survival tuning: RULES.INI [Survival].
+		*/
+		fixed	SurvivalFirst;			// Minutes before the first wave,
+		fixed	SurvivalInterval;		// and between waves.
+		int	SurvivalWaves;			// Waves to survive (0: no end).
+		int	SurvivalWorth;			// Worth (cost) of the first wave's forces,
+		int	SurvivalGrowth;		// and more for each wave after it (every fifth wave half as much again).
+
 		void	Load_Settings(INIClass const & ini);
 		void	Save_Settings(INIClass & ini) const;
 		void	Reset_Rules(void);
@@ -96,14 +129,31 @@ class EnhancementsClass
 		void	Adjust_Objects(void);
 
 		/*
-		**	Is the enhancement in effect in this game? Those that change the game rules apply to
-		**	campaign and skirmish games: every player in a network game would have to have the
-		**	same ones, so they are off there for now.
+		**	Network games: every player's game has to make exactly the same moves, so all of them
+		**	play by the host's choice of the enhancements that change the rules. The host sends it
+		**	with the game's options (NETDLG.CPP), and it is kept here.
 		*/
-		bool	Is_Veterancy(void) const {return(Veterancy && Rules_Apply());}
-		bool	Is_Shared_Tech(void) const {return(SharedTech && Session.Type == GAME_SKIRMISH);}
-		bool	Is_Support_Powers(void) const {return(SupportPowers && Rules_Apply());}
-		bool	Is_Attack_Move(void) const {return(AttackMove && Rules_Apply());}
+		unsigned NetFlags;
+		unsigned Net_Flags(void) const;			// The host's own choice, to send.
+
+		/*
+		**	Games over the internet: the address last asked for with /connect, and the port
+		**	for network games (REDALERT.INI [Network]).
+		*/
+		char	NetConnect[64];
+		int	NetPort;
+		void	Net_Set(unsigned flags) {NetFlags = flags;}	// The choice for the game, as received.
+
+		/*
+		**	Is the enhancement in effect in this game? The player's choice in campaign and
+		**	skirmish games, the host's in network games.
+		*/
+		bool	Is_Veterancy(void) const {return(Is_Network() ? (NetFlags & NET_ENH_VETERANCY) != 0 : Veterancy && Rules_Apply());}
+		bool	Is_Shared_Tech(void) const {return(Is_Network() ? (NetFlags & NET_ENH_SHARED_TECH) != 0 : SharedTech && Session.Type == GAME_SKIRMISH);}
+		bool	Is_Smart_AI(void) const {return(Is_Network() ? (NetFlags & NET_ENH_SMART_AI) != 0 : SmartAI && Session.Type == GAME_SKIRMISH);}
+		bool	Is_Support_Powers(void) const {return(Is_Network() ? (NetFlags & NET_ENH_SUPPORT_POWERS) != 0 : SupportPowers && Rules_Apply());}
+		bool	Is_Attack_Move(void) const {return(Is_Network() ? (NetFlags & NET_ENH_ATTACK_MOVE) != 0 : AttackMove && Rules_Apply());}
+		bool	Is_Network(void) const {return(Session.Type != GAME_NORMAL && Session.Type != GAME_SKIRMISH);}
 
 	private:
 		bool	Rules_Apply(void) const;
@@ -126,6 +176,11 @@ extern int	Mouse_Wheel_Left;
 */
 extern char const * Mod_Path;		// "mods/NAME/", or NULL.
 void	Mod_Select(int argc, char * argv[]);
+
+/*
+**	Network games over the internet: the lobby's /connect command (NETDLG.CPP).
+*/
+bool	Net_Connect_Command(char const * text);
 void	Mod_Register_Mixfiles(void);
 bool	Mod_File_Name(char const * filename, char * path, int size);
 
@@ -152,7 +207,51 @@ bool	Modern_Mouse_Order(ActionType action);
 **	Attack-move.
 */
 void	Attack_Move_Order(FootClass * unit, bool attack_move);
+void	Attack_Move_Set(FootClass * unit, bool attack_move);
 bool	Is_Attack_Moving(FootClass const * unit);
+
+/*
+**	An object is gone (TRACKER.CPP, Detach_This_From_All).
+*/
+void	Enhance_Detach(TARGET target, bool all);
+
+/*
+**	The smarter computer players (SMARTAI.CPP), hooked into the original's (HOUSE.CPP).
+*/
+bool	Smart_AI_Is(HouseClass const * house);
+void	Smart_AI(HouseClass * house);
+bool	Smart_AI_Unit(HouseClass * house);
+bool	Smart_AI_Infantry(HouseClass * house);
+bool	Smart_AI_Vessel(HouseClass * house);
+bool	Smart_AI_Buildings(HouseClass * house, int money, bool hasincome);
+bool	Smart_AI_Is_Away(FootClass const * unit);
+void	Smart_AI_Harvester_Attacked(UnitClass const * harvester, TechnoClass const * source);
+void	Smart_AI_Detach(TARGET target);
+void	Smart_AI_Clear(void);
+void	Smart_AI_Save(Pipe & pipe);
+void	Smart_AI_Restore(void);
+
+/*
+**	Survival, an option of skirmish games (SURVIVAL.CPP).
+*/
+extern bool Survival_Chosen;
+extern bool Coop_Chosen;			// Network games: the players against the computer players (NETDLG.CPP).
+bool	Survival_Is_On(void);
+bool	Survival_Is_Enemy(HouseClass const * house);
+void	Survival_Prepare(void);
+void	Survival_Start(void);
+void	Survival_AI(void);
+void	Survival_Save(Pipe & pipe);
+void	Survival_Restore(void);
+
+/*
+**	The enhancements' state in saved games: after the original's data (SAVELOAD.CPP).
+*/
+void	Enhance_Save(Pipe & pipe);
+void	Enhance_Load(Straw & straw);
+void	Enhancements_Restore(void);
+void	Enhance_Save_Block(Pipe & pipe, char const * name, void const * data, int size);
+void const * Enhance_Loaded_Block(char const * name, int size);
 
 /*
 **	Build queue (the sidebar).

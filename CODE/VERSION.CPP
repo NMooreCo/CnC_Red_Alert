@@ -46,7 +46,15 @@
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 #ifndef GAME_VERSION
+#ifdef RA_ENHANCE
+/*
+**	RA_ENHANCE: the host of a network game sends its enhancements with the game's options,
+**	which earlier versions wouldn't take: they can't play with this one.
+*/
+#define GAME_VERSION	0x00030100
+#else
 #define GAME_VERSION	0x00030003		// Red Alert 3.03 (from RAWOLAPI.H)
+#endif
 #endif
 #include "FUNCTION.H"
 

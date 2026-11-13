@@ -103,6 +103,10 @@ void Detach_This_From_All(TARGET target, bool all)
 
 		ChronalVortex.Detach(target);
 
+#ifdef RA_ENHANCE
+		Enhance_Detach(target, all);		// RA_ENHANCE: the enhancements' lists of units.
+#endif
+
 		/*
 		**	Removing a trigger type must also remove all triggers that are dependant
 		**	upon that type.

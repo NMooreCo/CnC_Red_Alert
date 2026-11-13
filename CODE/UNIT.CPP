@@ -992,6 +992,12 @@ ResultType UnitClass::Take_Damage(int & damage, int distance, WarheadType warhea
 
 	ResultType res = RESULT_NONE;
 
+#ifdef RA_ENHANCE
+	if (source != NULL && Class->IsToHarvest) {
+		Smart_AI_Harvester_Attacked(this, source);		// RA_ENHANCE: the smarter computer player defends it.
+	}
+#endif
+
 	/*
 	**	Remember if this object was selected. If it was and it gets destroyed and it has
 	**	passengers that pop out, then the passengers will inherit the select state.

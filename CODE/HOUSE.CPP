@@ -1241,6 +1241,9 @@ void HouseClass::AI(void)
 	*/
 	if (Session.Type != GAME_NORMAL && !IsDefeated &&
 		!ActiveBScan && !ActiveAScan && !UScan && !ActiveIScan && !ActiveVScan && Frame > 0) {
+#ifdef RA_ENHANCE
+		if (!Survival_Is_Enemy(this))		// RA_ENHANCE: survival's waves have nothing between them.
+#endif
 		MPlayer_Defeated();
 	}
 
@@ -1332,6 +1335,9 @@ void HouseClass::AI(void)
 	AI_Vessel();
 	AI_Infantry();
 	AI_Aircraft();
+#ifdef RA_ENHANCE
+	Smart_AI(this);		// RA_ENHANCE: the smarter computer player (SMARTAI.CPP).
+#endif
 
 
 	/*
@@ -4968,6 +4974,10 @@ UrgencyType HouseClass::Check_Attack(void) const
 {
 	assert(Houses.ID(this) == ID);
 
+#ifdef RA_ENHANCE
+	if (Smart_AI_Is(this)) return(URGENCY_NONE);		// RA_ENHANCE: it attacks in waves of its own.
+#endif
+
 	if (Frame > TICKS_PER_MINUTE && Attack == 0) {
 		if (State == STATE_ATTACKED) {
 			return(URGENCY_LOW);
@@ -5027,6 +5037,14 @@ UrgencyType HouseClass::Check_Build_Engineer(void) const
 UrgencyType HouseClass::Check_Raise_Money(void) const
 {
 	assert(Houses.ID(this) == ID);
+
+#ifdef RA_ENHANCE
+	/*
+	**	RA_ENHANCE: the smarter computer player spends its money as it comes in; while it has an
+	**	income, that isn't an emergency (this would have it sell its technology center).
+	*/
+	if (Smart_AI_Is(this) && Can_Make_Money()) return(URGENCY_NONE);
+#endif
 
 	UrgencyType urgency = URGENCY_NONE;
 	if (Available_Money() < 100) {
@@ -5772,6 +5790,15 @@ int HouseClass::AI_Building(void)
 		}
 #endif
 
+#ifdef RA_ENHANCE
+		/*
+		**	RA_ENHANCE: the smarter computer player adds its own choices, and picks.
+		*/
+		if (Smart_AI_Buildings(this, money, hasincome)) {
+			return(TICKS_PER_SECOND);
+		}
+#endif
+
 		/*
 		**	Pick the choice that is the most urgent.
 		*/
@@ -5812,6 +5839,9 @@ int HouseClass::AI_Unit(void)
 
 	if (BuildUnit != UNIT_NONE) return(TICKS_PER_SECOND);
 	if (CurUnits >= Control.MaxUnit) return(TICKS_PER_SECOND);
+#ifdef RA_ENHANCE
+	if (Smart_AI_Unit(this)) return(TICKS_PER_SECOND);		// RA_ENHANCE: the smarter computer player picks.
+#endif
 
 	/*
 	**	A computer controlled house will try to build a replacement
@@ -5947,6 +5977,9 @@ int HouseClass::AI_Vessel(void)
 	if (CurVessels >= Control.MaxVessel) {
 		return(TICKS_PER_SECOND);
 	}
+#ifdef RA_ENHANCE
+	if (Smart_AI_Vessel(this)) return(TICKS_PER_SECOND);		// RA_ENHANCE: the smarter computer player picks.
+#endif
 
 	if (Session.Type == GAME_NORMAL) {
 
@@ -6068,6 +6101,9 @@ int HouseClass::AI_Infantry(void)
 
 	if (BuildInfantry != INFANTRY_NONE) return(TICKS_PER_SECOND);
 	if (CurInfantry >= Control.MaxInfantry) return(TICKS_PER_SECOND);
+#ifdef RA_ENHANCE
+	if (Smart_AI_Infantry(this)) return(TICKS_PER_SECOND);		// RA_ENHANCE: the smarter computer player picks.
+#endif
 
 	if (Session.Type == GAME_NORMAL) {
 		TechnoTypeClass const * techno = 0;

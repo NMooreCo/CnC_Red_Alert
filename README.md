@@ -215,34 +215,56 @@ it; the game's messages then appear in that window):
 | `RA_ASPECT=1` | Stretch 640x400 to 4:3, as a CRT monitor showed it. |
 | `RA_NO_SOUND=1` | Disable sound. |
 | `RA_NO_MOUSE_GRAB=1` | Don't keep the mouse in the game's window while the game is active (it does by default, as the original did, so that the map scrolls when the mouse reaches the window's edges). |
-| `RA_LAN_BROADCAST=a.b.c.d` | Broadcast address(es) for LAN games, comma separated (default 255.255.255.255). |
+| `RA_LAN_BROADCAST=a.b.c.d` | Broadcast address(es) for LAN games, comma separated (default 255.255.255.255). An address can also be a name, and have a port (`host:port`). |
+| `RA_LAN_PORT=n` | The UDP port for network games (default 1234, or `Port=` in `REDALERT.INI`'s `[Network]` section). |
 | `RA_DEBUG=1` | Print the game's debug messages to the console. |
 | `RA_NO_MESSAGEBOX=1` | Don't show system message boxes (start-up errors and warnings); take their default answer. For automated runs. |
 | `RA_SCREENSHOT=file.bmp` | Save one screenshot, `RA_SCREENSHOT_DELAY` milliseconds after start. |
 | `RA_EXTRACT=NAME,...` | Copy the named files out of the MIX archives into the data directory (or `RA_EXTRACT_DIR`), then exit. See Modding. |
 
-## LAN games
+## LAN and internet games
 
 Novell IPX, which the original used for network games, no longer exists, so "Network"
 games use UDP broadcasts on port 1234 instead (the original code had this as an unused
 option). Players on the same local network see each other's games in the lobby.
+
+Over the internet, the host lets UDP port 1234 through to their computer (a port forward
+on their router). The others type `/connect` and the host's address in the message line at
+the bottom of the lobby, then <kbd>Enter</kbd> (`/connect 203.0.113.7`, or
+`/connect host.example.net:1234`): the host's game appears in the list, to join as usual.
+The address is remembered for the next time (`REDALERT.INI`, `[Network]` section,
+`Connect=`); `Port=` there (or `RA_LAN_PORT`) changes the port. Everyone needs the same
+version of the game: earlier versions can't join this one.
 
 ## Enhancements
 
 Optional additions that the original game didn't have. Each one is off until you turn it
 on, so by default the game plays as it always did: in a mission, open **Options**, **Game
 Controls**, **Enhancements** (or set them in `REDALERT.INI`, section `[Enhancements]`).
-Those that change the game rules apply to campaign and skirmish games; network games use
-the original rules for now, as every player would need the same ones.
+In network games, every player's game must make exactly the same moves, so the host's
+choice of those that change the rules (veterancy, support powers, attack-move, smarter
+computer players, shared tech) applies to everyone: the host sends it with the game's
+options.
 
 Conveniences that don't change the game are always on: the mouse wheel scrolls the
 sidebar column under the pointer, and lists in dialogs.
+
+**Survival** is an option of skirmish and network games (in the list with Bases,
+Crates...): the computer players get no base. Instead, every two minutes, each sends a wave
+of forces, bigger each time (every fifth one bigger still), from one of the start positions
+no player took, to hunt yours down. The mission timer at the top counts down to the next
+wave. Hold out against 20 waves and destroy the last, and you win. More computer players
+make more waves. In a network game, the players are allies against the waves.
+
+**Co-op** is an option of network games: the players start allied with each other, against
+the computer players (allied with each other too).
 
 | Enhancement | `REDALERT.INI` | What it does |
 | --- | --- | --- |
 | Veterancy | `Veterancy=yes` | Units earn ranks from their kills: veteran after 3, elite after 7. A veteran deals 20% more damage, takes 20% less and fires 10% faster; an elite unit deals 40% more, takes 35% less, fires 25% faster and repairs itself. Selected units show their rank as chevrons above the health bar. Westwood started on this: every unit has a kill counter ("When it reaches a certain point, the unit improves", `CODE/CREW.H`), but the original game credited each kill to the victim and never used the count. |
 | Build queue | `BuildQueue=yes` | Click a unit in the sidebar while its factory is busy to queue it, up to 9 for each kind of factory (infantry, vehicles, ships, aircraft); the cameo shows how many more are waiting ("+2"). Each one starts when the factory is free, just as if you clicked on it then, so this works in network games too. Right-click takes one off the queue; with none queued, it holds or cancels the one being built, as before. The queue isn't kept in saved games. |
 | Shared tech | `SharedTech=yes` | In skirmish games, every side can build the units and buildings of both the Allies and the Soviets, and the computer players use them too. (The units that only appear in missions, such as Einstein or the hospital, can't be made buildable: the game has no sidebar pictures for them.) |
+| Smarter computer players | `SmartAI=yes` | In skirmish games, the computer players gather their forces and attack together, in waves, when they outweigh the enemy's forces and the defenses around the target (by as much as their personality dares): at the building most worth destroying and least defended (refineries, power plants, factories), with attack-move, on to the next one, and back home to join the next wave when beaten. They raid harvesters out in the field with fast vehicles; build a mix of units against what the enemy has (anti-tank, anti-infantry, anti-aircraft, artillery against defenses); build more harvesters, up to four refineries, a radar dome early (the original only built one against aircraft, and the technology centers, helipads and airfields need it), a service depot (where they send their damaged vehicles), a navy when the enemy can be reached by sea, and the super weapons, using the iron curtain and the chronosphere on their tanks; and they rebuild a lost construction yard. Each has a personality: balanced, rusher (attacks early and often, more infantry), turtle (more defenses, bigger attacks later) or armored (more tanks). |
 | Support powers | `SupportPowers=yes` | Three more special weapons in the sidebar, charged and aimed like the original ones: an artillery barrage (8 shells around the target; it needs a radar dome and a war factory, and recharges in 5 minutes), a naval bombardment from off the map (6 heavy shells; a radar dome and a naval yard or sub pen; 8 minutes) and Chinook reinforcements (a Chinook flies in, lands near the target and lets out five soldiers; a helipad and barracks; 6 minutes). The computer players use them too. |
 | Attack-move | `AttackMove=yes` | Select units and hold <kbd>Ctrl</kbd>+<kbd>Shift</kbd> (as in later games) or <kbd>Ctrl</kbd>+<kbd>Alt</kbd> while you click on the ground: they move there, taking on the enemies they meet on the way, and then guard the place. (The original showed the guard area pointer for <kbd>Ctrl</kbd>+<kbd>Alt</kbd> over the ground, but nothing happened when you clicked.) |
 | Modern mouse | `ModernMouse=yes` | The right mouse button gives the selected units the order that the pointer shows (move, attack, enter, deploy...), as in later games, and the left button only selects; on the ground it unselects. Placing buildings, repairing, selling and aiming special weapons work as before. As it only changes how orders are given, it works in network games too. |
@@ -275,14 +297,23 @@ BombardmentDamage=400
 BombardmentSpread=3
 AirdropTime=6
 AirdropInfantry=5       ; soldiers in the Chinook (every third one with a rocket launcher)
+
+[Survival]
+FirstWave=3             ; minutes before the first wave
+WaveInterval=2          ; minutes between waves
+Waves=20                ; waves to survive (0: no end)
+WaveWorth=1000          ; worth (cost) of the first wave's forces
+WaveGrowth=600          ; and more for each wave after it (every fifth one half as much again)
 ```
 
-Saved games keep the enhancements' state with the rest of the game, except for the build
-queue and shells still in the air. A version that adds to what is saved can't load the
-games saved by earlier versions (as with the original game's patches): the support
-powers did. With mission select, you can start again at the mission you were playing.
+Saved games keep the enhancements' state with the rest of the game. Most of it is saved
+after the original's data, so that games saved by an earlier version still load; a change
+to the original's data can't be made that way, and the support powers made one, so games
+saved before them can't be loaded (as with the original game's patches). With mission
+select, you can start again at the mission you were playing.
 
-The code is in `CODE/ENHANCE.CPP`, and the original code that calls into it is marked
+The code is in `CODE/ENHANCE.CPP` (`CODE/SMARTAI.CPP` for the computer players,
+`CODE/SURVIVAL.CPP` for survival), and the original code that calls into it is marked
 `RA_ENHANCE`. Build with `-DRA_ENHANCEMENTS=OFF` to leave all of it out.
 
 ## Modding
