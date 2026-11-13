@@ -31,6 +31,9 @@
 #include "dsound.h"
 
 #include <SDL.h>
+#ifdef __EMSCRIPTEN__
+extern "C" void Win32_Web_Poll(void);		// compat/win32.cpp
+#endif
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
@@ -111,6 +114,9 @@ class SDLSoundBuffer : public IDirectSoundBuffer
 
 		virtual HRESULT GetCurrentPosition(LPDWORD play_cursor, LPDWORD write_cursor)
 		{
+#ifdef __EMSCRIPTEN__
+			Win32_Web_Poll();		// In a browser the sound plays only while the page runs.
+#endif
 			if (IsPrimary || Data.empty()) {
 				if (play_cursor) *play_cursor = 0;
 				if (write_cursor) *write_cursor = 0;
@@ -409,7 +415,11 @@ HRESULT DirectSoundCreate(void * , LPDIRECTSOUND * ds, void * )
 		want.freq = 44100;
 		want.format = AUDIO_S16SYS;
 		want.channels = 2;
+#ifdef __EMSCRIPTEN__
+		want.samples = 4096;		// In a browser the mixer runs only when the game lets the page run.
+#else
 		want.samples = 1024;
+#endif
 		want.callback = Mix_Callback;
 		Device = SDL_OpenAudioDevice(NULL, 0, &want, &have, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE);
 		if (Device == 0) {

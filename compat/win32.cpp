@@ -39,6 +39,9 @@
 #include "win32_internal.h"
 
 #include <SDL.h>
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
 
 #include <deque>
 #include <string>
@@ -1086,15 +1089,24 @@ extern "C" void OutputDebugString(LPCSTR text)
 extern "C" void Sleep(DWORD milliseconds)
 {
 	SDL_Delay(milliseconds);
+#ifdef __EMSCRIPTEN__
+	Win32_Web_Poll();			// Time has passed for the timers too (the game checks they tick).
+#endif
 }
 
 extern "C" DWORD GetTickCount(void)
 {
+#ifdef __EMSCRIPTEN__
+	Win32_Web_Poll();			// A loop that waits on the time lets the page run.
+#endif
 	return((DWORD)SDL_GetTicks());
 }
 
 extern "C" DWORD timeGetTime(void)
 {
+#ifdef __EMSCRIPTEN__
+	Win32_Web_Poll();
+#endif
 	return((DWORD)SDL_GetTicks());
 }
 
@@ -1159,9 +1171,69 @@ struct MMTimer {
 	SDL_atomic_t	Running;		// The callback is running (on SDL's timer thread).
 	SDL_atomic_t	Killed;		// timeKillEvent() was called: don't call back any more.
 	SDL_threadID	Thread;		// Thread the callback runs on.
+	Uint32			Next;			// In a browser: when it's next due (SDL_GetTicks).
 };
 static std::vector<MMTimer *> Timers;
 static SDL_mutex * TimerLock = NULL;
+
+#ifdef __EMSCRIPTEN__
+/*
+**	A browser has no threads for SDL's timers to run on. The callbacks are called as the
+**	events are pumped instead, once for each period that has passed (the system timer
+**	counts its calls), on the one thread there is.
+*/
+static UINT NextTimerID = 1;
+
+static void Poll_Timers(void)
+{
+	static bool polling = false;
+	if (polling) return;				// A callback that pumps the events.
+	polling = true;
+	std::vector<MMTimer *> timers = Timers;		// A callback can start or kill timers.
+	Uint32 now = SDL_GetTicks();
+	for (size_t i = 0; i < timers.size(); i++) {
+		MMTimer * timer = timers[i];
+		int calls = 0;
+		while (!SDL_AtomicGet(&timer->Killed) && (Sint32)(now - timer->Next) >= 0) {
+			if (++calls > 60) {			// Far behind (the page was hidden): catch up at once.
+				timer->Next = now + timer->Delay;
+				break;
+			}
+			timer->Next += timer->Delay;
+			timer->Callback((UINT)timer->ID, 0, timer->User, 0, 0);
+			if (!timer->Periodic) {
+				SDL_AtomicSet(&timer->Killed, 1);
+			}
+		}
+	}
+	polling = false;
+}
+
+/*
+**	In a browser: called wherever the game waits or reads the time (the event pump, Sleep,
+**	the timers' tick counts, the sound's play position). The timers are called from here,
+**	and the page gets to run (draw the canvas, take input, play sound) every 10 milliseconds
+**	or so: the game never returns to the browser by itself, so emscripten_sleep (Asyncify)
+**	unwinds to it and comes back. Not from code the page runs meanwhile (the sound mixer).
+*/
+EM_JS(int, Web_Asleep, (), {
+	return Asyncify.currData ? 1 : 0;		// The game is waiting in emscripten_sleep (SDL_Delay's too).
+});
+
+extern "C" void Win32_Web_Poll(void)
+{
+	static bool yielding = false;
+	static Uint32 last_yield = 0;
+	if (yielding || Web_Asleep()) return;
+	Poll_Timers();
+	if (SDL_GetTicks() - last_yield >= 10) {
+		yielding = true;
+		emscripten_sleep(0);
+		yielding = false;
+		last_yield = SDL_GetTicks();
+	}
+}
+#endif
 
 static Uint32 SDLCALL MM_Timer_Thunk(Uint32 interval, void * param)
 {
@@ -1189,11 +1261,16 @@ extern "C" UINT timeSetEvent(UINT delay, UINT , LPTIMECALLBACK callback, DWORD u
 	SDL_AtomicSet(&timer->Running, 0);
 	SDL_AtomicSet(&timer->Killed, 0);
 	timer->Thread = 0;
+#ifdef __EMSCRIPTEN__
+	timer->ID = (SDL_TimerID)NextTimerID++;		// Called by Poll_Timers.
+	timer->Next = SDL_GetTicks() + timer->Delay;
+#else
 	timer->ID = SDL_AddTimer(timer->Delay, MM_Timer_Thunk, timer);
 	if (timer->ID == 0) {
 		delete timer;
 		return(0);
 	}
+#endif
 	SDL_LockMutex(TimerLock);
 	Timers.push_back(timer);
 	SDL_UnlockMutex(TimerLock);
@@ -1208,7 +1285,9 @@ extern "C" MMRESULT timeKillEvent(UINT id)
 		if ((UINT)Timers[i]->ID == id) {
 			MMTimer * timer = Timers[i];
 			SDL_AtomicSet(&timer->Killed, 1);
+#ifndef __EMSCRIPTEN__
 			SDL_RemoveTimer(timer->ID);
+#endif
 			Timers.erase(Timers.begin() + i);
 			SDL_UnlockMutex(TimerLock);
 

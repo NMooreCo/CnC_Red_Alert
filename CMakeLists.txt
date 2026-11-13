@@ -17,7 +17,8 @@
 #
 
 #
-#	Modern build of Red Alert (Win95 code path) for 64-bit Linux/macOS/Windows with SDL2.
+#	Modern build of Red Alert (Win95 code path) for 64-bit Linux/macOS/Windows with SDL2,
+#	and for web browsers with Emscripten (emcmake cmake ...; see web/README.md).
 #
 #	The original game was built with Watcom C/C++ 10.6 and Borland TASM (see CODE/MAKEFILE).
 #	This build replaces the assembly language with C++ and DirectX/Win32 with SDL2.
@@ -43,7 +44,17 @@ option(RA_SANITIZE "Build with AddressSanitizer/UBSan (debugging)" OFF)
 option(RA_ENHANCEMENTS "Build in the optional gameplay enhancements (veterancy...); each is off until the player turns it on" ON)
 option(RA_DEVELOPER "Build in Westwood's scenario editor and developer keys (-editor, -cheats on the command line)" ON)
 
-find_package(SDL2 REQUIRED)
+if(EMSCRIPTEN)
+	# The browser build (web/README.md): Emscripten's own SDL2 (its "port", -sUSE_SDL=2).
+	add_library(SDL2::SDL2 INTERFACE IMPORTED)
+	set_target_properties(SDL2::SDL2 PROPERTIES
+		INTERFACE_COMPILE_OPTIONS "-sUSE_SDL=2"
+		INTERFACE_COMPILE_DEFINITIONS SDL_MAIN_HANDLED		# The game's main() is the program's.
+		INTERFACE_LINK_OPTIONS "-sUSE_SDL=2")
+	add_library(SDL2::SDL2main INTERFACE IMPORTED)
+else()
+	find_package(SDL2 REQUIRED)
+endif()
 
 #---------------------------------------------------------------------------
 # Common compile settings shared by all targets.
@@ -313,6 +324,27 @@ if(WIN32)
 		# Link the C and C++ runtime in, so that the program only needs SDL2.dll next to it.
 		target_link_options(redalert PRIVATE -static)
 	endif()
+elseif(EMSCRIPTEN)
+	# The browser build: redalert.js and redalert.wasm, started by web/index.html once the
+	# game data is in the browser's file system (/data).
+	target_link_libraries(redalert PRIVATE win32lib winvq ra_platform ra_game_defs)
+	target_link_options(redalert PRIVATE
+		-sASYNCIFY							# The game's loops never return to the browser: it
+		-sASYNCIFY_STACK_SIZE=1048576		# yields from them (compat/win32.cpp, Pump_System).
+		-sALLOW_MEMORY_GROWTH=1
+		-sINITIAL_MEMORY=268435456
+		-sMAXIMUM_MEMORY=4294967296
+		-sTOTAL_STACK=16777216
+		-sFORCE_FILESYSTEM=1
+		-lidbfs.js							# The data, settings and saved games are kept in IndexedDB.
+		-sINVOKE_RUN=0
+		-sEXIT_RUNTIME=1
+		-sENVIRONMENT=web
+		"-sEXPORTED_RUNTIME_METHODS=['FS','ENV','callMain']"
+	)
+	add_custom_command(TARGET redalert POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/web/index.html $<TARGET_FILE_DIR:redalert>/index.html
+		VERBATIM)
 else()
 	target_link_libraries(redalert PRIVATE win32lib winvq ra_platform ra_game_defs SDL2::SDL2main)
 	if(APPLE)

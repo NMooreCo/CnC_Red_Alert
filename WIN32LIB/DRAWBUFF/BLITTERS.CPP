@@ -564,7 +564,6 @@ BOOL __cdecl Linear_Scale_To_Linear(void * thisptr, void * dest, int src_x, int 
 /***************************************************************************
  * Icon (terrain tile) drawing. "icondata" is an IControl_Type icon set.    *
  *=========================================================================*/
-static void const *		LastIconset = NULL;
 static unsigned char const *	StampPtr = NULL;
 static unsigned char const *	IsTrans = NULL;
 static unsigned char const *	MapPtr = NULL;
@@ -573,11 +572,15 @@ static int					IconHeight = 0;
 static int					IconSize = 0;
 static int					IconCount = 0;
 
+/*
+**	The icon set's layout, read for each icon drawn. (It isn't remembered by the set's address:
+**	a set can be freed and another loaded at the same address, which then drew with the first
+**	one's layout. Seen in the browser build, whose memory allocator reuses addresses sooner.)
+*/
 static void Init_Stamps(void const * icondata)
 {
-	if (icondata == NULL || icondata == LastIconset) return;
+	if (icondata == NULL) return;
 	IControl_Type const * control = (IControl_Type const *)icondata;
-	LastIconset = icondata;
 	IconCount = (unsigned short)control->Count;
 	IconWidth = (unsigned short)control->Width;
 	IconHeight = (unsigned short)control->Height;

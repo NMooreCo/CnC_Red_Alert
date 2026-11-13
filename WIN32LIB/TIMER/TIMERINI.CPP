@@ -39,6 +39,9 @@
 #include <WWSTD.H>
 #include <mmsystem.h>
 #include "TIMER.H"
+#ifdef __EMSCRIPTEN__
+extern "C" void Win32_Web_Poll(void);		// RA_PORT: compat/win32.cpp
+#endif
 #include <PROFILE.H>
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -284,6 +287,9 @@ void WinTimerClass::Update_Tick_Count ( void )
 
 unsigned WinTimerClass::Get_System_Tick_Count ( void )
 {
+#ifdef __EMSCRIPTEN__
+	Win32_Web_Poll();		// RA_PORT: in a browser the timer runs from here (compat/win32.cpp).
+#endif
 	return ( SysTicks );
 }
 
@@ -304,5 +310,8 @@ unsigned WinTimerClass::Get_System_Tick_Count ( void )
 
 unsigned WinTimerClass::Get_User_Tick_Count ( void )
 {
+#ifdef __EMSCRIPTEN__
+	Win32_Web_Poll();
+#endif
 	return ( UserTicks );
 }

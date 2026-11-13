@@ -720,6 +720,9 @@ void Platform_Pump_Events(void)
 	Gamepad_Update();
 
 	Video_Present();
+#ifdef __EMSCRIPTEN__
+	Win32_Web_Poll();		// In a browser: the page's turn (compat/win32.cpp).
+#endif
 }
 
 
@@ -788,4 +791,7 @@ unsigned int Platform_Get_Ticks(void)
 void Platform_Sleep(unsigned int milliseconds)
 {
 	SDL_Delay(milliseconds);
+#ifdef __EMSCRIPTEN__
+	Win32_Web_Poll();
+#endif
 }

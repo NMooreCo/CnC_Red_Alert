@@ -160,6 +160,35 @@ __attribute__((constructor(102))) static void Use_Parent_Console(void)
 #endif
 
 
+#if defined(__EMSCRIPTEN__)
+/***************************************************************************************
+**	The program's entry point in a web browser (web/index.html calls it once the game data
+**	is in place). The compiler names a main() that takes argc and argv __main_argc_argv;
+**	older versions of Emscripten only start a main() itself, so this one starts the game's.
+*/
+extern "C" int __main_argc_argv(int argc, char * argv[]);
+
+int main(void)
+{
+	static char program[] = "redalert";
+	static char * argv[] = {program, NULL};
+	return(__main_argc_argv(1, argv));
+}
+
+/*
+**	How far a game has got (its logic frame, CODE/GLOBALS.CPP), for the page and for tests
+**	(Module._RA_Web_Game_Frame()).
+*/
+#include <emscripten.h>
+extern int Frame;
+
+extern "C" EMSCRIPTEN_KEEPALIVE int RA_Web_Game_Frame(void)
+{
+	return(Frame);
+}
+#endif
+
+
 /***************************************************************************************
 **	String functions.
 */

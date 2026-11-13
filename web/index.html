@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<!--
+	Command & Conquer Red Alert(tm) in a web browser: the page that starts the game
+	(redalert.js, redalert.wasm), once its data is in the browser. See web/README.md.
+
+	The game data isn't part of the page: the player chooses the folder that holds it
+	(REDALERT.MIX, CD1/MAIN.MIX, CD2/MAIN.MIX: see the README's "Game data"). It is kept in
+	the browser, so it is chosen only once: the .MIX files in its cache storage (they are too
+	big for IndexedDB), the settings, maps and saved games in IndexedDB (IDBFS). "?data=URL"
+	fetches the data from a web server instead (URL/REDALERT.MIX...), without keeping it.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Red Alert</title>
+<style>
+	html, body {
+		margin: 0;
+		height: 100%;
+		background: #000;
+		color: #d8d0c0;
+		font: 15px/1.45 system-ui, sans-serif;
+		overflow: hidden;
+	}
+	#canvas {
+		display: none;
+		width: 100vw;
+		height: 100vh;
+		outline: none;
+	}
+	#setup {
+		max-width: 38em;
+		margin: 8vh auto 0;
+		padding: 0 1.5em;
+	}
+	h1 {
+		margin: 0 0 0.6em;
+		font-size: 1.7em;
+		color: #e33;
+		letter-spacing: 0.04em;
+	}
+	button, label.button {
+		display: inline-block;
+		margin: 0.3em 0.6em 0.3em 0;
+		padding: 0.5em 1.1em;
+		border: 1px solid #a33;
+		border-radius: 3px;
+		background: #400;
+		color: #fff;
+		font: inherit;
+		cursor: pointer;
+	}
+	button:disabled {
+		opacity: 0.4;
+		cursor: default;
+	}
+	input[type=file] {
+		display: none;
+	}
+	code {
+		color: #fff;
+	}
+	#status {
+		min-height: 1.5em;
+		margin-top: 0.8em;
+		color: #fc6;
+	}
+	.small {
+		font-size: 0.85em;
+		color: #998;
+	}
+</style>
+</head>
+<body>
+<div id="setup">
+	<h1>Command &amp; Conquer Red Alert</h1>
+	<p id="intro">The game needs its data files, which aren't part of this page: EA released
+	Red Alert as freeware, but only for you to use. Choose the folder that holds them:
+	<code>REDALERT.MIX</code>, with the discs' <code>MAIN.MIX</code> in <code>CD1</code>
+	(Allied) and <code>CD2</code> (Soviet), or one disc's <code>MAIN.MIX</code> next to
+	<code>REDALERT.MIX</code>. They are copied into this browser, so you choose them only
+	once.</p>
+	<div>
+		<label class="button" for="folder" id="folder-button">Choose the data folder</label>
+		<input type="file" id="folder" webkitdirectory multiple>
+		<button id="play" disabled>Play</button>
+		<button id="forget" hidden>Forget the data</button>
+	</div>
+	<div id="status">Loading...</div>
+	<p class="small">The game, its settings and saved games stay in this browser. Network
+	games aren't available here. Alt+Enter: full screen.</p>
+</div>
+<canvas id="canvas" tabindex="-1"></canvas>
+
+<script>
+'use strict';
+
+var DATA = '/data';							// The game's data directory (RA_DATA_DIR).
+var CACHE = 'redalert-data';				// The .MIX files, in the browser's cache storage.
+var statusLine = document.getElementById('status');
+var playButton = document.getElementById('play');
+var forgetButton = document.getElementById('forget');
+var folderInput = document.getElementById('folder');
+var canvas = document.getElementById('canvas');
+var running = false;
+var syncing = false;
+var syncAgain = false;
+var saved = [];								// What waits for the save to finish.
+
+function status(text) {
+	statusLine.textContent = text;
+}
+
+function megabytes(bytes) {
+	return (bytes / 1048576).toFixed(0) + ' MB';
+}
+
+/*
+**	The .MIX files are kept in the cache storage, under URLs of this page's that say where
+**	they go ("redalert-data/CD1/MAIN.MIX"). Not on every page: only https and localhost have
+**	it (they're chosen again each time otherwise).
+*/
+function isMix(path) {
+	return /\.MIX$/i.test(path);
+}
+
+function cacheUrl(path) {
+	return new URL(CACHE + path.substring(DATA.length), location.href).href;
+}
+
+async function keepMixFiles(list) {
+	if (!self.caches) return false;
+	await caches.delete(CACHE);				// (Those of a folder chosen before.)
+	var cache = await caches.open(CACHE);
+	for (var i = 0; i < list.length; i++) {
+		status('Keeping ' + list[i].path.substring(DATA.length + 1) + ' in this browser...');
+		await cache.put(cacheUrl(list[i].path), new Response(list[i].file));
+	}
+	if (navigator.storage && navigator.storage.persist) navigator.storage.persist();
+	return true;
+}
+
+async function loadMixFiles() {
+	if (!self.caches) return;
+	var cache = await caches.open(CACHE);
+	var requests = await cache.keys();
+	var prefix = new URL(CACHE + '/', location.href).href;
+	for (var i = 0; i < requests.length; i++) {
+		if (requests[i].url.indexOf(prefix) !== 0) continue;
+		var path = DATA + '/' + decodeURIComponent(requests[i].url.substring(prefix.length));
+		status('Loading ' + path.substring(DATA.length + 1) + '...');
+		var response = await cache.match(requests[i]);
+		if (response) writeFile(path, new Uint8Array(await response.arrayBuffer()));
+	}
+}
+
+/*
+**	Saves the data directory's changes (settings, saved games) to IndexedDB.
+*/
+function save(then) {
+	if (then) saved.push(then);
+	if (syncing) {
+		syncAgain = true;
+		return;
+	}
+	syncing = true;
+	FS.syncfs(false, function (error) {
+		syncing = false;
+		if (error) console.warn('Saving to the browser failed:', error);
+		if (syncAgain) {
+			syncAgain = false;
+			save();
+			return;
+		}
+		var callbacks = saved;
+		saved = [];
+		callbacks.forEach(function (callback) { callback(error); });
+	});
+}
+
+function exists(path) {
+	return FS.analyzePath(path).exists;
+}
+
+function hasData() {
+	return exists(DATA + '/REDALERT.MIX');
+}
+
+function mkdirs(path) {
+	var parts = path.split('/');
+	var dir = '';
+	for (var i = 1; i < parts.length - 1; i++) {
+		dir += '/' + parts[i];
+		if (!exists(dir)) FS.mkdir(dir);
+	}
+}
+
+/*
+**	A file of the data: the game's own (.MIX), and settings, maps and saved games from an
+**	installed copy. Upper case, as the game asks for them.
+*/
+function wanted(name) {
+	return /\.(MIX|INI|MPR)$/i.test(name) || /^SAVEGAME\.\d\d\d$/i.test(name);
+}
+
+function writeFile(path, bytes) {
+	mkdirs(path);
+	var stream = FS.open(path, 'w');
+	FS.write(stream, bytes, 0, bytes.length, 0, true);		// (MEMFS keeps the array.)
+	FS.close(stream);
+}
+
+function ready() {
+	if (hasData()) {
+		playButton.disabled = false;
+		forgetButton.hidden = false;
+		status('The game data is in this browser. Press Play.');
+	} else {
+		playButton.disabled = true;
+		forgetButton.hidden = true;
+		status('Choose the folder that holds the game data.');
+	}
+}
+
+/*
+**	The chosen folder: its data files go into the data directory, at the same place
+**	under it ("CD1/MAIN.MIX").
+*/
+async function copyFolder(files) {
+	var chosen = [];
+	for (var i = 0; i < files.length; i++) {
+		var file = files[i];
+		var parts = (file.webkitRelativePath || file.name).split('/');
+		if (parts.length > 1) parts.shift();				// The chosen folder itself.
+		if (parts.length > 2 || !wanted(file.name)) continue;
+		chosen.push({file: file, path: DATA + '/' + parts.join('/').toUpperCase()});
+	}
+	if (!chosen.some(function (c) { return c.path === DATA + '/REDALERT.MIX'; })) {
+		status('REDALERT.MIX isn\'t in that folder (or the one below it). Choose the folder that holds it.');
+		return;
+	}
+	playButton.disabled = true;
+	var total = chosen.reduce(function (sum, c) { return sum + c.file.size; }, 0);
+	var done = 0;
+	for (var i = 0; i < chosen.length; i++) {
+		status('Copying ' + chosen[i].path.substring(DATA.length + 1) + ' (' + megabytes(done) + ' of ' + megabytes(total) + ')...');
+		var bytes = new Uint8Array(await chosen[i].file.arrayBuffer());
+		writeFile(chosen[i].path, bytes);
+		done += bytes.length;
+	}
+	var kept = false;
+	try {
+		kept = await keepMixFiles(chosen.filter(function (c) { return isMix(c.path); }));
+	} catch (e) {
+		console.warn('Keeping the data failed:', e);
+	}
+	status('Keeping the settings in this browser...');
+	save(function () {
+		ready();
+		if (!kept) status('The data couldn\'t be kept in this browser: it will be needed again next time. Press Play.');
+	});
+}
+
+/*
+**	?data=URL: the data from a web server (URL/REDALERT.MIX, URL/CD1/MAIN.MIX...).
+*/
+async function fetchData(base) {
+	var names = ['REDALERT.MIX', 'MAIN.MIX', 'CD1/MAIN.MIX', 'CD2/MAIN.MIX'];
+	for (var i = 0; i < names.length; i++) {
+		status('Fetching ' + names[i] + '...');
+		var response = await fetch(base.replace(/\/$/, '') + '/' + names[i]);
+		if (!response.ok) continue;
+		writeFile(DATA + '/' + names[i], new Uint8Array(await response.arrayBuffer()));
+	}
+	ready();
+}
+
+function play() {
+	if (running || !hasData()) return;
+	running = true;
+	document.getElementById('setup').style.display = 'none';
+	canvas.style.display = 'block';
+	canvas.focus();
+	setInterval(save, 20000);			// The settings and saved games, as the game goes.
+	try {
+		Module.callMain([]);
+	} catch (e) {
+		if (e !== 'unwind' && !(e && e.name === 'ExitStatus')) throw e;
+	}
+}
+
+function ended(code) {
+	save();
+	canvas.style.display = 'none';
+	document.getElementById('setup').style.display = 'block';
+	document.getElementById('intro').textContent = 'The game has ended. Reload the page to play again.';
+	document.getElementById('folder-button').hidden = true;
+	playButton.hidden = true;
+	forgetButton.hidden = true;
+	status(code ? 'It stopped with an error (' + code + ').' : '');
+}
+
+folderInput.addEventListener('change', function () {
+	if (folderInput.files.length) copyFolder(folderInput.files);
+});
+playButton.addEventListener('click', play);
+forgetButton.addEventListener('click', function () {
+	if (!confirm('Remove the game data, settings and saved games from this browser?')) return;
+	if (self.caches) caches.delete(CACHE);
+	(function remove(dir) {
+		FS.readdir(dir).forEach(function (name) {
+			if (name === '.' || name === '..') return;
+			var path = dir + '/' + name;
+			if (FS.isDir(FS.stat(path).mode)) {
+				remove(path);
+				FS.rmdir(path);
+			} else {
+				FS.unlink(path);
+			}
+		});
+	})(DATA);
+	save(ready);
+});
+document.addEventListener('visibilitychange', function () {
+	if (running && document.visibilityState === 'hidden') save();
+});
+canvas.addEventListener('contextmenu', function (event) {
+	event.preventDefault();			// The right mouse button is the game's.
+});
+
+var Module = {
+	canvas: canvas,
+	preRun: [function () {
+		ENV.RA_DATA_DIR = DATA;
+		new URLSearchParams(location.search).getAll('env').forEach(function (setting) {
+			var equals = setting.indexOf('=');		// ?env=RA_DEBUG=1: the game's settings (README).
+			if (equals > 0) ENV[setting.substring(0, equals)] = setting.substring(equals + 1);
+		});
+		FS.mkdir(DATA);
+		FS.mount(IDBFS, {}, DATA);
+
+		/*
+		**	IndexedDB keeps all but the .MIX files (they're in the cache storage).
+		*/
+		var getLocalSet = IDBFS.getLocalSet;
+		IDBFS.getLocalSet = function (mount, callback) {
+			getLocalSet(mount, function (error, set) {
+				if (set) {
+					Object.keys(set.entries).forEach(function (path) {
+						if (isMix(path)) delete set.entries[path];
+					});
+				}
+				callback(error, set);
+			});
+		};
+	}],
+	onRuntimeInitialized: function () {
+		status('Looking for the game data in this browser...');
+		FS.syncfs(true, async function (error) {
+			if (error) console.warn('Reading from the browser failed:', error);
+			try {
+				await loadMixFiles();
+			} catch (e) {
+				console.warn('Loading the data failed:', e);
+			}
+			var url = new URLSearchParams(location.search).get('data');
+			if (url && !hasData()) {
+				fetchData(url).catch(function (e) { status('Fetching the data failed: ' + e); });
+			} else {
+				ready();
+			}
+		});
+	},
+	onExit: ended,
+	onAbort: function (what) {
+		ended('abort: ' + what);
+	},
+	print: function (text) { console.log(text); },
+	printErr: function (text) { console.warn(text); }
+};
+</script>
+<script async src="redalert.js"></script>
+</body>
+</html>

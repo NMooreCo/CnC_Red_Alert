@@ -140,6 +140,14 @@ static int WinsockError = 0;
 
 extern "C" int WSAStartup(WORD version, LPWSADATA data)
 {
+#ifdef __EMSCRIPTEN__
+	/*
+	**	A web page can't send UDP packets: no network games in a browser (the game says
+	**	there's no network).
+	*/
+	if (data) memset(data, 0, sizeof(*data));
+	return(WSASYSNOTREADY);
+#endif
 	if (data) {
 		memset(data, 0, sizeof(*data));
 		data->wVersion = version;

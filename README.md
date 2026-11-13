@@ -2,8 +2,8 @@
 
 This is the Command & Conquer Red Alert source code released by Electronic Arts,
 ported so that it builds with a modern compiler (GCC or Clang, 64-bit) and runs on
-current systems, Linux and Windows, through [SDL2](https://www.libsdl.org/). It is meant
-to be a base for modding and extending the game.
+current systems, Linux, Windows and macOS, through [SDL2](https://www.libsdl.org/), and in
+web browsers. It is meant to be a base for modding and extending the game.
 
 The game logic is the original code, with the Windows 95 version's code path
 (640x400 hi-res graphics). What changed is what sits around it:
@@ -46,7 +46,9 @@ Tested on Linux (x86-64); CI builds it with GCC and Clang. The Windows version (
 built with MinGW-w64) was tested under Wine 9: menus, movies with sound, a mission,
 saving and loading, a LAN game against the Linux version, the installer and uninstaller.
 It has also been installed and played on a Windows PC. CI also builds a macOS version
-(Apple silicon) and checks that it starts up; it hasn't been played on a Mac yet.
+(Apple silicon) and checks that it starts up; it hasn't been played on a Mac yet. The web
+browser version was tested in Chromium (headless): choosing the data, movies, menus, a
+mission and a skirmish at full speed, the settings kept from one visit to the next.
 
 ## Building
 
@@ -151,6 +153,20 @@ cmake --build build
 
 This produces `build/redalert`; run it as on Linux (see [Running](#running)). CI builds it
 on every push (the `redalert-macos-arm64` artifact, which needs Homebrew's SDL2).
+
+### Web browser
+
+With [Emscripten](https://emscripten.org):
+
+```sh
+emcmake cmake -S . -B build-web -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake --build build-web
+```
+
+This produces a page, `build-web/index.html` with `redalert.js` and `redalert.wasm`, to be
+served by a web server; the player chooses the game data's folder in the page, once. No
+network games there. See [web/README.md](web/README.md), which also covers Ubuntu's
+Emscripten package. CI builds it on every push (the `redalert-web` artifact).
 
 ## Game data
 

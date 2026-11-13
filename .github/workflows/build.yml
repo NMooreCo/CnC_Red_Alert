@@ -83,6 +83,39 @@ jobs:
           name: redalert-macos-arm64
           path: build/redalert
 
+  web:
+    name: Web browser (Emscripten)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Emscripten
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y emscripten ninja-build
+          # Ubuntu's Emscripten keeps its prebuilt libraries in a read-only ("frozen") cache,
+          # where it can't build its SDL2 port: give it a writable copy (web/README.md).
+          cp -R --preserve=mode,timestamps /usr/share/emscripten/cache "$RUNNER_TEMP/em-cache"
+          rm -f "$RUNNER_TEMP/em-cache/cache.lock"
+          { sed 's/^FROZEN_CACHE = True.*/FROZEN_CACHE = False/' /usr/share/emscripten/.emscripten
+            echo; echo "CACHE = '$RUNNER_TEMP/em-cache'"; } > "$RUNNER_TEMP/em-config"
+          echo "EM_CONFIG=$RUNNER_TEMP/em-config" >> "$GITHUB_ENV"
+
+      - name: Configure
+        run: emcmake cmake -S . -B build-web -G Ninja -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build-web
+
+      - name: Upload the page
+        uses: actions/upload-artifact@v4
+        with:
+          name: redalert-web
+          path: |
+            build-web/index.html
+            build-web/redalert.js
+            build-web/redalert.wasm
+
   windows:
     name: Windows (MinGW-w64 cross-compile)
     runs-on: ubuntu-24.04

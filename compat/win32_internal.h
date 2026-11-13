@@ -42,6 +42,9 @@ bool		Win32_Wildcard_Match(const char * pattern, const char * name);
 **	Implemented in compat/winsock.cpp -- delivers WSAAsyncSelect() notifications.
 */
 void		Winsock_Poll(void);
+#ifdef __EMSCRIPTEN__
+extern "C" void Win32_Web_Poll(void);		// In a browser: timers, and the page's turn (win32.cpp).
+#endif
 
 /*
 **	Implemented in WIN32LIB/SDL/SDLVIDEO.CPP
