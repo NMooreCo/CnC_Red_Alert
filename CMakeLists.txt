@@ -319,5 +319,8 @@ else()
 		# The game writes into some of its string literals (compat/compat.cpp). The Mach-O
 		# linker can put them in the writable __DATA segment instead of __TEXT.
 		target_link_options(redalert PRIVATE "-Wl,-rename_section,__TEXT,__cstring,__DATA,__cstring")
+		# Some of the original's tables are packed (one byte aligned), with pointers at odd
+		# places; the newer form of the loader's fix-ups (chained) can't relocate those.
+		target_link_options(redalert PRIVATE "-Wl,-no_fixup_chains")
 	endif()
 endif()
